@@ -28,7 +28,9 @@ INSTALL
 !.gitignore
 !.gitattributes
 !scripts/*
-
+system/*
+include/*
+base/*
 #
 # Build generated files
 #
