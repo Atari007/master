@@ -58,11 +58,11 @@ enum InstanceZA
     NPC_KRAZ                = 24024,                        // at phoenix
     NPC_ASHLI               = 24001,                        // at lynx
     NPC_HARKOR              = 23999,                        // at eagle
-    // unused (TODO or TODO with DB-tools)
-    NPC_TANZAR_CORPSE       = 24442,
-    NPC_KRAZ_CORPSE         = 24444,
-    NPC_ASHIL_CORPSE        = 24441,
-    NPC_HARKOR_CORPSE       = 24443,
+    // Spawn when timed event ending and prisoner not rescued
+    NPC_TANZARS_CORPSE      = 24442,
+    NPC_KRAZS_CORPSE        = 24444,
+    NPC_ASHLIS_CORPSE       = 24441,
+    NPC_HARKORS_CORPSE      = 24443,
 
     NPC_BEAR_SPIRIT         = 23878,                        // They should all have aura 42466
     NPC_EAGLE_SPIRIT        = 23880,
@@ -78,11 +78,25 @@ enum InstanceZA
     GO_WOODEN_DOOR          = 186306,
     GO_FIRE_DOOR            = 186859,
 
-    // unused, expected to be possible to handle within Database!
+    // Time Run Event GOs
     GO_TANZARS_TRUNK        = 186648,
     GO_KRAZS_PACKAGE        = 186667,
     GO_ASHLIS_BAG           = 186672,
     GO_HARKORS_SATCHEL      = 187021,
+
+	GO_LOOT_BOX_DWARF       = 186622,
+    GO_ASHLIS_VASE          = 186671,
+
+    GO_TANZARS_CAGE         = 187377,
+    GO_HARKORS_CAGE         = 187378,
+    GO_KRAZS_CAGE           = 187379,
+    GO_ASHLIS_CAGE          = 187380,
+
+    GO_DWARF_HAMMER         = 186623,
+
+    EQUIP_ID_HARKORS_WEAPON = 25140,
+
+    SPELL_ASHLIS_FIREBALL   = 43515
 };
 
 enum BossToChestIndex

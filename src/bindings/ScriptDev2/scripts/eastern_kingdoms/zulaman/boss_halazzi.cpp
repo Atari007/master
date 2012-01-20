@@ -104,12 +104,6 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
         m_bIsBerserk = false;
 
         m_creature->SetMaxHealth(m_creature->GetCreatureInfo()->maxhealth);
-
-        if (m_pInstance)
-        {
-            if (Creature* pSpiritLynx = m_pInstance->GetSingleCreatureFromStorage(NPC_SPIRIT_LYNX))
-                pSpiritLynx->ForcedDespawn();
-        }
     }
 
     void JustReachedHome()
@@ -143,7 +137,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (pSummoned->GetEntry() == NPC_SPIRIT_LYNX)
+        if (pSummoned->GetEntry() == NPC_SPIRIT_LYNX || pSummoned->GetEntry() == NPC_TOTEM)
             pSummoned->SetInCombatWithZone();
     }
 
@@ -168,7 +162,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
             DoUpdateStats(pInfo);
 
         if (m_uiPhase == PHASE_TOTEM)
-            DoCastSpellIfCan(m_creature, SPELL_SUMMON_LYNX);
+            m_creature->SummonCreature(NPC_SPIRIT_LYNX,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
     }
 
     void PhaseChange()
@@ -204,6 +198,12 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
             {
                 m_uiPhase = PHASE_SINGLE;
 
+				if (pSpiritLynx)
+				{
+					pSpiritLynx->CombatStop();
+                    pSpiritLynx->ForcedDespawn();
+				}
+
                 DoScriptText(SAY_MERGE, m_creature);
 
                 uint32 uiSpellId = 0;
@@ -216,9 +216,6 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
                 }
 
                 m_creature->CastSpell(m_creature, uiSpellId, false);
-
-                if (pSpiritLynx)
-                    pSpiritLynx->ForcedDespawn();
 
                 m_uiFrenzyTimer = 16*IN_MILLISECONDS;
                 m_uiSaberLashTimer = 20*IN_MILLISECONDS;
@@ -283,7 +280,7 @@ struct MANGOS_DLL_DECL boss_halazziAI : public ScriptedAI
         {
             if (m_uiTotemTimer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature, SPELL_SUMMON_TOTEM);
+                m_creature->SummonCreature(NPC_TOTEM,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000);
                 m_uiTotemTimer = 20*IN_MILLISECONDS;
             }
             else
@@ -383,6 +380,64 @@ CreatureAI* GetAI_boss_spirit_lynx(Creature* pCreature)
     return new boss_spirit_lynxAI(pCreature);
 }
 
+enum
+{
+    SPELL_LIGHTNING      = 43301,
+};
+
+struct MANGOS_DLL_DECL npc_halazzi_totemAI : public ScriptedAI
+{
+    npc_halazzi_totemAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+
+    uint32 m_uiLightningTimer;
+
+    void Reset()
+    {
+        m_uiLightningTimer = urand(500, 1000);
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        m_creature->SetInCombatWithZone();
+		SetCombatMovement(false);
+    }
+
+    void KilledUnit(Unit* pVictim)
+    {
+        if (!m_pInstance)
+            return;
+
+        if (Creature* pHalazzi = m_pInstance->GetSingleCreatureFromStorage(NPC_HALAZZI))
+            pHalazzi->AI()->KilledUnit(pVictim);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiLightningTimer < uiDiff)
+        {
+			if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+				m_creature->CastSpell(pTarget, SPELL_LIGHTNING, true);
+            m_uiLightningTimer = urand(2000, 3000); 
+        }
+        else
+            m_uiLightningTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_npc_halazzi_totem(Creature* pCreature)
+{
+    return new npc_halazzi_totemAI(pCreature);
+}
+
 void AddSC_boss_halazzi()
 {
     Script* pNewScript;
@@ -395,5 +450,10 @@ void AddSC_boss_halazzi()
     pNewScript = new Script;
     pNewScript->Name = "boss_spirit_lynx";
     pNewScript->GetAI = &GetAI_boss_spirit_lynx;
+    pNewScript->RegisterSelf();
+	
+	pNewScript = new Script;
+    pNewScript->Name = "npc_halazzi_totem";
+    pNewScript->GetAI = &GetAI_npc_halazzi_totem;
     pNewScript->RegisterSelf();
 }

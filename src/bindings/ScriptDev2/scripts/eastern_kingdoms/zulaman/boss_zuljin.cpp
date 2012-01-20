@@ -82,7 +82,7 @@ enum
 
     SPELL_BERSERK                   = 45078,                // Berserk timer or existance is unk
 
-    MAX_VORTEXES                    = 1,
+    MAX_VORTEXES                    = 3,
     POINT_ID_CENTER                 = 0,
 
     PHASE_BEAR                      = 0,
@@ -307,7 +307,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
             SetCombatMovement(false);
             m_creature->GetMotionMaster()->MovePoint(POINT_ID_CENTER, fZuljinMoveLoc[0], fZuljinMoveLoc[1], fZuljinMoveLoc[2]);
 
-            // Despawn vortexes and remvoe the energy storm after eagle phase is complete
+            // Despawn vortexes and remove the energy storm after eagle phase is complete
             if (m_uiPhase == PHASE_EAGLE)
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);

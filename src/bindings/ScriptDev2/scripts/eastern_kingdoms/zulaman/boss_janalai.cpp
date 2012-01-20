@@ -247,9 +247,6 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                     //store bombs in list to be used in BlowUpBombs()
                     m_lBombsGUIDList.push_back(pSummoned->GetObjectGuid());
 
-                    if (pSummoned->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                        pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
                     //visual spell, spell hit pSummoned after a short time
                     m_creature->CastSpell(pSummoned,SPELL_FIRE_BOMB_THROW,true);
                 }
@@ -337,6 +334,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                 //do damage and then remove aura (making them "disappear")
                 pBomb->CastSpell(pBomb, SPELL_FIRE_BOMB_DAMAGE, false, NULL, NULL, m_creature->GetObjectGuid());
                 pBomb->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_DUMMY);
+				pBomb->ForcedDespawn(10000);
             }
         }
 
@@ -485,7 +483,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                         break;
                     case 2:
                         m_bCanBlowUpBombs = true;
-                        m_uiBombSequenzeTimer = 2000;
+                        m_uiBombSequenzeTimer = 5000;
                         m_creature->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_CHANNEL);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                         m_bIsBombing = false;
@@ -735,7 +733,7 @@ struct MANGOS_DLL_DECL npc_hatchlingAI : public ScriptedAI
             m_bIsStarted = true;
         }
 
-        if (m_pInstance && m_pInstance->GetData(TYPE_JANALAI) == NOT_STARTED)
+        if (m_pInstance && (m_pInstance->GetData(TYPE_JANALAI) == NOT_STARTED || m_pInstance->GetData(TYPE_JANALAI) == FAIL))
         {
             m_creature->ForcedDespawn();
             return;

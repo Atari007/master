@@ -109,6 +109,21 @@ void instance_zulaman::OnObjectCreate(GameObject* pGo)
         case GO_FIRE_DOOR:
             break;
 
+		case GO_TANZARS_TRUNK:
+        case GO_KRAZS_PACKAGE:
+        case GO_ASHLIS_BAG:
+        case GO_HARKORS_SATCHEL:
+
+        case GO_TANZARS_CAGE:
+        case GO_KRAZS_CAGE:
+        case GO_ASHLIS_CAGE:
+        case GO_HARKORS_CAGE:
+
+        case GO_LOOT_BOX_DWARF:
+
+        case GO_DWARF_HAMMER:
+            break;
+
         default:
             return;
     }
@@ -143,6 +158,7 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
             {
                 DoTimeRunSay(RUN_FAIL);
                 DoUpdateWorldState(WORLD_STATE_ID, 0);
+				m_auiEncounter[TYPE_EVENT_RUN] = uiData;
                 // Kill remaining Event NPCs
                 for (uint8 i = 0; i < MAX_CHESTS; ++i)
                 {
@@ -150,7 +166,25 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
                     if (!m_aEventNpcInfo[i].uiSavePosition)
                     {
                         if (Creature* pCreature = instance->GetCreature(m_aEventNpcInfo[i].npGuid))
+						{
+                            //Summon corpse of creature
+                            switch(pCreature->GetEntry())
+                            {
+                                case NPC_TANZAR:
+                                    pCreature->SummonCreature(NPC_TANZARS_CORPSE, 0.0f, 0.0f, 0.0f, 0.0f,TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    break;
+                                case NPC_KRAZ:
+                                    pCreature->SummonCreature(NPC_KRAZS_CORPSE, 0.0f, 0.0f, 0.0f, 0.0f,TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    break;
+                                case NPC_ASHLI:
+                                    pCreature->SummonCreature(NPC_ASHLIS_CORPSE, 0.0f, 0.0f, 0.0f, 0.0f,TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    break;
+                                case NPC_HARKOR:
+                                    pCreature->SummonCreature(NPC_HARKORS_CORPSE, 0.0f, 0.0f, 0.0f, 0.0f,TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    break;
+                            }
                             pCreature->ForcedDespawn();
+						}
                     }
                 }
             }
@@ -256,8 +290,6 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
     if (uiData == DONE && GetKilledPreBosses() == 4 && (uiType == TYPE_AKILZON || uiType == TYPE_NALORAKK || uiType == TYPE_JANALAI || uiType == TYPE_HALAZZI))
     {
         DoUseDoorOrButton(GO_HEXLORD_ENTRANCE);
-        if (m_auiEncounter[TYPE_EVENT_RUN] == IN_PROGRESS)
-            SetData(TYPE_EVENT_RUN, DONE);
     }
 
     if (uiData == DONE || uiType == TYPE_RUN_EVENT_TIME || uiType == TYPE_EVENT_RUN)
@@ -265,9 +297,9 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
-            << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " "
-            << m_auiEncounter[6] << " " << m_auiEncounter[7];
+        saveStream << m_auiEncounter[TYPE_EVENT_RUN] << " " << m_auiEncounter[TYPE_AKILZON] << " " << m_auiEncounter[TYPE_NALORAKK] << " "
+            << m_auiEncounter[TYPE_JANALAI] << " " << m_auiEncounter[TYPE_HALAZZI] << " " << m_auiEncounter[TYPE_MALACRASS] << " "
+            << m_auiEncounter[TYPE_ZULJIN] << " " << m_auiEncounter[TYPE_RUN_EVENT_TIME];
 
         m_strInstData = saveStream.str();
 
@@ -287,10 +319,10 @@ void instance_zulaman::Load(const char* chrIn)
     OUT_LOAD_INST_DATA(chrIn);
 
     std::istringstream loadStream(chrIn);
-    loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-        >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7];
+    loadStream >> m_auiEncounter[TYPE_EVENT_RUN] >> m_auiEncounter[TYPE_AKILZON] >> m_auiEncounter[TYPE_NALORAKK] >> m_auiEncounter[TYPE_JANALAI]
+        >> m_auiEncounter[TYPE_HALAZZI] >> m_auiEncounter[TYPE_ZULJIN] >> m_auiEncounter[TYPE_MALACRASS] >> m_auiEncounter[TYPE_RUN_EVENT_TIME];
 
-    // Skip m_auiEncounter[7], to start the time event properly if needed
+    // Skip m_auiEncounter[TYPE_RUN_EVENT_TIME], to start the time event properly if needed
     for (uint8 i = 0; i < MAX_ENCOUNTER - 1; ++i)
     {
         if (m_auiEncounter[i] == IN_PROGRESS)
@@ -380,6 +412,7 @@ void instance_zulaman::Update(uint32 uiDiff)
             if (m_auiEncounter[TYPE_RUN_EVENT_TIME] == 5)   // TODO, verify 5min for warning texts
                 DoTimeRunSay(RUN_FAIL_SOON);
 
+			--m_auiEncounter[TYPE_RUN_EVENT_TIME];
             if (m_auiEncounter[TYPE_RUN_EVENT_TIME] == 0)
             {
                 debug_log("SD2: Instance Zulaman: event time reach end, event failed.");
@@ -387,7 +420,6 @@ void instance_zulaman::Update(uint32 uiDiff)
                 return;
             }
 
-            --m_auiEncounter[TYPE_RUN_EVENT_TIME];
             SetData(TYPE_RUN_EVENT_TIME, m_auiEncounter[TYPE_RUN_EVENT_TIME]);
             debug_log("SD2: Instance Zulaman: minute decrease to %u.", m_auiEncounter[TYPE_RUN_EVENT_TIME]);
 

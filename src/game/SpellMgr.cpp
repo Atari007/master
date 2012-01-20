@@ -2026,6 +2026,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
         case SPELLFAMILY_DRUID:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID)
             {
+				// Moonfire and Lacerate
+				if ((spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 2246) ||
+					(spellInfo_2->SpellIconID == 225 && spellInfo_1->SpellIconID == 2246))
+				return false;
+
                 //Omen of Clarity and Blood Frenzy
                 if (((spellInfo_1->SpellFamilyFlags == UI64LIT(0x0) && spellInfo_1->SpellIconID == 108) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x20000000000000))) ||
                     ((spellInfo_2->SpellFamilyFlags == UI64LIT(0x0) && spellInfo_2->SpellIconID == 108) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x20000000000000))))
@@ -2059,11 +2064,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Dragonmaw Illusion (multi-family check)
             if (spellId_1 == 42016 && spellId_2 == 40216 )
                 return false;
-		 
-		 // Moonfire and Lacerate
-            if ((spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 2246) ||
-				(spellInfo_2->SpellIconID == 225 && spellInfo_1->SpellIconID == 2246))
-             return false;
 
             break;
         case SPELLFAMILY_ROGUE:

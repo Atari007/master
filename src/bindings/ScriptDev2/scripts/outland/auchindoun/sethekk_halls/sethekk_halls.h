@@ -14,6 +14,7 @@ enum
     TYPE_IKISS                  = 2,
 
     GO_IKISS_DOOR               = 177203,
+	GO_IKISS_CHEST              = 187372,
 
     ITEM_PILGRIMS_HAT           = 46723,
     ITEM_PILGRIMS_DRESS         = 44785,
