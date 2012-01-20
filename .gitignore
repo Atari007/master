@@ -111,3 +111,9 @@ dep/ACE_wrappers/ace/config.h
 
 
 /src/bindings/ScriptDev2/patches
+/sql
+/win/VC80
+/win/VC90
+/win/mangosdVC90.sln
+/src/bindings/ScriptDev2/scriptVC80.sln
+/src/bindings/ScriptDev2/scriptVC90.sln

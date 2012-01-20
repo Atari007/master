@@ -31,6 +31,8 @@ INSTALL
 system/*
 include/*
 base/*
+VC100/*
+docs/*
 #
 # Build generated files
 #
