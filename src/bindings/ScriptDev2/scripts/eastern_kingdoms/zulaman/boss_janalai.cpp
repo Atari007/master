@@ -562,7 +562,13 @@ CreatureAI* GetAI_boss_janalaiAI(Creature* pCreature)
 
 struct MANGOS_DLL_DECL npc_janalai_firebombAI : public ScriptedAI
 {
-    npc_janalai_firebombAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    npc_janalai_firebombAI(Creature* pCreature) : ScriptedAI(pCreature) 
+	{
+		m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+		Reset();
+	}
+
+	ScriptedInstance* m_pInstance;
 
     void Reset() {}
 
@@ -570,7 +576,14 @@ struct MANGOS_DLL_DECL npc_janalai_firebombAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) {}
 
-    void UpdateAI(const uint32 uiDiff) {}
+    void UpdateAI(const uint32 uiDiff) 
+	{
+		if (m_pInstance && m_pInstance->GetData(TYPE_JANALAI) == FAIL)
+        {
+            m_creature->ForcedDespawn();
+            return;
+        }
+	}
 };
 
 CreatureAI* GetAI_npc_janalai_firebombAI(Creature* pCreature)
@@ -733,7 +746,7 @@ struct MANGOS_DLL_DECL npc_hatchlingAI : public ScriptedAI
             m_bIsStarted = true;
         }
 
-        if (m_pInstance && (m_pInstance->GetData(TYPE_JANALAI) == NOT_STARTED || m_pInstance->GetData(TYPE_JANALAI) == FAIL))
+        if (m_pInstance && m_pInstance->GetData(TYPE_JANALAI) == FAIL)
         {
             m_creature->ForcedDespawn();
             return;
