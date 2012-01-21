@@ -850,6 +850,8 @@ struct MANGOS_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
         m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
         // expect database to have RegenHealth=0
         m_creature->SetHealth(int(m_creature->GetMaxHealth()*0.7));
+
+		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
