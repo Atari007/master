@@ -1,2 +1,20 @@
 
 /src/CMakeLists.txt
+/bin
+/win/ipch
+/win/mangosdVC100.sdf
+/win/VC100/zlib.vcxproj.user
+/win/VC100/ACE_vc10.vcxproj.user
+/win/VC100/framework.vcxproj.user
+/win/VC100/g3dlite.vcxproj.user
+/win/VC100/game.vcxproj.user
+/win/VC100/genrevision.vcxproj.user
+/win/VC100/mangosd.vcxproj.user
+/win/VC100/realmd.vcxproj.user
+/win/VC100/shared.vcxproj.user
+/win/VC100/tbb.vcxproj.user
+/win/VC100/tbbmalloc.vcxproj.user
+/src/bindings/ScriptDev2/ipch
+/src/bindings/ScriptDev2/scriptVC100.sdf
+/src/bindings/ScriptDev2/VC100/100ScriptDev2.vcxproj.user
+/src/bindings/ScriptDev2/VC100/ScriptDev2__Win32_Release

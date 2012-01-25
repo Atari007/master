@@ -93,6 +93,8 @@ void instance_zulaman::OnObjectCreate(GameObject* pGo)
         case GO_WIND_DOOR:
             break;
         case GO_LYNX_TEMPLE_ENTRANCE:
+			if (m_auiEncounter[TYPE_AKILZON] == DONE && m_auiEncounter[TYPE_NALORAKK] == DONE && m_auiEncounter[TYPE_JANALAI] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_LYNX_TEMPLE_EXIT:
             if (m_auiEncounter[TYPE_HALAZZI] == DONE)
@@ -285,6 +287,11 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
         default:
             error_log("SD2: Instance Zulaman: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             return;
+    }
+
+	if (m_auiEncounter[TYPE_AKILZON] == DONE && m_auiEncounter[TYPE_NALORAKK] == DONE && m_auiEncounter[TYPE_JANALAI] == DONE)
+    {
+        DoUseDoorOrButton(GO_LYNX_TEMPLE_ENTRANCE);
     }
 
     if (uiData == DONE && GetKilledPreBosses() == 4 && (uiType == TYPE_AKILZON || uiType == TYPE_NALORAKK || uiType == TYPE_JANALAI || uiType == TYPE_HALAZZI))

@@ -70,7 +70,7 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 		m_uiCleaveTimer = 7000;
 		m_uiRainOfFireTimer = 33000;
 		m_uiHowlOfAzgalorTimer = 19000;
-		m_uiDoomTimer = 44000;
+		m_uiDoomTimer = urand(44000,45000);
 		m_uiBerserkTimer = 600000;
 	}
 
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 			}
 			if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
 				m_creature->CastSpell(pTarget, SPELL_DOOM, false);
-			m_uiDoomTimer = 44000;
+			m_uiDoomTimer = urand(44000,45000);
 		}
 		else m_uiDoomTimer -= uiDiff;
 
