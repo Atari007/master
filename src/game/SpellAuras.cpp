@@ -6148,6 +6148,22 @@ void Aura::PeriodicTick()
 
                 target->AddThreat(pCaster, float(gain) * 0.5f, false, GetSpellSchoolMask(spellProto), spellProto);
             }
+
+            switch (GetId())
+            {
+                case 31447:                                  // Mark of Kaz'rogal
+                {
+                    if (!target && target->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+					if (target->getPowerType() == POWER_MANA && target->GetPower(POWER_MANA) == 0)
+                    {
+                        target->CastSpell(target, 31463, true, NULL, this);
+                        target->RemoveAura(GetId(), GetEffIndex());
+                    }
+                    break;
+                }
+            }
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:
