@@ -170,7 +170,6 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void Reset()
     {
-        m_lBombsGUIDList.clear();
         m_lEggsRemainingList.clear();
 
         if (Creature* pHatcher = m_creature->GetMap()->GetCreature(m_hatcherOneGuid))
@@ -206,6 +205,13 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void JustReachedHome()
     {
+		for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
+        {
+            if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
+                pBomb->ForcedDespawn();
+        }
+        m_lBombsGUIDList.clear();
+
         if (m_pInstance)
             m_pInstance->SetData(TYPE_JANALAI, FAIL);
     }
@@ -324,10 +330,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void BlowUpBombs()
     {
-        if (m_lBombsGUIDList.empty())
-            return;
-
-        for(GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
+        for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
         {
             if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -564,11 +567,8 @@ struct MANGOS_DLL_DECL npc_janalai_firebombAI : public ScriptedAI
 {
     npc_janalai_firebombAI(Creature* pCreature) : ScriptedAI(pCreature) 
 	{
-		m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 		Reset();
 	}
-
-	ScriptedInstance* m_pInstance;
 
     void Reset() {}
 
@@ -576,14 +576,7 @@ struct MANGOS_DLL_DECL npc_janalai_firebombAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho) {}
 
-    void UpdateAI(const uint32 uiDiff) 
-	{
-		if (m_pInstance && m_pInstance->GetData(TYPE_JANALAI) == FAIL)
-        {
-            m_creature->ForcedDespawn();
-            return;
-        }
-	}
+    void UpdateAI(const uint32 uiDiff) {}
 };
 
 CreatureAI* GetAI_npc_janalai_firebombAI(Creature* pCreature)

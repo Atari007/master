@@ -282,14 +282,14 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
 				{
                     pCreatureTarget->UpdateEntry(NPC_CURED_DEER);
 					pCreatureTarget->ForcedDespawn(1000);
-					if (((Player*) pCaster)->GetQuestStatus(6124))
+					if (((Player*) pCaster)->GetQuestStatus(6124) == QUEST_STATUS_INCOMPLETE)
 						((Player*) pCaster)->KilledMonsterCredit(NPC_CURED_DEER);
 				}
                 if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE && ((Player*)pCaster)->GetTeam() == HORDE)
 				{
                     pCreatureTarget->UpdateEntry(NPC_CURED_GAZELLE);
 					pCreatureTarget->ForcedDespawn(1000);
-					if (((Player*) pCaster)->GetQuestStatus(6129))
+					if (((Player*) pCaster)->GetQuestStatus(6129) == QUEST_STATUS_INCOMPLETE)
 						((Player*) pCaster)->KilledMonsterCredit(NPC_CURED_GAZELLE);
 				}
                 return true;
@@ -304,7 +304,8 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                     return true;
 
                 pCreatureTarget->UpdateEntry(NPC_OWLKIN_INOC);
-
+				if (((Player*) pCaster)->GetQuestStatus(9303) == QUEST_STATUS_INCOMPLETE)
+					((Player*) pCaster)->KilledMonsterCredit(NPC_OWLKIN_INOC);
                 //set despawn timer, since we want to remove creature after a short time
                 pCreatureTarget->ForcedDespawn(15000);
 

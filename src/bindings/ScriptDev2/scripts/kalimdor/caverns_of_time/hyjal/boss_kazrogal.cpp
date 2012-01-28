@@ -60,11 +60,11 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 
 	void Reset()
     {
-		m_uiCleaveTimer = 8000;
-		m_uiWarStompTimer = 14000;
-		m_uiCrippleTimer = 5000;
-		m_uiMarkOfKazrogalTimer = 60000;
-		m_uiMarkOfKazrogalCountTimer = 60000;
+		m_uiCleaveTimer = urand(7000,9000);
+		m_uiWarStompTimer = urand(14000,17000);
+		m_uiCrippleTimer = urand(6000,8000);
+		m_uiMarkOfKazrogalTimer = 45000;
+		m_uiMarkOfKazrogalCountTimer = 45000;
 	}
 
 	void JustReachedHome()
@@ -78,9 +78,6 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 
 	void Aggro(Unit* pWho)
     {
-        if(pWho->GetTypeId() != TYPEID_PLAYER)
-			return;
-
 		DoScriptText(YELL_AGGRO, m_creature);
 
         if (m_pInstance)
@@ -117,14 +114,14 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 		{
 			Unit * pTarget = m_creature->getVictim();
 			m_creature->CastSpell(pTarget, SPELL_CLEAVE, false);
-			m_uiCleaveTimer = urand(7000,8000);
+			m_uiCleaveTimer = urand(7000,9000);
 		}
 		else m_uiCleaveTimer -= uiDiff;
 
 		if(m_uiWarStompTimer < uiDiff)
 		{
 			DoCast(m_creature, SPELL_WAR_STOMP);
-			m_uiWarStompTimer = urand(13000,14000);
+			m_uiWarStompTimer = urand(16000,18000);
 		}
 		else m_uiWarStompTimer -= uiDiff;
 
@@ -132,7 +129,7 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 		{
 			if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
 					m_creature->CastSpell(pTarget, SPELL_CRIPPLE, false);
-			m_uiCrippleTimer = urand(7000,8000);
+			m_uiCrippleTimer = urand(6000,8000);
 		}
 		else m_uiCrippleTimer -= uiDiff;
 
@@ -147,8 +144,8 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 
 			DoCast(m_creature, SPELL_MARK_OF_KAZROGAL);
 
-			if (m_uiMarkOfKazrogalCountTimer >= 20000)
-				m_uiMarkOfKazrogalCountTimer -= 10000;
+			if (m_uiMarkOfKazrogalCountTimer >= 15000)
+				m_uiMarkOfKazrogalCountTimer -= 5000;
 			else
 				m_uiMarkOfKazrogalCountTimer = 10000;
 			m_uiMarkOfKazrogalTimer = m_uiMarkOfKazrogalCountTimer;

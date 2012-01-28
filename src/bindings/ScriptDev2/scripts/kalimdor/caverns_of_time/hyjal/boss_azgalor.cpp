@@ -67,9 +67,9 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 
 	void Reset()
     {
-		m_uiCleaveTimer = 7000;
-		m_uiRainOfFireTimer = 33000;
-		m_uiHowlOfAzgalorTimer = 19000;
+		m_uiCleaveTimer = urand(6000,7000);
+		m_uiRainOfFireTimer = urand(32000,33000);
+		m_uiHowlOfAzgalorTimer = urand (19000,20000);
 		m_uiDoomTimer = urand(44000,45000);
 		m_uiBerserkTimer = 600000;
 	}
@@ -85,9 +85,6 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 
 	void Aggro(Unit* pWho)
     {
-        if(pWho->GetTypeId() != TYPEID_PLAYER)
-			return;
-
 		DoScriptText(YELL_AGGRO, m_creature);
 
         if (m_pInstance)
@@ -130,9 +127,17 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 		if(m_uiHowlOfAzgalorTimer < uiDiff)
 		{
 			DoCast(m_creature, SPELL_HOWL_OF_AZGALOR);
-			m_uiHowlOfAzgalorTimer = 19000;
+			m_uiHowlOfAzgalorTimer = urand (19000,20000);
 		}
 		else m_uiHowlOfAzgalorTimer -= uiDiff;
+
+		if(m_uiRainOfFireTimer < uiDiff)
+		{
+			if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+				m_creature->CastSpell(pTarget, SPELL_RAIN_OF_FIRE, false);
+			m_uiRainOfFireTimer = urand(32000,33000);
+		}
+		else m_uiRainOfFireTimer -= uiDiff;
 
 		if(m_uiDoomTimer < uiDiff)
 		{
@@ -151,7 +156,7 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 		{
 			Unit * pTarget = m_creature->getVictim();
 			m_creature->CastSpell(pTarget, SPELL_CLEAVE, false);
-			m_uiCleaveTimer = urand(7000,8000);
+			m_uiCleaveTimer = urand(6000,7000);
 		}
 		else m_uiCleaveTimer -= uiDiff;
 
@@ -166,10 +171,11 @@ struct MANGOS_DLL_DECL npc_lesser_doomguardAI : public ScriptedAI
 {
 	npc_lesser_doomguardAI(Creature* pCreature) : ScriptedAI(pCreature)
 	{
+		m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 		Reset();
 	}
 
-	ScriptedInstance* pInstance; 
+	ScriptedInstance* m_pInstance; 
 	
 	uint32 m_uiCrippleTimer;
 	uint32 m_uiWarStompTimer;
@@ -196,6 +202,12 @@ struct MANGOS_DLL_DECL npc_lesser_doomguardAI : public ScriptedAI
 			m_uiCrippleTimer = urand(3000,4000);
 		}
 		else m_uiCrippleTimer -= uiDiff;
+
+		if (m_pInstance && (m_pInstance->GetData(TYPE_AZGALOR) == FAIL || m_pInstance->GetData(TYPE_AZGALOR) == DONE))
+        {
+            m_creature->ForcedDespawn();
+            return;
+        }
 
         DoMeleeAttackIfReady();
     }
