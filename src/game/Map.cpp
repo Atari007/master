@@ -3154,7 +3154,25 @@ void Map::SendObjectUpdates()
     {
         Object* obj = *i_objectsToClientUpdate.begin();
         i_objectsToClientUpdate.erase(i_objectsToClientUpdate.begin());
-        obj->BuildUpdateData(update_players);
+
+        if (obj && obj->IsInWorld())
+            switch(obj->GetTypeId())
+            {
+               case TYPEID_ITEM:
+               case TYPEID_CONTAINER:
+                   ((Item*)obj)->BuildUpdateData(update_players);
+               break;
+               case TYPEID_PLAYER:
+                   if(!(obj->GetGUIDLow() != 0 && sObjectMgr.GetPlayer(obj->GetObjectGuid())))
+               break;
+               case TYPEID_UNIT:
+               case TYPEID_GAMEOBJECT:
+               case TYPEID_DYNAMICOBJECT:
+               case TYPEID_CORPSE:
+                   ((WorldObject*)obj)->BuildUpdateData(update_players);
+               break;
+               default: break;
+            }
     }
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000

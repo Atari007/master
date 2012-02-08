@@ -5161,7 +5161,8 @@ void Unit::AttackedBy(Unit* attacker)
 
     // trigger pet AI reaction
     if (Pet* pet = GetPet())
-        pet->AttackedBy(attacker);
+        if (this != attacker)
+		 pet->AttackedBy(attacker);
 }
 
 bool Unit::AttackStop(bool targetSwitch /*=false*/)

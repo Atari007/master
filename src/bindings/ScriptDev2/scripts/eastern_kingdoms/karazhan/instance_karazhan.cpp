@@ -172,6 +172,7 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_MALCHEZZAR:
             m_auiEncounter[9] = uiData;
+			DoUseDoorOrButton(GO_NETHERSPACE_DOOR);
             break;
         case TYPE_NIGHTBANE:
             m_auiEncounter[10] = uiData;

@@ -605,7 +605,7 @@ struct MANGOS_DLL_DECL boss_malchezaarAI : public ScriptedAI
     void DoMeleeAttacksIfReady()
     {
         // Check if pTarget is valid
-        if (!m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         if (!m_creature->IsNonMeleeSpellCasted(false) && m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))

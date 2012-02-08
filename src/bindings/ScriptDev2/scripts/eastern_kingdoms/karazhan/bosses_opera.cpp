@@ -1027,6 +1027,8 @@ struct MANGOS_DLL_DECL boss_julianneAI : public ScriptedAI
     {
         DoScriptText(SAY_JULIANNE_DEATH02, m_creature);
 
+		m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+
         if (m_pInstance)
             m_pInstance->SetData(TYPE_OPERA, DONE);
     }
@@ -1111,6 +1113,8 @@ struct MANGOS_DLL_DECL boss_romuloAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_ROMULO_DEATH, m_creature);
+
+		m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_OPERA, DONE);
