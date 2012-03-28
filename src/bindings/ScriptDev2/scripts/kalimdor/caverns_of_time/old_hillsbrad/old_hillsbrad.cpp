@@ -53,7 +53,7 @@ struct MANGOS_DLL_DECL npc_tarethaAI : public npc_escortAI
 
 enum
 {
-    GOSSIP_ID_UNKNOWN_TEXT          = -1000000,
+    GOSSIP_ITEM_START_ESCORT        = -3560007,
     GOSSIP_ITEM_READY               = -3560000,
 
     TEXT_ID_HAS_BOMBS               = 9780,
@@ -195,7 +195,8 @@ enum
     SPELL_SUMMON_EROZION_IMAGE      = 33954,                // if thrall dies during escort?
 
     EQUIP_ID_WEAPON                 = 927,
-    EQUIP_ID_SHIELD                 = 20913,
+    //EQUIP_ID_SHIELD                 = 20913,
+    EQUIP_ID_SHIELD                 = 2219,
     MODEL_THRALL_UNEQUIPPED         = 17292,
     MODEL_THRALL_EQUIPPED           = 18165,
 
@@ -238,10 +239,16 @@ enum
     GOSSIP_ITEM_TARREN              = -3560004,             // "We're ready, Thrall."
 
     TEXT_ID_COMPLETE                = 9578,                 // Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
+    
+    //factions
+    FACTION_BEFORE_ESCORT           = 35,
+    FACTION_DURING_ESCORT           = 1747,
 };
 
 const float SPEED_WALK              = 0.5f;
-const float SPEED_RUN               = 1.0f;
+//const float SPEED_RUN               = 1.0f;
+const float SPEED_RUN               = 0.8f;
+//const float SPEED_MOUNT             = 1.6f;
 const float SPEED_MOUNT             = 1.6f;
 
 struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
@@ -272,6 +279,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             m_bHadMount = false;
             SetEquipmentSlots(true);
             m_creature->SetDisplayId(MODEL_THRALL_UNEQUIPPED);
+            m_creature->setFaction(FACTION_BEFORE_ESCORT);
         }
     }
 
@@ -366,11 +374,12 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 64:
                 SetRun(false);
                 break;
-            case 68:
-                m_creature->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                m_creature->SummonCreature(NPC_BARN_LOOKOUT, 2500.13f, 696.55f, 55.51f, 3.38f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.55f, 693.64f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+            //case 68:
+            case 69:
+                m_creature->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                m_creature->SummonCreature(NPC_BARN_LOOKOUT, 2500.13f, 696.55f, 55.51f, 3.38f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.55f, 693.64f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 break;
             case 71:
                 SetRun();
@@ -472,6 +481,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
     void StartWP()
     {
+        m_creature->setFaction(FACTION_DURING_ESCORT);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         SetEscortPaused(false);
     }
@@ -623,7 +633,7 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
     {
         if (pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE && !pInstance->GetData(TYPE_THRALL_EVENT))
         {
-            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ID_UNKNOWN_TEXT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START_ESCORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, pCreature->GetObjectGuid());
         }
 
@@ -770,6 +780,7 @@ void npc_tarethaAI::UpdateEscortAI(const uint32 uiDiff)
             case 4:
                 if (Creature* pErozion = m_creature->GetMap()->GetCreature(m_erozionGuid))
                     DoScriptText(SAY_PRE_WIPE, pErozion);
+                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
             case 5:
                 //if (Creature* pErozion = m_creature->GetMap()->GetCreature(m_erozionGuid))

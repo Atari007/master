@@ -152,11 +152,15 @@ struct MANGOS_DLL_DECL npc_ancestral_wolfAI : public npc_escortAI
                 break;
             case 2:
                 DoScriptText(EMOTE_WOLF_HOWL, m_creature);
+                //PATCH TO SPEED THINGS UP A BIT
+                SetRun();
                 break;
             case 50:
                 Creature* pRyga = GetClosestCreatureWithEntry(m_creature, NPC_RYGA, 30.0f);
                 if (pRyga && pRyga->isAlive() && !pRyga->isInCombat())
                     DoScriptText(SAY_WOLF_WELCOME, pRyga);
+                //PATCH TO PUT THINGS BACK TO NORMAL
+                SetRun(false);
                 break;
         }
     }

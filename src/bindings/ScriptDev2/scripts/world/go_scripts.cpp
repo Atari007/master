@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4296, 5088, 5097, 5098, 5381, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089
+SDComment: Quest support: 4296, 5088, 5097, 5098, 5381, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089, 9418
 SDCategory: Game Objects
 EndScriptData */
 
@@ -35,6 +35,7 @@ go_tablet_of_madness
 go_tablet_of_the_seven
 go_andorhal_tower
 go_hand_of_iruxos_crystal
+go_avruus_orb
 EndContentData */
 
 #include "precompiled.h"
@@ -415,6 +416,26 @@ bool GOUse_go_hand_of_iruxos_crystal(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
+/*######
+## go_avruus_orb
+######*/
+
+enum
+{
+	QUEST_AVRUUS_ORB			= 9418,
+	NPC_AERANAS					= 17085,
+};
+
+bool GOUse_go_avruus_orb(Player* pPlayer, GameObject* pGo)
+{
+	if (pPlayer->GetQuestStatus(QUEST_AVRUUS_ORB) == QUEST_STATUS_COMPLETE)
+	{
+		pGo->SummonCreature(NPC_AERANAS, -1327.594360f, 4042.807861f, 116.617172f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+	}
+
+	return true;
+}
+
 void AddSC_go_scripts()
 {
     Script* pNewScript;
@@ -498,4 +519,9 @@ void AddSC_go_scripts()
     pNewScript->Name = "go_hand_of_iruxos_crystal";
     pNewScript->pGOUse =          &GOUse_go_hand_of_iruxos_crystal;
     pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "go_avruus_orb";
+	pNewScript->pGOUse =          &GOUse_go_avruus_orb;
+	pNewScript->RegisterSelf();
 }

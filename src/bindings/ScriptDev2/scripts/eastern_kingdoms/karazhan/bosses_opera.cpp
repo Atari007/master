@@ -146,6 +146,8 @@ struct MANGOS_DLL_DECL boss_dorotheeAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DOROTHEE_DEATH, m_creature);
+        //PATCH TO STOP TITO FROM COMING BACK FROM THE DEAD
+        SummonTitoTimer = 0;
 
         if (m_pInstance)
             SummonCroneIfReady(m_pInstance, m_creature);
