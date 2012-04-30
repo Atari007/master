@@ -18,3 +18,6 @@
 /src/bindings/ScriptDev2/scriptVC100.sdf
 /src/bindings/ScriptDev2/VC100/100ScriptDev2.vcxproj.user
 /src/bindings/ScriptDev2/VC100/ScriptDev2__Win32_Release
+
+# recastnavigation directory needs exception
+!dep/recastnavigation/RecastDemo/Build/

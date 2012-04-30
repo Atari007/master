@@ -45,8 +45,6 @@
 #include "Util.h"
 #include "Chat.h"
 
-#define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
-
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
 bool IsQuestTameSpell(uint32 spellId)
@@ -4118,10 +4116,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 else
                     return SPELL_FAILED_BAD_TARGETS;
             }
-        }
 
-        if(non_caster_target)
-        {
             // simple cases
             bool explicit_target_mode = false;
             bool target_hostile = false;
