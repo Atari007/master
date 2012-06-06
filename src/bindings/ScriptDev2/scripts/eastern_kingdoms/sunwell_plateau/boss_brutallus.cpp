@@ -51,7 +51,8 @@ enum
     SPELL_METEOR_SLASH              = 45150,
     SPELL_BURN                      = 45141,
     SPELL_STOMP                     = 45185,
-    SPELL_BERSERK                   = 26662
+    SPELL_BERSERK                   = 26662,
+    SPELL_DEATH_TOUCH               = 5
 };
 
 struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
@@ -69,6 +70,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
     uint32 m_uiStompTimer;
     uint32 m_uiBerserkTimer;
     uint32 m_uiLoveTimer;
+    uint32 m_uiDeathTimer;
 
     void Reset()
     {
@@ -77,6 +79,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         m_uiBurnTimer       = 20000;
         m_uiBerserkTimer    = 6*MINUTE*IN_MILLISECONDS;
         m_uiLoveTimer       = urand(10000, 17000);
+        m_uiDeathTimer      = 25000;
     }
 
     void Aggro(Unit* pWho)
@@ -168,6 +171,23 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
             }
             else
                 m_uiBerserkTimer -= uiDiff;
+        }
+
+        if (m_creature->SelectHostileTarget() && !m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
+        {
+            Unit* pTarget = m_creature->getVictim();
+            if (m_uiDeathTimer <= uiDiff)
+            {
+                if (!m_creature->CanReachWithMeleeAttack(pTarget))
+                {
+                    if (DoCastSpellIfCan(pTarget, SPELL_DEATH_TOUCH) == CAST_OK)
+                        m_uiDeathTimer = 25000;
+                }
+                else
+                    m_uiDeathTimer = 25000;
+            }
+            else
+                m_uiDeathTimer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
