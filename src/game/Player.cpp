@@ -17002,6 +17002,7 @@ void Player::TextEmote(const std::string& text)
     SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_FLOAT_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHAT) );
 }
 
+/*
 void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiver)
 {
     if (language != LANG_ADDON)                             // if not addon data
@@ -17032,6 +17033,44 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
     else if (rPlayer->isDND())
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
+}
+*/
+
+void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiver)
+{
+    if (language != LANG_ADDON)                             // if not addon data
+        language = LANG_UNIVERSAL;                          // whispers should always be readable
+
+    Player *rPlayer = sObjectMgr.GetPlayer(receiver);
+
+    // announce dnd message
+    if (rPlayer->isDND() && !isGameMaster())
+    {
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
+        return;
+    }
+
+    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
+    rPlayer->GetSession()->SendPacket(&data);
+
+    // not send confirmation for addon messages
+    if (language != LANG_ADDON)
+    {
+        data.Initialize(SMSG_MESSAGECHAT, 200);
+        rPlayer->BuildPlayerChat(&data, CHAT_MSG_REPLY, text, language);
+        GetSession()->SendPacket(&data);
+    }
+
+    if (!isAcceptWhispers())
+    {
+        SetAcceptWhispers(true);
+        ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
+    }
+
+    // announce afk message
+    if (rPlayer->isAFK())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
 }
 
 void Player::PetSpellInitialize()
