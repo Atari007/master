@@ -536,13 +536,14 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BattleGroundBracketId 
     // At first we need to compare free space in bg and our selection pool
     int32 diffAli   = aliFree   - int32(m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount());
     int32 diffHorde = hordeFree - int32(m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount());
-    while( abs(diffAli - diffHorde) > 1 && (m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() > 0 || m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() > 0) )
+	// Why more than 0 players in pool? When 0 players in one faction, and more in the other, kicking is needed!!
+    while( abs(diffAli - diffHorde) > 1 && (m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() >= 1 || m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() >= 1) )
     {
         //each cycle execution we need to kick at least 1 group
         if (diffAli < diffHorde)
         {
             //kick alliance group, add to pool new group if needed
-            if (m_SelectionPools[BG_TEAM_ALLIANCE].KickGroup(diffHorde - diffAli))
+            if (m_SelectionPools[BG_TEAM_ALLIANCE].KickGroup(diffHorde - diffAli) && m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() > 0)
             {
                 for (; aliIndex < aliCount && m_SelectionPools[BG_TEAM_ALLIANCE].AddGroup((*Ali_itr), (aliFree >= diffHorde) ? aliFree - diffHorde : 0); aliIndex++)
                     ++Ali_itr;
@@ -558,7 +559,7 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BattleGroundBracketId 
         else
         {
             //kick horde group, add to pool new group if needed
-            if (m_SelectionPools[BG_TEAM_HORDE].KickGroup(diffAli - diffHorde))
+            if (m_SelectionPools[BG_TEAM_HORDE].KickGroup(diffAli - diffHorde) && m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() > 0)
             {
                 for (; hordeIndex < hordeCount && m_SelectionPools[BG_TEAM_HORDE].AddGroup((*Horde_itr), (hordeFree >= diffAli) ? hordeFree - diffAli : 0); hordeIndex++)
                     ++Horde_itr;
