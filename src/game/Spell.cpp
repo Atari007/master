@@ -2807,6 +2807,11 @@ void Spell::cast(bool skipCheck)
                 AddPrecastSpell(25771);                     // Forbearance
           break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            if(m_spellInfo->Id == 29893)                    // Ritual of Souls
+                AddTriggeredSpell(29886); break;
+        }
         default:
             break;
     }

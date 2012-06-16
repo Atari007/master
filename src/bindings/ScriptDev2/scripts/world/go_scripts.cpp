@@ -36,6 +36,7 @@ go_tablet_of_the_seven
 go_andorhal_tower
 go_hand_of_iruxos_crystal
 go_avruus_orb
+go_soulwell
 EndContentData */
 
 #include "precompiled.h"
@@ -436,6 +437,34 @@ bool GOUse_go_avruus_orb(Player* pPlayer, GameObject* pGo)
 	return true;
 }
 
+/*######
+## go_soulwell
+######*/
+
+bool GOUse_go_soulwell(Player *pPlayer, GameObject* pGO)
+{
+    Unit *caster = pGO->GetOwner();
+    if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+        return true;
+
+    if (!pPlayer->IsInSameRaidWith(static_cast<Player *>(caster)))
+        return true;
+
+    uint32 newSpell = 0;
+    if (pGO->GetEntry() == 181621)       // Soulwell
+    {
+        if (caster->HasAura(18693))      // Improved Healthstone rank 2
+            newSpell = 34150;
+        else if (caster->HasAura(18692)) // Improved Healthstone rank 1
+            newSpell = 34149;
+        else newSpell = 34130;           // Regular Healthstone
+    }
+
+    pGO->AddUse();
+    pPlayer->CastSpell(pPlayer, newSpell, true);
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script* pNewScript;
@@ -523,5 +552,10 @@ void AddSC_go_scripts()
 	pNewScript = new Script;
 	pNewScript->Name = "go_avruus_orb";
 	pNewScript->pGOUse =          &GOUse_go_avruus_orb;
+	pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "go_soulwell";
+	pNewScript->pGOUse =          &GOUse_go_soulwell;
 	pNewScript->RegisterSelf();
 }
