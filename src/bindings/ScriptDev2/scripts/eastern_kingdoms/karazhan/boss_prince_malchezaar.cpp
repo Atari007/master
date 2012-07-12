@@ -597,7 +597,7 @@ struct MANGOS_DLL_DECL boss_malchezaarAI : public ScriptedAI
         }
 
         if (m_uiPhase==2)
-            DoMeleeAttacksIfReady();
+            DoMeleeAttackIfReady();
         else
             DoMeleeAttackIfReady();
     }
