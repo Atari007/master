@@ -3154,36 +3154,36 @@ void Map::SendObjectUpdates()
 {
     UpdateDataMapType update_players;
 
-    while(!i_objectsToClientUpdate.empty())
-    {
-        Object* obj = *i_objectsToClientUpdate.begin();
-        i_objectsToClientUpdate.erase(i_objectsToClientUpdate.begin());
+    for (std::set<Object*>::const_iterator it = i_objectsToClientUpdate.begin();it!= i_objectsToClientUpdate.end();++it)
+	{
 
-        if (obj && obj->IsInWorld())
-            switch(obj->GetTypeId())
-            {
-               case TYPEID_ITEM:
-               case TYPEID_CONTAINER:
-                   ((Item*)obj)->BuildUpdateData(update_players);
-               break;
-               case TYPEID_PLAYER:
-                   if(!(obj->GetGUIDLow() != 0 && sObjectMgr.GetPlayer(obj->GetObjectGuid())))
-               break;
-               case TYPEID_UNIT:
-               case TYPEID_GAMEOBJECT:
-               case TYPEID_DYNAMICOBJECT:
-               case TYPEID_CORPSE:
-                   ((WorldObject*)obj)->BuildUpdateData(update_players);
-               break;
-               default: break;
-            }
-    }
+	if ((*it) && (*it)->IsInWorld())
+           switch(obj->GetTypeId())
+           {
+              case TYPEID_ITEM:
+              case TYPEID_CONTAINER:
+                  ((Item*)(*it))->BuildUpdateData(update_players);
+              break;
+              case TYPEID_PLAYER:
+                  if(!((*it)->GetGUIDLow() != 0 && sObjectMgr.GetPlayer((*it)->GetObjectGuid())))
+              break;
+              case TYPEID_UNIT:
+              case TYPEID_GAMEOBJECT:
+              case TYPEID_DYNAMICOBJECT:
+              case TYPEID_CORPSE:
+                  ((WorldObject*)(*it))->BuildUpdateData(update_players);
+              break;
+              default: break;
+	}
+
+i_objectsToClientUpdate.clear();
+    
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
     for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
-        iter->second.BuildPacket(&packet);
-        iter->first->GetSession()->SendPacket(&packet);
+			if (iter->second.BuildPacket(&packet))
+            iter->first->GetSession()->SendPacket(&packet);
         packet.clear();                                     // clean the string
     }
 }
