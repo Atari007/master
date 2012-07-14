@@ -445,6 +445,14 @@ class MANGOS_DLL_SPEC WorldObject : public Object
             { x = m_position.x; y = m_position.y; z = m_position.z; }
         void GetPosition( WorldLocation &loc ) const
             { loc.mapid = m_mapId; GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
+		
+	    void MovePositionToFirstCollision(WorldLocation &pos, float dist, float angle);
+	    void GetFirstCollisionPosition(WorldLocation &pos, float dist, float angle)
+        {
+            GetPosition(pos);
+            MovePositionToFirstCollision(pos, dist, angle);
+        }
+
         float GetOrientation( ) const { return m_position.o; }
         void GetNearPoint2D( float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_bounding_radius, float distance2d, float absAngle) const;

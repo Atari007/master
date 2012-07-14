@@ -62,7 +62,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         unit.addUnitState(UNIT_STAT_CONFUSED_MOVE);
 
         if (unit.movespline->Finalized())
-             i_nextMoveTime.Reset(urand(800, 1500));
+             i_nextMoveTime.Reset(urand(800, 1000));
     }
     else
     {
@@ -72,19 +72,24 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         {
             // start moving
             unit.addUnitState(UNIT_STAT_CONFUSED_MOVE);
+			 WorldLocation destLoc;
+            destLoc.coord_x = i_x + 10.0f*(rand_norm_f() - 0.5f);
+            destLoc.coord_y = i_y + 10.0f*(rand_norm_f() - 0.5f);
+            destLoc.coord_z = i_z;
 
-            float x = i_x + 10.0f*(rand_norm_f() - 0.5f);
-            float y = i_y + 10.0f*(rand_norm_f() - 0.5f);
-            float z = i_z;
-
-            unit.UpdateAllowedPositionZ(x, y, z);
- 
+         unit.MovePositionToFirstCollision(destLoc, unit.GetObjectScale(), unit.GetOrientation());
+         if (fabs(unit.GetMap()->GetTerrain()->GetHeight(destLoc.coord_x,destLoc.coord_y,destLoc.coord_z,true) - unit.GetPositionZ()) > 2.0f)
+            {
+                destLoc.coord_x = i_x;
+                destLoc.coord_y = i_y;
+                destLoc.coord_z = i_z;
+            } 
             PathFinder path(&unit);
             path.setPathLengthLimit(30.0f);
-            path.calculate(x, y, z);
+			path.calculate(destLoc.coord_x, destLoc.coord_y, (destLoc.coord_z + unit.GetObjectScale()));
             if(path.getPathType() & PATHFIND_NOPATH)
             {
-                i_nextMoveTime.Reset(urand(800, 1000));
+                i_nextMoveTime.Reset(urand(800, 700));
                 return true;
             }
 
