@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -25,6 +25,19 @@ enum
     SAY_SAPP_DIALOG3            = -1533086,
     SAY_SAPP_DIALOG4_LICH       = -1533087,
     SAY_SAPP_DIALOG5            = -1533088,
+    // Horsemen dialogue texts
+    SAY_BLAU_TAUNT1             = -1533045,
+    SAY_BLAU_TAUNT2             = -1533046,
+    SAY_BLAU_TAUNT3             = -1533047,             // NYI - requires additiona research
+    SAY_MORG_TAUNT1             = -1533071,
+    SAY_MORG_TAUNT2             = -1533072,
+    SAY_MORG_TAUNT3             = -1533073,             // NYI - requires additiona research
+    SAY_KORT_TAUNT1             = -1533052,
+    SAY_KORT_TAUNT2             = -1533053,
+    SAY_KORT_TAUNT3             = -1533054,             // NYI - requires additiona research
+    SAY_ZELI_TAUNT1             = -1533059,
+    SAY_ZELI_TAUNT2             = -1533060,
+    SAY_ZELI_TAUNT3             = -1533061,             // NYI - requires additiona research
 
     TYPE_ANUB_REKHAN            = 0,
     TYPE_FAERLINA               = 1,
@@ -56,10 +69,15 @@ enum
     NPC_FEUGEN                  = 15930,
     NPC_TESLA_COIL              = 16218,
 
+    NPC_MOGRAINE                = 16062,
     NPC_ZELIEK                  = 16063,
     NPC_THANE                   = 16064,
     NPC_BLAUMEUX                = 16065,
-    NPC_RIVENDARE               = 30549,
+
+    NPC_SPIRIT_OF_MOGRAINE      = 16775,
+    NPC_SPIRIT_OF_BLAUMEUX      = 16776,
+    NPC_SPIRIT_OF_ZELIREK       = 16777,
+    NPC_SPIRIT_OF_KORTHAZZ      = 16778,
 
     NPC_KELTHUZAD               = 15990,
     NPC_THE_LICHKING            = 16980,
@@ -96,7 +114,8 @@ enum
     GO_PLAG_NOTH_ENTRY_DOOR     = 181200,                   //encounter door
     GO_PLAG_NOTH_EXIT_DOOR      = 181201,                   //exit, open when boss dead
     GO_PLAG_HEIG_ENTRY_DOOR     = 181202,
-    GO_PLAG_HEIG_EXIT_DOOR      = 181203,                   //exit, open when boss dead
+    GO_PLAG_HEIG_EXIT_DOOR      = 181203,                   //exit door - not used here
+    GO_PLAG_HEIG_EXIT_HALLWAY   = 181496,                   //exit door, at the end of the hallway
     GO_PLAG_LOAT_DOOR           = 181241,                   //encounter door
 
     // Military Quarter
@@ -106,7 +125,6 @@ enum
     GO_MILI_HORSEMEN_DOOR       = 181119,                   //encounter door
 
     GO_CHEST_HORSEMEN_NORM      = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
-    GO_CHEST_HORSEMEN_HERO      = 193426,
 
     // Construct Quarter
     GO_CONS_PATH_EXIT_DOOR      = 181123,
@@ -118,12 +136,21 @@ enum
     // Frostwyrm Lair
     GO_KELTHUZAD_WATERFALL_DOOR = 181225,                   // exit, open after sapphiron is dead
     GO_KELTHUZAD_EXIT_DOOR      = 181228,
+    GO_KELTHUZAD_WINDOW_1       = 181402,
+    GO_KELTHUZAD_WINDOW_2       = 181403,
+    GO_KELTHUZAD_WINDOW_3       = 181404,
+    GO_KELTHUZAD_WINDOW_4       = 181405,
 
     // Eyes
     GO_ARAC_EYE_RAMP            = 181212,
     GO_PLAG_EYE_RAMP            = 181211,
     GO_MILI_EYE_RAMP            = 181210,
     GO_CONS_EYE_RAMP            = 181213,
+
+    GO_ARAC_EYE_BOSS            = 181233,
+    GO_PLAG_EYE_BOSS            = 181231,
+    GO_MILI_EYE_BOSS            = 181230,
+    GO_CONS_EYE_BOSS            = 181232,
 
     // Portals
     GO_ARAC_PORTAL              = 181575,
@@ -135,6 +162,7 @@ enum
     AREATRIGGER_KELTHUZAD       = 4112,
     AREATRIGGER_GOTHIK          = 4116,
     AREATRIGGER_THADDIUS_DOOR   = 4113,
+    AREATRIGGER_FROSTWYRM_TELE  = 4156,
 };
 
 struct GothTrigger
@@ -176,7 +204,7 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         bool IsInRightSideGothArea(Unit* pUnit);
 
         // thaddius
-        void GetThadTeslaCreatures(GUIDList &lList){ lList = m_lThadTeslaCoilList; };
+        void GetThadTeslaCreatures(GuidList &lList){ lList = m_lThadTeslaCoilList; };
 
         // kel
         void SetChamberCenterCoords(float fX, float fY, float fZ);
@@ -187,17 +215,18 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        GUIDList m_lThadTeslaCoilList;
-        GUIDList m_lGothTriggerList;
+        GuidList m_lThadTeslaCoilList;
+        GuidList m_lGothTriggerList;
 
         UNORDERED_MAP<ObjectGuid, GothTrigger> m_mGothTriggerMap;
-        GUIDList m_alHeiganTrapGuids[MAX_HEIGAN_TRAP_AREAS];
+        GuidList m_alHeiganTrapGuids[MAX_HEIGAN_TRAP_AREAS];
 
         float m_fChamberCenterX;
         float m_fChamberCenterY;
         float m_fChamberCenterZ;
 
         uint32 m_uiTauntTimer;
+        uint8 m_uiHorseMenKilled;
 
         DialogueHelper m_dialogueHelper;
 };

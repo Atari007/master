@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9528, 9537, 9554(special flight path, proper model for mount missing). Injured Draenei cosmetic only
+SDComment: Quest support: 9283, 9528, 9537, Injured Draenei cosmetic only
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -26,7 +26,6 @@ npc_draenei_survivor
 npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
-npc_susurrus
 EndContentData */
 
 #include "precompiled.h"
@@ -304,17 +303,11 @@ struct MANGOS_DLL_DECL npc_injured_draeneiAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit *who)
-    {
-        return;                                             //ignore everyone around them (won't aggro anything)
-    }
+    void MoveInLineOfSight(Unit* pWho) { }                  // ignore everyone around them (won't aggro anything)
 
-    void UpdateAI(const uint32 diff)
-    {
-        return;
-    }
-
+    void UpdateAI(const uint32 uiDiff) { }
 };
+
 CreatureAI* GetAI_npc_injured_draenei(Creature* pCreature)
 {
     return new npc_injured_draeneiAI(pCreature);
@@ -324,27 +317,30 @@ CreatureAI* GetAI_npc_injured_draenei(Creature* pCreature)
 ## npc_magwin
 ######*/
 
-#define SAY_START               -1000111
-#define SAY_AGGRO               -1000112
-#define SAY_PROGRESS            -1000113
-#define SAY_END1                -1000114
-#define SAY_END2                -1000115
-#define EMOTE_HUG               -1000116
+enum
+{
+    SAY_START               = -1000111,
+    SAY_AGGRO               = -1000112,
+    SAY_PROGRESS            = -1000113,
+    SAY_END1                = -1000114,
+    SAY_END2                = -1000115,
+    EMOTE_HUG               = -1000116,
 
-#define QUEST_A_CRY_FOR_HELP    9528
+    QUEST_A_CRY_FOR_HELP    = 9528
+};
 
 struct MANGOS_DLL_DECL npc_magwinAI : public npc_escortAI
 {
-    npc_magwinAI(Creature* pCreature) : npc_escortAI(pCreature) {Reset();}
+    npc_magwinAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
 
-    void WaypointReached(uint32 i)
+    void WaypointReached(uint32 uiPointId)
     {
         Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
 
-        switch(i)
+        switch(uiPointId)
         {
             case 0:
                 DoScriptText(SAY_START, m_creature, pPlayer);
@@ -363,9 +359,9 @@ struct MANGOS_DLL_DECL npc_magwinAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* who)
+    void Aggro(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature, who);
+        DoScriptText(SAY_AGGRO, m_creature, pWho);
     }
 
     void Reset() { }
@@ -387,47 +383,6 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 {
     return new npc_magwinAI(pCreature);
 }
-
-/*######
-## npc_susurrus
-######*/
-
-enum
-{
-    ITEM_WHORL_OF_AIR       = 23843,
-    SPELL_BUFFETING_WINDS   = 32474,
-    TAXI_PATH_ID            = 506
-};
-
-#define GOSSIP_ITEM_READY   "I am ready."
-
-bool GossipHello_npc_susurrus(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
-
-    if (pPlayer->HasItemCount(ITEM_WHORL_OF_AIR,1,true))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_susurrus(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
-    {
-        //spellId is correct, however it gives flight a somewhat funny effect
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->CastSpell(pPlayer,SPELL_BUFFETING_WINDS,true);
-    }
-    return true;
-}
-
-/*######
-##
-######*/
 
 void AddSC_azuremyst_isle()
 {
@@ -454,11 +409,5 @@ void AddSC_azuremyst_isle()
     pNewScript->Name = "npc_magwin";
     pNewScript->GetAI = &GetAI_npc_magwinAI;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_magwin;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_susurrus";
-    pNewScript->pGossipHello =  &GossipHello_npc_susurrus;
-    pNewScript->pGossipSelect = &GossipSelect_npc_susurrus;
     pNewScript->RegisterSelf();
 }

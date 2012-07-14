@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
         else
             m_uiDarknessTimer -= uiDiff;
 
-        /*if (m_uiDarkFiendsTimer)
+        if (m_uiDarkFiendsTimer)
         {
             if (m_uiDarkFiendsTimer <= uiDiff)
             {
@@ -197,7 +197,7 @@ struct MANGOS_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
             }
             else
                 m_uiDarkFiendsTimer -= uiDiff;
-        }*/
+        }
 
         if (m_uiSummonHumanoidsTimer < uiDiff)
         {
@@ -223,7 +223,7 @@ struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
     uint32 m_uiBlackHoleTimer;
     uint32 m_uiDarknessTimer;
 
-    GUIDList m_lSummonedCreaturesList;
+    GuidList m_lSummonedCreaturesList;
 
     void Reset()
     {
@@ -254,7 +254,7 @@ struct MANGOS_DLL_DECL boss_entropiusAI : public ScriptedAI
     // Wrapper to despawn the Singularities and Darkness on death or on evade
     void DespawnSummonedCreatures()
     {
-        for (GUIDList::const_iterator itr = m_lSummonedCreaturesList.begin(); itr != m_lSummonedCreaturesList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lSummonedCreaturesList.begin(); itr != m_lSummonedCreaturesList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
                 pTemp->ForcedDespawn();

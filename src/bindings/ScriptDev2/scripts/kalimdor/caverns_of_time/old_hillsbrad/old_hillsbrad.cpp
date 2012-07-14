@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,7 +22,6 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 /* ContentData
-npc_brazen
 npc_erozion
 npc_thrall_old_hillsbrad
 npc_taretha
@@ -48,43 +47,6 @@ struct MANGOS_DLL_DECL npc_tarethaAI : public npc_escortAI
 };
 
 /*######
-## npc_brazen
-######*/
-
-enum
-{
-    GOSSIP_ITEM_START_ESCORT        = -3560007,
-    GOSSIP_ITEM_READY               = -3560000,
-
-    TEXT_ID_HAS_BOMBS               = 9780,
-    ITEM_ENTRY_BOMBS                = 25853,
-
-    TAXI_PATH_ID                    = 534
-};
-
-bool GossipHello_npc_brazen(Player* pPlayer, Creature* pCreature)
-{
-    pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
-    return true;
-}
-
-bool GossipSelect_npc_brazen(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        if (!pPlayer->HasItemCount(ITEM_ENTRY_BOMBS, 1))
-            pPlayer->SEND_GOSSIP_MENU(TEXT_ID_HAS_BOMBS, pCreature->GetObjectGuid());
-        else
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID);
-        }
-    }
-    return true;
-}
-
-/*######
 ## npc_erozion
 ######*/
 
@@ -93,6 +55,9 @@ enum
     GOSSIP_ITEM_NEED_BOMBS          = -3560001,
     TEXT_ID_DEFAULT                 = 9778,
     TEXT_ID_GOT_ITEM                = 9515,
+
+    GOSSIP_ID_ITEM_START_ESCORT        = -3560007,
+    ITEM_ENTRY_BOMBS                = 25853,
 };
 
 bool GossipHello_npc_erozion(Player* pPlayer, Creature* pCreature)
@@ -195,7 +160,6 @@ enum
     SPELL_SUMMON_EROZION_IMAGE      = 33954,                // if thrall dies during escort?
 
     EQUIP_ID_WEAPON                 = 927,
-    //EQUIP_ID_SHIELD                 = 20913,
     EQUIP_ID_SHIELD                 = 2219,
     MODEL_THRALL_UNEQUIPPED         = 17292,
     MODEL_THRALL_EQUIPPED           = 18165,
@@ -238,17 +202,14 @@ enum
     TEXT_ID_TARREN                  = 9597,                 // tarren mill is beyond these trees
     GOSSIP_ITEM_TARREN              = -3560004,             // "We're ready, Thrall."
 
-    TEXT_ID_COMPLETE                = 9578,                 // Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
-    
-    //factions
-    FACTION_BEFORE_ESCORT           = 35,
+
+    TEXT_ID_COMPLETE                = 9578,  // Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
+	 FACTION_BEFORE_ESCORT           = 35,
     FACTION_DURING_ESCORT           = 1747,
 };
 
 const float SPEED_WALK              = 0.5f;
-//const float SPEED_RUN               = 1.0f;
 const float SPEED_RUN               = 0.8f;
-//const float SPEED_MOUNT             = 1.6f;
 const float SPEED_MOUNT             = 1.6f;
 
 struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
@@ -279,7 +240,6 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             m_bHadMount = false;
             SetEquipmentSlots(true);
             m_creature->SetDisplayId(MODEL_THRALL_UNEQUIPPED);
-            m_creature->setFaction(FACTION_BEFORE_ESCORT);
         }
     }
 
@@ -374,13 +334,17 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 64:
                 SetRun(false);
                 break;
-            //case 68:
-            case 69:
+            case 69: case 69:
+ 	 	
                 m_creature->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+ 	 	
                 m_creature->SummonCreature(NPC_BARN_LOOKOUT, 2500.13f, 696.55f, 55.51f, 3.38f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+ 	 	
                 m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.55f, 693.64f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+ 	 	
                 m_creature->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                break;
+
+               break;
             case 71:
                 SetRun();
                 break;
@@ -481,7 +445,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
     void StartWP()
     {
-        m_creature->setFaction(FACTION_DURING_ESCORT);
+		  m_creature->setFaction(FACTION_DURING_ESCORT);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         SetEscortPaused(false);
     }
@@ -780,7 +744,7 @@ void npc_tarethaAI::UpdateEscortAI(const uint32 uiDiff)
             case 4:
                 if (Creature* pErozion = m_creature->GetMap()->GetCreature(m_erozionGuid))
                     DoScriptText(SAY_PRE_WIPE, pErozion);
-                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+					m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
             case 5:
                 //if (Creature* pErozion = m_creature->GetMap()->GetCreature(m_erozionGuid))
@@ -874,12 +838,6 @@ bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSen
 void AddSC_old_hillsbrad()
 {
     Script* pNewScript;
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_brazen";
-    pNewScript->pGossipHello = &GossipHello_npc_brazen;
-    pNewScript->pGossipSelect = &GossipSelect_npc_brazen;
-    pNewScript->RegisterSelf();
 
     pNewScript = new Script;
     pNewScript->Name = "npc_erozion";

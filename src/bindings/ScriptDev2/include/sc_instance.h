@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -41,6 +41,10 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
         void DoRespawnGameObject(ObjectGuid guid, uint32 uiTimeToDespawn = MINUTE);
         void DoRespawnGameObject(uint32 uiEntry, uint32 uiTimeToDespawn = MINUTE);
 
+        // Toggle the flags of a GO
+        void DoToggleGameObjectFlags(ObjectGuid guid, uint32 uiGOflags, bool bApply);
+        void DoToggleGameObjectFlags(uint32 uiEntry, uint32 uiGOflags, bool bApply);
+
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData);
 
@@ -56,6 +60,7 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 
     protected:
         // Storage for GO-Guids and NPC-Guids
+        typedef std::map<uint32, ObjectGuid> EntryGuidMap;
         EntryGuidMap m_mGoEntryGuidStore;                   ///< Store unique GO-Guids by entry
         EntryGuidMap m_mNpcEntryGuidStore;                  ///< Store unique NPC-Guids by entry
 };

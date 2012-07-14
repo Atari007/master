@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -7,7 +7,7 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 11,
+    MAX_ENCOUNTER               = 12,
     MAX_GENERATORS              = 5,
 
     // East
@@ -16,16 +16,17 @@ enum
     TYPE_IRONBARK               = 2,
 
     // West
-    TYPE_IMMOLTHAR              = 3,
-    TYPE_PRINCE                 = 4,
-    TYPE_PYLON_1                = 5,
+    TYPE_WARPWOOD               = 3,
+    TYPE_IMMOLTHAR              = 4,
+    TYPE_PRINCE                 = 5,
+    TYPE_PYLON_1                = 6,
     TYPE_PYLON_2                = TYPE_PYLON_1 + 1,
     TYPE_PYLON_3                = TYPE_PYLON_1 + 2,
     TYPE_PYLON_4                = TYPE_PYLON_1 + 3,
     TYPE_PYLON_5                = TYPE_PYLON_1 + 4,
 
     // North
-    TYPE_KING_GORDOK            = 10,
+    TYPE_KING_GORDOK            = 11,
 
     // East
     GO_CRUMBLE_WALL             = 177220,
@@ -38,6 +39,7 @@ enum
     NPC_IRONBARK_REDEEMED       = 14241,
 
     // West
+    NPC_TENDRIS_WARPWOOD        = 11489,
     NPC_PRINCE_TORTHELDRIN      = 11486,
     NPC_IMMOLTHAR               = 11496,
     NPC_ARCANE_ABERRATION       = 11480,
@@ -107,13 +109,13 @@ class MANGOS_DLL_DECL instance_dire_maul : public ScriptedInstance
 
         // East
         bool m_bWallDestroyed;
-        GUIDList m_lFelvineShardGUIDs;
+        GuidList m_lFelvineShardGUIDs;
 
         // West
         ObjectGuid m_aCrystalGeneratorGuid[MAX_GENERATORS];
 
-        GUIDList m_luiHighborneSummonerGUIDs;
-        GUIDList m_lGeneratorGuardGUIDs;
+        GuidList m_luiHighborneSummonerGUIDs;
+        GuidList m_lGeneratorGuardGUIDs;
         std::set<uint32> m_sSortedGeneratorGuards[MAX_GENERATORS];
 };
 

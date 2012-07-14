@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -182,9 +182,9 @@ struct MANGOS_DLL_DECL boss_chromaggusAI : public ScriptedAI
                 case 4: m_uiSpellAfflict = SPELL_BROODAF_GREEN; break;
             }
 
-            std::vector<ObjectGuid> vGuids;
+            GuidVector vGuids;
             m_creature->FillGuidsListFromThreatList(vGuids);
-            for (std::vector<ObjectGuid>::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
+            for (GuidVector::const_iterator i = vGuids.begin(); i != vGuids.end(); ++i)
             {
                 Unit* pUnit = m_creature->GetMap()->GetUnit(*i);
 

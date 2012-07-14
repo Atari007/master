@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -85,7 +85,7 @@ void instance_gnomeregan::SetData(uint32 uiType, uint32 uiData)
                 if (!m_luiExplosiveChargeGUIDs.empty())
                 {
                     std::list<GameObject*> lExplosiveCharges;
-                    for (GUIDList::const_iterator itr = m_luiExplosiveChargeGUIDs.begin(); itr != m_luiExplosiveChargeGUIDs.end(); ++itr)
+                    for (GuidList::const_iterator itr = m_luiExplosiveChargeGUIDs.begin(); itr != m_luiExplosiveChargeGUIDs.end(); ++itr)
                     {
                         if (GameObject* pCharge = instance->GetGameObject(*itr))
                             lExplosiveCharges.push_back(pCharge);
@@ -125,7 +125,7 @@ void instance_gnomeregan::SetData(uint32 uiType, uint32 uiData)
             }
             if (uiData == DONE)
             {
-                for (GUIDList::const_iterator itr = m_lRedRocketGUIDs.begin(); itr != m_lRedRocketGUIDs.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lRedRocketGUIDs.begin(); itr != m_lRedRocketGUIDs.end(); ++itr)
                     DoRespawnGameObject(*itr, HOUR);
             }
             break;
@@ -152,7 +152,7 @@ void instance_gnomeregan::SetData(uint32 uiType, uint32 uiData)
                     Creature* pBlastmaster = GetSingleCreatureFromStorage(NPC_BLASTMASTER_SHORTFUSE);
                     if (!pBlastmaster)
                         break;
-                    for (GUIDList::const_iterator itr = m_luiSpawnedExplosiveChargeGUIDs.begin(); itr != m_luiSpawnedExplosiveChargeGUIDs.end(); ++itr)
+                    for (GuidList::const_iterator itr = m_luiSpawnedExplosiveChargeGUIDs.begin(); itr != m_luiSpawnedExplosiveChargeGUIDs.end(); ++itr)
                     {
                         if (GameObject* pExplosive = instance->GetGameObject(*itr))
                             pExplosive->Use(pBlastmaster);

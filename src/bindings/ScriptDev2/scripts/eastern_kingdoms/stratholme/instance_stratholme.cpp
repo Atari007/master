@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -30,7 +30,9 @@ instance_stratholme::instance_stratholme(Map* pMap) : ScriptedInstance(pMap),
     m_uiMindlessSummonTimer(0),
     m_uiSlaugtherSquareTimer(0),
     m_uiYellCounter(0),
-    m_uiMindlessCount(0)
+    m_uiMindlessCount(0),
+    m_uiPostboxesUsed(0),
+    m_uiSilverHandKilled(0)
 {
     Initialize();
 }
@@ -38,7 +40,6 @@ instance_stratholme::instance_stratholme(Map* pMap) : ScriptedInstance(pMap),
 void instance_stratholme::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-    memset(&m_bIsSilverHandDead, false, sizeof(m_bIsSilverHandDead));
 }
 
 bool instance_stratholme::StartSlaugtherSquare()
@@ -65,6 +66,7 @@ void instance_stratholme::OnCreatureCreate(Creature* pCreature)
         case NPC_BARON:
         case NPC_YSIDA_TRIGGER:
         case NPC_BARTHILAS:
+        case NPC_PALADIN_QUEST_CREDIT:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
 
@@ -195,7 +197,7 @@ void instance_stratholme::SetData(uint32 uiType, uint32 uiData)
                 }
 
                 uint32 uiCount = m_sAbomnationGUID.size();
-                for(GUIDSet::iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end();)
+                for(GuidSet::iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end();)
                 {
                     if (Creature* pAbom = instance->GetCreature(*itr))
                     {
@@ -265,7 +267,7 @@ void instance_stratholme::SetData(uint32 uiType, uint32 uiData)
                 m_uiSlaugtherSquareTimer = 0;
 
                 // Let already moving Abomnations stop
-                for (GUIDSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
+                for (GuidSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
                 {
                     Creature* pAbom = instance->GetCreature(*itr);
                     if (pAbom && pAbom->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
@@ -360,22 +362,30 @@ void instance_stratholme::SetData(uint32 uiType, uint32 uiData)
 
             // No need to save anything here, so return
             return;
+        case TYPE_POSTMASTER:
+            m_auiEncounter[uiType] = uiData;
+            if (uiData == IN_PROGRESS)
+            {
+                ++m_uiPostboxesUsed;
 
-        case TYPE_SH_AELMAR:
-            m_bIsSilverHandDead[0] = (uiData) ? true : false;
-            break;
-        case TYPE_SH_CATHELA:
-            m_bIsSilverHandDead[1] = (uiData) ? true : false;
-            break;
-        case TYPE_SH_GREGOR:
-            m_bIsSilverHandDead[2] = (uiData) ? true : false;
-            break;
-        case TYPE_SH_NEMAS:
-            m_bIsSilverHandDead[3] = (uiData) ? true : false;
-            break;
-        case TYPE_SH_VICAR:
-            m_bIsSilverHandDead[4] = (uiData) ? true : false;
-            break;
+                // After the second post box prepare to spawn the Post Master
+                if (m_uiPostboxesUsed == 2)
+                    SetData(TYPE_POSTMASTER, SPECIAL);
+            }
+            // No need to save anything here, so return
+            return;
+        case TYPE_TRUE_MASTERS:
+            m_auiEncounter[uiType] = uiData;
+            if (uiData == SPECIAL)
+            {
+                ++m_uiSilverHandKilled;
+
+                // When the 5th paladin is killed set data to DONE in order to give the quest credit for the last paladin
+                if (m_uiSilverHandKilled == MAX_SILVERHAND)
+                    SetData(TYPE_TRUE_MASTERS, DONE);
+            }
+            // No need to save anything here, so return
+            return;
     }
 
     if (uiData == DONE)
@@ -428,10 +438,6 @@ uint32 instance_stratholme::GetData(uint32 uiType)
 {
     switch(uiType)
     {
-        case TYPE_SH_QUEST:
-            if (m_bIsSilverHandDead[0] && m_bIsSilverHandDead[1] && m_bIsSilverHandDead[2] && m_bIsSilverHandDead[3] && m_bIsSilverHandDead[4])
-                return 1;
-            return 0;
         case TYPE_BARON_RUN:
         case TYPE_BARONESS:
         case TYPE_NERUB:
@@ -439,6 +445,8 @@ uint32 instance_stratholme::GetData(uint32 uiType)
         case TYPE_RAMSTEIN:
         case TYPE_BARON:
         case TYPE_BARTHILAS_RUN:
+        case TYPE_POSTMASTER:
+        case TYPE_TRUE_MASTERS:
             return m_auiEncounter[uiType];
         default:
             return 0;
@@ -456,7 +464,7 @@ void instance_stratholme::DoSortZiggurats()
         return;
 
     std::list<Creature*> lAcolytes;                         // Valid pointers, only used locally
-    for (GUIDList::const_iterator itr = m_luiAcolyteGUIDs.begin(); itr != m_luiAcolyteGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiAcolyteGUIDs.begin(); itr != m_luiAcolyteGUIDs.end(); ++itr)
     {
         if (Creature* pAcolyte = instance->GetCreature(*itr))
             lAcolytes.push_back(pAcolyte);
@@ -501,7 +509,7 @@ void instance_stratholme::DoSortZiggurats()
         m_luiAcolyteGUIDs.push_back((*itr)->GetObjectGuid());
 
     // Sort Crystal
-    for (GUIDList::iterator itr = m_luiCrystalGUIDs.begin(); itr != m_luiCrystalGUIDs.end(); )
+    for (GuidList::iterator itr = m_luiCrystalGUIDs.begin(); itr != m_luiCrystalGUIDs.end(); )
     {
         Creature* pCrystal = instance->GetCreature(*itr);
         if (!pCrystal)
@@ -602,7 +610,7 @@ void instance_stratholme::OnCreatureDeath(Creature* pCreature)
             if (m_luiUndeadGUIDs.empty())
             {
                 // Let the black Guards move out of the citadel
-                for (GUIDList::const_iterator itr = m_luiGuardGUIDs.begin(); itr != m_luiGuardGUIDs.end(); ++itr)
+                for (GuidList::const_iterator itr = m_luiGuardGUIDs.begin(); itr != m_luiGuardGUIDs.end(); ++itr)
                 {
                     Creature* pGuard = instance->GetCreature(*itr);
                     if (pGuard && pGuard->isAlive() && !pGuard->isInCombat())
@@ -741,7 +749,7 @@ void instance_stratholme::Update(uint32 uiDiff)
         if (m_uiSlaugtherSquareTimer <= uiDiff)
         {
             // Call next Abomnations
-            for (GUIDSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
+            for (GuidSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
             {
                 Creature* pAbom = instance->GetCreature(*itr);
                 // Skip killed and already walking Abomnations

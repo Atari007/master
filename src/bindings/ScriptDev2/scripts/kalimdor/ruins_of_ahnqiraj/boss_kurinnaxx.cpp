@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Kurinnaxx
-SD%Complete: 100
-SDComment: VERIFY SCRIPT AND SQL
+SD%Complete: 90
+SDComment: Summon Player ability NYI
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
@@ -25,11 +25,14 @@ EndScriptData */
 
 enum
 {
-    SPELL_TRASH        = 3391,
-    SPELL_WIDE_SLASH   = 25814,
-    SPELL_MORTAL_WOUND = 25646,
-    SPELL_SANDTRAP     = 25656,
-    SPELL_ENRAGE       = 28798
+    SPELL_TRASH             = 3391,
+    SPELL_WIDE_SLASH        = 25814,
+    SPELL_MORTAL_WOUND      = 25646,
+    SPELL_SANDTRAP          = 25648,        // summons gameobject 180647
+    SPELL_ENRAGE            = 26527,
+    SPELL_SUMMON_PLAYER     = 26446,
+
+    GO_SAND_TRAP            = 180647,
 };
 
 struct MANGOS_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
@@ -38,14 +41,31 @@ struct MANGOS_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
 
     uint32 m_uiMortalWoundTimer;
     uint32 m_uiSandTrapTimer;
+    uint32 m_uiTrashTimer;
+    uint32 m_uiWideSlashTimer;
+    uint32 m_uiTrapTriggerTimer;
     bool m_bEnraged;
+
+    ObjectGuid m_sandtrapGuid;
 
     void Reset()
     {
         m_bEnraged = false;
 
-        m_uiMortalWoundTimer = 30000;
-        m_uiSandTrapTimer    = 30000;
+        m_uiMortalWoundTimer = urand(8000, 10000);
+        m_uiSandTrapTimer    = urand(5000, 10000);
+        m_uiTrashTimer       = urand(1000, 5000);
+        m_uiWideSlashTimer   = urand(10000, 15000);
+        m_uiTrapTriggerTimer = 0;
+    }
+
+    void JustSummoned(GameObject* pGo)
+    {
+        if (pGo->GetEntry() == GO_SAND_TRAP)
+        {
+            m_uiTrapTriggerTimer = 3000;
+            m_sandtrapGuid = pGo->GetObjectGuid();
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -56,15 +76,15 @@ struct MANGOS_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         // If we are belowe 30% HP cast enrage
         if (!m_bEnraged && m_creature->GetHealthPercent() <= 30.0f)
         {
-            m_bEnraged = true;
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ENRAGE);
+            if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
+                m_bEnraged = true;
         }
 
         // Mortal Wound
         if (m_uiMortalWoundTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_WOUND);
-            m_uiMortalWoundTimer = 30000;
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_WOUND) == CAST_OK)
+                m_uiMortalWoundTimer = urand(8000, 10000);
         }
         else
             m_uiMortalWoundTimer -= uiDiff;
@@ -72,11 +92,46 @@ struct MANGOS_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         // Sand Trap
         if (m_uiSandTrapTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_SANDTRAP);
-            m_uiSandTrapTimer = 30000;
+            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
+            if (!pTarget)
+                pTarget = m_creature->getVictim();
+
+            pTarget->CastSpell(pTarget, SPELL_SANDTRAP, true, NULL, NULL, m_creature->GetObjectGuid());
+            m_uiSandTrapTimer = urand(10000, 15000);
         }
         else
             m_uiSandTrapTimer -= uiDiff;
+
+        // Trigger the sand trap in 3 secs after spawn
+        if (m_uiTrapTriggerTimer)
+        {
+            if (m_uiTrapTriggerTimer <= uiDiff)
+            {
+                if (GameObject* pTrap = m_creature->GetMap()->GetGameObject(m_sandtrapGuid))
+                    pTrap->Use(m_creature);
+                m_uiTrapTriggerTimer = 0;
+            }
+            else
+                m_uiTrapTriggerTimer -= uiDiff;
+        }
+
+        // Wide Slash
+        if (m_uiWideSlashTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_WIDE_SLASH) == CAST_OK)
+                m_uiWideSlashTimer = urand(12000, 15000);
+        }
+        else
+            m_uiWideSlashTimer -= uiDiff;
+
+        // Trash
+        if (m_uiTrashTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_TRASH) == CAST_OK)
+                m_uiTrashTimer = urand(12000, 17000);
+        }
+        else
+            m_uiTrashTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

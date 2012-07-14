@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 80
-SDComment: Quest support: 9889, 10009, 10873, 10896, 10446/10447, 10852, 10887, 10922, 11096, 11093, 10051, 10052.
+SDComment: Quest support: 9889, 10009, 10873, 10896, 10446/10447, 10852, 10887, 10922, 11096, 11093, 10051, 10052, 10898.
 SDCategory: Terokkar Forest
 EndScriptData */
 
@@ -32,10 +32,10 @@ npc_hungry_nether_ray
 npc_letoll
 npc_mana_bomb_exp_trigger
 go_mana_bomb
-npc_slim
 go_veil_skith_cage
 npc_captive_child
 npc_isla_starmane
+npc_skywing
 EndContentData */
 
 #include "precompiled.h"
@@ -839,36 +839,6 @@ bool GOUse_go_mana_bomb(Player* pPlayer, GameObject* pGo)
 }
 
 /*######
-## npc_slim
-######*/
-
-enum
-{
-    FACTION_CONSORTIUM  = 933
-};
-
-bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetObjectGuid());
-    }
-    else
-        pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
-
-    return true;
-}
-
-/*#####
 ## go_veil_skith_cage & npc_captive_child
 #####*/
 
@@ -1076,6 +1046,92 @@ CreatureAI* GetAI_npc_isla_starmane(Creature* pCreature)
     return new npc_isla_starmaneAI(pCreature);
 }
 
+/*######
+## npc_skywing
+######*/
+
+enum
+{
+    SAY_SKYWING_START            = -1000797,
+    SAY_SKYWING_TREE_DOWN        = -1000798,
+    SAY_SKYWING_TREE_UP          = -1000799,
+    SAY_SKYWING_JUMP             = -1000800,
+    SAY_SKYWING_SUMMON           = -1000801,
+    SAY_SKYWING_END              = -1000802,
+
+    //SPELL_TRANSFORM            = ?????,       // ToDo: research the transform spell id
+
+    NPC_LUANGA_THE_IMPRISONER    = 18533,
+
+    QUEST_SKYWING                = 10898
+};
+
+static const float aLuangaSpawnCoords[3] = {-3507.203f, 4084.619f, 92.947f};
+
+struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
+{
+    npc_skywingAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+
+    void Reset() {}
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch (uiPointId)
+        {
+            case 6:
+                DoScriptText(SAY_SKYWING_TREE_DOWN ,m_creature);
+                break;
+            case 36:
+                DoScriptText(SAY_SKYWING_TREE_UP, m_creature);
+                break;
+            case 60:
+                DoScriptText(SAY_SKYWING_JUMP, m_creature);
+                m_creature->SetLevitate(true);
+                break;
+            case 61:
+                m_creature->SetLevitate(false);
+                break;
+            case 80:
+                DoScriptText(SAY_SKYWING_SUMMON, m_creature);
+                m_creature->SummonCreature(NPC_LUANGA_THE_IMPRISONER, aLuangaSpawnCoords[0], aLuangaSpawnCoords[1], aLuangaSpawnCoords[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                break;
+            case 81:
+                // ToDo: implement transform spell here
+                break;
+            case 82:
+                DoScriptText(SAY_SKYWING_END, m_creature);
+
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_SKYWING, m_creature);
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        pSummoned->AI()->AttackStart(m_creature);
+    }
+};
+
+bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_SKYWING)
+    {
+        if (npc_skywingAI* pEscortAI = dynamic_cast<npc_skywingAI*>(pCreature->AI()))
+        {
+            pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
+            DoScriptText(SAY_SKYWING_START, pCreature);
+
+            pEscortAI->Start(false, pPlayer, pQuest);
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_skywing(Creature* pCreature)
+{
+    return new npc_skywingAI(pCreature);
+}
+
 void AddSC_terokkar_forest()
 {
     Script* pNewScript;
@@ -1133,12 +1189,6 @@ void AddSC_terokkar_forest()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_slim";
-    pNewScript->pGossipHello =  &GossipHello_npc_slim;
-    pNewScript->pGossipSelect = &GossipSelect_npc_slim;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "go_veil_skith_cage";
     pNewScript->pGOUse = &GOUse_go_veil_skith_cage;
     pNewScript->RegisterSelf();
@@ -1152,5 +1202,11 @@ void AddSC_terokkar_forest()
     pNewScript->Name = "npc_isla_starmane";
     pNewScript->GetAI = &GetAI_npc_isla_starmane;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_isla_starmane;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_skywing";
+    pNewScript->GetAI = &GetAI_npc_skywing;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_skywing;
     pNewScript->RegisterSelf();
 }

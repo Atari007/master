@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,12 +16,13 @@
 
 /* ScriptData
 SDName: world_map_scripts
-SD%Complete: 0
-SDComment: Quest support: 11538
+SD%Complete: 100
+SDComment: Quest support: 4740, 11538
 SDCategory: World Map Scripts
 EndScriptData */
 
 #include "precompiled.h"
+#include "world_map_scripts.h"
 
 /* *********************************************************
  *                  EASTERN KINGDOMS
@@ -29,6 +30,19 @@ EndScriptData */
 struct MANGOS_DLL_DECL world_map_eastern_kingdoms : public ScriptedMap
 {
     world_map_eastern_kingdoms(Map* pMap) : ScriptedMap(pMap) {}
+
+    void OnCreatureCreate(Creature* pCreature)
+    {
+        switch (pCreature->GetEntry())
+        {
+            case NPC_JONATHAN:
+            case NPC_WRYNN:
+            case NPC_BOLVAR:
+            case NPC_PRESTOR:
+            case NPC_WINDSOR:
+                m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+        }
+    }
 
     void SetData(uint32 uiType, uint32 uiData) {}
 };
@@ -43,7 +57,77 @@ InstanceData* GetInstanceData_world_map_eastern_kingdoms(Map* pMap)
  */
 struct MANGOS_DLL_DECL world_map_kalimdor : public ScriptedMap
 {
-    world_map_kalimdor(Map* pMap) : ScriptedMap(pMap) {}
+    world_map_kalimdor(Map* pMap) : ScriptedMap(pMap) { Initialize(); }
+
+    uint8 m_uiMurkdeepAdds_KilledAddCount;
+
+    void Initialize()
+    {
+        m_uiMurkdeepAdds_KilledAddCount = 0;
+    }
+
+    void OnCreatureCreate(Creature* pCreature)
+    {
+        if (pCreature->GetEntry() == NPC_MURKDEEP)
+            m_mNpcEntryGuidStore[NPC_MURKDEEP] = pCreature->GetObjectGuid();
+    }
+
+    void OnCreatureDeath(Creature* pCreature)
+    {
+        switch (pCreature->GetEntry())
+        {
+            case NPC_GREYMIST_COASTRUNNNER:
+                if (pCreature->IsTemporarySummon())             // Only count the ones summoned for Murkdeep quest
+                {
+                    ++m_uiMurkdeepAdds_KilledAddCount;
+
+                    // If all 3 coastrunners are killed, summon 2 warriors
+                    if (m_uiMurkdeepAdds_KilledAddCount == 3)
+                    {
+                        float fX, fY, fZ;
+                        for (uint8 i = 0; i < 2; ++i)
+                        {
+                            pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
+
+                            if (Creature* pTemp = pCreature->SummonCreature(NPC_GREYMIST_WARRIOR, fX, fY, fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3], TEMPSUMMON_DEAD_DESPAWN, 0))
+                            {
+                                pTemp->SetWalk(false);
+                                pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
+                                pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+                            }
+                        }
+
+                        m_uiMurkdeepAdds_KilledAddCount = 0;
+                    }
+                }
+                break;
+            case NPC_GREYMIST_WARRIOR:
+                if (pCreature->IsTemporarySummon())             // Only count the ones summoned for Murkdeep quest
+                {
+                    ++m_uiMurkdeepAdds_KilledAddCount;
+
+                    // After the 2 warriors are killed, Murkdeep spawns, along with a hunter
+                    if (m_uiMurkdeepAdds_KilledAddCount == 2)
+                    {
+                        float fX, fY, fZ;
+                        for (uint8 i = 0; i < 2; ++i)
+                        {
+                            pCreature->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
+
+                            if (Creature* pTemp = pCreature->SummonCreature(!i ? NPC_MURKDEEP : NPC_GREYMIST_HUNTER, fX, fY, fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3], TEMPSUMMON_DEAD_DESPAWN, 0))
+                            {
+                                pTemp->SetWalk(false);
+                                pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
+                                pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+                            }
+                        }
+
+                        m_uiMurkdeepAdds_KilledAddCount = 0;
+                    }
+                }
+                break;
+        }
+    }
 
     void SetData(uint32 uiType, uint32 uiData) {}
 };
@@ -56,19 +140,6 @@ InstanceData* GetInstanceData_world_map_kalimdor(Map* pMap)
 /* *********************************************************
  *                     OUTLAND
  */
-
-enum
-{
-    NPC_EMISSARY_OF_HATE        = 25003,
-    NPC_IRESPEAKER              = 24999,
-    NPC_UNLEASHED_HELLION       = 25002,
-};
-
-static const float aSpawnLocations[1][4] =
-{
-    {12583.019531f, -6916.194336f, 4.601806f, 6.182446f}    // Emissary of Hate, guesswork
-};
-
 struct MANGOS_DLL_DECL world_map_outland : public ScriptedMap
 {
     world_map_outland(Map* pMap) : ScriptedMap(pMap) { Initialize(); }
@@ -97,7 +168,7 @@ struct MANGOS_DLL_DECL world_map_outland : public ScriptedMap
                     ++m_uiEmissaryOfHate_KilledAddCount;
                     if (m_uiEmissaryOfHate_KilledAddCount == 6)
                     {
-                        pCreature->SummonCreature(NPC_EMISSARY_OF_HATE, aSpawnLocations[0][0], aSpawnLocations[0][1], aSpawnLocations[0][2], aSpawnLocations[0][3], TEMPSUMMON_DEAD_DESPAWN, 0);
+                        pCreature->SummonCreature(NPC_EMISSARY_OF_HATE, aSpawnLocations[POS_IDX_EMISSARY_SPAWN][0], aSpawnLocations[POS_IDX_EMISSARY_SPAWN][1], aSpawnLocations[POS_IDX_EMISSARY_SPAWN][2], aSpawnLocations[POS_IDX_EMISSARY_SPAWN][3], TEMPSUMMON_DEAD_DESPAWN, 0);
                         m_uiEmissaryOfHate_KilledAddCount = 0;
                     }
                 }

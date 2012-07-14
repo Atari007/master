@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -146,8 +146,7 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
             {
                 DoUseDoorOrButton(GO_STAGE_DOOR_LEFT);
                 DoUseDoorOrButton(GO_STAGE_DOOR_RIGHT);
-                if (GameObject* pSideEntrance = GetSingleGameObjectFromStorage(GO_SIDE_ENTRANCE_DOOR))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                DoToggleGameObjectFlags(GO_SIDE_ENTRANCE_DOOR, GO_FLAG_LOCKED, false);
             }
             break;
         case TYPE_CURATOR:
@@ -172,7 +171,6 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_MALCHEZZAR:
             m_auiEncounter[9] = uiData;
-			DoUseDoorOrButton(GO_NETHERSPACE_DOOR);
             break;
         case TYPE_NIGHTBANE:
             m_auiEncounter[10] = uiData;

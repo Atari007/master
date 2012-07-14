@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -69,7 +69,7 @@ class MANGOS_DLL_DECL instance_uldaman : public ScriptedInstance
         uint32 m_uiKeeperCooldown;
         uint32 m_uiStoneKeepersFallen;
 
-        GUIDList m_lWardens;
+        GuidList m_lWardens;
         std::map<ObjectGuid, bool> m_mKeeperMap;
 };
 

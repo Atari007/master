@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -153,6 +153,12 @@ enum
     // quest 9849, item 24501
     SPELL_THROW_GORDAWG_BOULDER         = 32001,
     NPC_MINION_OF_GUROK                 = 18181,
+
+    // npcs that are only interactable while dead
+    SPELL_SHROUD_OF_DEATH               = 10848,
+    SPELL_SPIRIT_PARTICLES              = 17327,
+    NPC_FRANCLORN_FORGEWRIGHT           = 8888,
+    NPC_GAERIYAN                        = 9299,
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
@@ -248,6 +254,21 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
 
             return false;
         }
+        case SPELL_SHROUD_OF_DEATH:
+        case SPELL_SPIRIT_PARTICLES:
+        {
+            Creature* pCreature = (Creature*)pAura->GetTarget();
+
+            if (!pCreature || (pCreature->GetEntry() != NPC_FRANCLORN_FORGEWRIGHT && pCreature->GetEntry() != NPC_GAERIYAN))
+                return false;
+
+            if (bApply)
+                pCreature->m_AuraFlags |= UNIT_AURAFLAG_ALIVE_INVISIBLE;
+            else
+                pCreature->m_AuraFlags |= ~UNIT_AURAFLAG_ALIVE_INVISIBLE;
+
+            return false;
+        }
     }
 
     return false;
@@ -279,19 +300,11 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                     return true;
 
                 if (pCreatureTarget->GetEntry() == NPC_SICKLY_DEER && ((Player*)pCaster)->GetTeam() == ALLIANCE)
-				{
                     pCreatureTarget->UpdateEntry(NPC_CURED_DEER);
-					pCreatureTarget->ForcedDespawn(1000);
-					if (((Player*) pCaster)->GetQuestStatus(6124) == QUEST_STATUS_INCOMPLETE)
-						((Player*) pCaster)->KilledMonsterCredit(NPC_CURED_DEER);
-				}
+
                 if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE && ((Player*)pCaster)->GetTeam() == HORDE)
-				{
                     pCreatureTarget->UpdateEntry(NPC_CURED_GAZELLE);
-					pCreatureTarget->ForcedDespawn(1000);
-					if (((Player*) pCaster)->GetQuestStatus(6129) == QUEST_STATUS_INCOMPLETE)
-						((Player*) pCaster)->KilledMonsterCredit(NPC_CURED_GAZELLE);
-				}
+
                 return true;
             }
             return true;
@@ -304,8 +317,7 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                     return true;
 
                 pCreatureTarget->UpdateEntry(NPC_OWLKIN_INOC);
-				if (((Player*) pCaster)->GetQuestStatus(9303) == QUEST_STATUS_INCOMPLETE)
-					((Player*) pCaster)->KilledMonsterCredit(NPC_OWLKIN_INOC);
+
                 //set despawn timer, since we want to remove creature after a short time
                 pCreatureTarget->ForcedDespawn(15000);
 

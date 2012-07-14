@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -53,8 +53,13 @@ void instance_blackwing_lair::OnCreatureCreate(Creature* pCreature)
             if (pCreature->IsWithinDist2d(aNefariusSpawnLoc[0], aNefariusSpawnLoc[1], 50.0f))
                 m_lTechnicianGuids.push_back(pCreature->GetObjectGuid());
             break;
+        case NPC_MONSTER_GENERATOR:
+            m_lGeneratorGuids.push_back(pCreature->GetObjectGuid());
+            break;
+        case NPC_BLACKWING_ORB_TRIGGER:
         case NPC_VAELASTRASZ:
-            m_mNpcEntryGuidStore[NPC_VAELASTRASZ] = pCreature->GetObjectGuid();
+        case NPC_LORD_VICTOR_NEFARIUS:
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
     }
 }
@@ -64,14 +69,12 @@ void instance_blackwing_lair::OnObjectCreate(GameObject* pGo)
     switch(pGo->GetEntry())
     {
         case GO_DOOR_RAZORGORE_ENTER:
+        case GO_ORB_OF_DOMINATION:
+        case GO_DOOR_NEFARIAN:
             break;
         case GO_DOOR_RAZORGORE_EXIT:
             if (m_auiEncounter[TYPE_RAZORGORE] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
-            break;
-        case GO_DOOR_NEFARIAN:
-        case GO_DOOR_CHROMAGGUS_ENTER:
-        case GO_DOOR_CHROMAGGUS_SIDE:
             break;
         case GO_DOOR_CHROMAGGUS_EXIT:
             if (m_auiEncounter[TYPE_CHROMAGGUS] == DONE)
@@ -85,6 +88,12 @@ void instance_blackwing_lair::OnObjectCreate(GameObject* pGo)
             if (m_auiEncounter[TYPE_LASHLAYER] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
+        case GO_BLACK_DRAGON_EGG:
+            m_lDragonEggGuids.push_back(pGo->GetObjectGuid());
+            return;
+        case GO_DRAKONID_BONES:
+            m_lDrakonidBonesGuids.push_back(pGo->GetObjectGuid());
+            return;
 
         default:
             return;
@@ -101,6 +110,13 @@ void instance_blackwing_lair::SetData(uint32 uiType, uint32 uiData)
             DoUseDoorOrButton(GO_DOOR_RAZORGORE_ENTER);
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_DOOR_RAZORGORE_EXIT);
+            else if (uiData == FAIL)
+            {
+                // Reset the Orb of Domination and the eggs
+                DoToggleGameObjectFlags(GO_ORB_OF_DOMINATION, GO_FLAG_NO_INTERACT, true);
+
+                // ToDo: reset the Dragon Eggs
+            }
             break;
         case TYPE_VAELASTRASZ:
             m_auiEncounter[uiType] = uiData;
@@ -122,13 +138,42 @@ void instance_blackwing_lair::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_CHROMAGGUS:
             m_auiEncounter[uiType] = uiData;
-            DoUseDoorOrButton(GO_DOOR_CHROMAGGUS_ENTER);
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_DOOR_CHROMAGGUS_EXIT);
             break;
         case TYPE_NEFARIAN:
+            // Don't store the same thing twice
+            if (m_auiEncounter[uiType] == uiData)
+                break;
+            if (uiData == SPECIAL)
+            {
+                //handle missing spell 23362
+                Creature* pNefarius = GetSingleCreatureFromStorage(NPC_LORD_VICTOR_NEFARIUS);
+                if (!pNefarius)
+                    break;
+
+                for (GuidList::const_iterator itr = m_lDrakonidBonesGuids.begin(); itr != m_lDrakonidBonesGuids.end(); ++itr)
+                {
+                    // The Go script will handle the missing spell 23361
+                    if (GameObject* pGo = instance->GetGameObject(*itr))
+                        pGo->Use(pNefarius);
+                }
+                // Don't store special data
+                break;
+            }
             m_auiEncounter[uiType] = uiData;
             DoUseDoorOrButton(GO_DOOR_NEFARIAN);
+            // Cleanup the drakonid bones
+            if (uiData == FAIL)
+            {
+                for (GuidList::const_iterator itr = m_lDrakonidBonesGuids.begin(); itr != m_lDrakonidBonesGuids.end(); ++itr)
+                {
+                    if (GameObject* pGo = instance->GetGameObject(*itr))
+                        pGo->SetLootState(GO_JUST_DEACTIVATED);
+                }
+
+                m_lDrakonidBonesGuids.clear();
+            }
             break;
     }
 
@@ -177,6 +222,17 @@ uint32 instance_blackwing_lair::GetData(uint32 uiType)
         return m_auiEncounter[uiType];
 
     return 0;
+}
+
+void instance_blackwing_lair::OnCreatureDeath(Creature* pCreature)
+{
+    if (pCreature->GetEntry() == NPC_GRETHOK_CONTROLLER)
+    {
+        DoToggleGameObjectFlags(GO_ORB_OF_DOMINATION, GO_FLAG_NO_INTERACT, false);
+
+        if (Creature* pOrbTrigger = GetSingleCreatureFromStorage(NPC_BLACKWING_ORB_TRIGGER))
+            pOrbTrigger->InterruptNonMeleeSpells(false);
+    }
 }
 
 InstanceData* GetInstanceData_instance_blackwing_lair(Map* pMap)

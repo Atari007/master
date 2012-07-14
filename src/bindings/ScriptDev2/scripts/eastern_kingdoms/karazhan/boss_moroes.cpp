@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -36,8 +36,7 @@ enum
     SAY_KILL_3          = -1532016,
     SAY_DEATH           = -1532017,
 
-    //SPELL_VANISH        = 29448, bugged in core currently
-	SPELL_VANISH		= 24223, //workaround until proper spell gets fixed in core
+    SPELL_VANISH        = 29448,
     SPELL_GARROTE       = 37066,
     SPELL_BLIND         = 34694,
     SPELL_GOUGE         = 29425,
@@ -169,9 +168,8 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
             uint8 i = 0;
             for (std::vector<uint32>::iterator itr = vAddList.begin(); itr != vAddList.end(); ++itr, ++i)
             {
-                if (Creature* pCreature = m_creature->SummonCreature(*itr, afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000,true))
+                if (Creature* pCreature = m_creature->SummonCreature(*itr, afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                 {
-					pCreature->SetRespawnDelay(604800);
                     m_aAddGuid[i] = pCreature->GetObjectGuid();
                     m_auiAddId[i]   = *itr;
                 }
@@ -188,7 +186,6 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
                     if (!pCreature->isAlive())              // Exists but is dead
                     {
                         pCreature->Respawn();
-						pCreature->SetRespawnDelay(604800);
                         pCreature->AI()->EnterEvadeMode();
                     }
                     else if (!pCreature->IsInEvadeMode())   // Exists and is alive
@@ -198,11 +195,8 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
                 }
                 else
                 {                                           // Does not exist
-                    if (Creature* pCreature = m_creature->SummonCreature(m_auiAddId[i], afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000,true))
-					{
-						pCreature->SetRespawnDelay(604800);
+                    if (Creature* pCreature = m_creature->SummonCreature(m_auiAddId[i], afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                         m_aAddGuid[i] = pCreature->GetObjectGuid();
-					}
                 }
             }
         }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -30,20 +30,13 @@ enum
     SAY_HEALTH1             = -1189012,
     SAY_HEALTH2             = -1189013,
     SAY_KILL                = -1189014,
-    SAY_TRIGGER_VORREL      = -1189015,
 
     SPELL_SHADOWWORDPAIN    = 2767,
 };
 
 struct MANGOS_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
 {
-    boss_interrogator_vishasAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
-    }
-
-    ScriptedInstance* m_pInstance;
+    boss_interrogator_vishasAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     bool Yell30;
     bool Yell60;
@@ -64,16 +57,6 @@ struct MANGOS_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
     void KilledUnit(Unit* Victim)
     {
         DoScriptText(SAY_KILL, m_creature);
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        if (!m_pInstance)
-            return;
-
-        //Any other actions to do with vorrel? setStandState?
-        if (Creature *vorrel = m_pInstance->GetSingleCreatureFromStorage(NPC_VORREL))
-            DoScriptText(SAY_TRIGGER_VORREL, vorrel);
     }
 
     void UpdateAI(const uint32 diff)

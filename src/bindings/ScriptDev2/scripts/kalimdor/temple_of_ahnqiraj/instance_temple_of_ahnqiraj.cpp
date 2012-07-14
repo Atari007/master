@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -24,7 +24,21 @@ EndScriptData */
 #include "precompiled.h"
 #include "temple_of_ahnqiraj.h"
 
+static const DialogueEntry aIntroDialogue[] =
+{
+    {EMOTE_EYE_INTRO,       NPC_MASTERS_EYE, 7000},
+    {SAY_EMPERORS_INTRO_1,  NPC_VEKLOR,      6000},
+    {SAY_EMPERORS_INTRO_2,  NPC_VEKNILASH,   8000},
+    {SAY_EMPERORS_INTRO_3,  NPC_VEKLOR,      3000},
+    {SAY_EMPERORS_INTRO_4,  NPC_VEKNILASH,   3000},
+    {SAY_EMPERORS_INTRO_5,  NPC_VEKLOR,      3000},
+    {SAY_EMPERORS_INTRO_6,  NPC_VEKNILASH,   0},
+    {0,0,0}
+};
+
 instance_temple_of_ahnqiraj::instance_temple_of_ahnqiraj(Map* pMap) : ScriptedInstance(pMap),
+    m_dialogueHelper(aIntroDialogue),
+    m_bIsEmperorsIntroDone(false),
     m_uiBugTrioDeathCount(0)
 {
     Initialize();
@@ -33,16 +47,33 @@ instance_temple_of_ahnqiraj::instance_temple_of_ahnqiraj(Map* pMap) : ScriptedIn
 void instance_temple_of_ahnqiraj::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+    m_dialogueHelper.InitializeDialogueHelper(this);
+}
+
+void instance_temple_of_ahnqiraj::DoHandleTempleAreaTrigger(uint32 uiTriggerId)
+{
+    if (uiTriggerId == AREATRIGGER_TWIN_EMPERORS && !m_bIsEmperorsIntroDone)
+    {
+        m_dialogueHelper.StartNextDialogueText(EMOTE_EYE_INTRO);
+        // Note: there may be more related to this; The emperors should kneel before the Eye and they stand up after it despawns
+        if (Creature* pEye = GetSingleCreatureFromStorage(NPC_MASTERS_EYE))
+            pEye->ForcedDespawn(1000);
+        m_bIsEmperorsIntroDone = true;
+    }
 }
 
 void instance_temple_of_ahnqiraj::OnCreatureCreate (Creature* pCreature)
 {
     switch (pCreature->GetEntry())
     {
-        case NPC_VEM:
-        case NPC_KRI:
+        case NPC_SKERAM:
+            // Don't store the summoned images guid
+            if (GetData(TYPE_SKERAM) == IN_PROGRESS)
+                break;
         case NPC_VEKLOR:
         case NPC_VEKNILASH:
+        case NPC_MASTERS_EYE:
         case NPC_CTHUN:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
@@ -86,7 +117,18 @@ void instance_temple_of_ahnqiraj::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_SKERAM_GATE);
             break;
-        case TYPE_VEM:
+        case TYPE_BUG_TRIO:
+            if (uiData == SPECIAL)
+            {
+                ++m_uiBugTrioDeathCount;
+                if (m_uiBugTrioDeathCount == 2)
+                    SetData(TYPE_BUG_TRIO, DONE);
+
+                // don't store any special data
+                break;
+            }
+            if (uiData == FAIL)
+                m_uiBugTrioDeathCount = 0;
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_TWINS:
@@ -102,11 +144,6 @@ void instance_temple_of_ahnqiraj::SetData(uint32 uiType, uint32 uiData)
         case TYPE_CTHUN_PHASE:
             m_auiEncounter[uiType] = uiData;
             break;
-
-        // The following temporarily datas are not to be saved
-        case DATA_BUG_TRIO_DEATH:
-            ++m_uiBugTrioDeathCount;
-            return;
     }
 
     if (uiData == DONE)
@@ -147,23 +184,29 @@ void instance_temple_of_ahnqiraj::Load(const char* chrIn)
 
 uint32 instance_temple_of_ahnqiraj::GetData(uint32 uiType)
 {
-    switch(uiType)
-    {
-        case TYPE_VEM:
-            return m_auiEncounter[1];
-        case TYPE_CTHUN_PHASE:
-            return m_auiEncounter[3];;
+    if (uiType < MAX_ENCOUNTER)
+        return m_auiEncounter[uiType];
 
-        case DATA_BUG_TRIO_DEATH:
-            return m_uiBugTrioDeathCount;
-        default:
-            return 0;
-    }
+    return 0;
 }
 
 InstanceData* GetInstanceData_instance_temple_of_ahnqiraj(Map* pMap)
 {
     return new instance_temple_of_ahnqiraj(pMap);
+}
+
+bool AreaTrigger_at_temple_ahnqiraj(Player* pPlayer, AreaTriggerEntry const* pAt)
+{
+    if (pAt->id == AREATRIGGER_TWIN_EMPERORS)
+    {
+        if (pPlayer->isGameMaster() || pPlayer->isDead())
+            return false;
+
+        if (instance_temple_of_ahnqiraj* pInstance = (instance_temple_of_ahnqiraj*)pPlayer->GetInstanceData())
+            pInstance->DoHandleTempleAreaTrigger(pAt->id);
+    }
+
+    return false;
 }
 
 void AddSC_instance_temple_of_ahnqiraj()
@@ -173,5 +216,10 @@ void AddSC_instance_temple_of_ahnqiraj()
     pNewScript = new Script;
     pNewScript->Name = "instance_temple_of_ahnqiraj";
     pNewScript->GetInstanceData = &GetInstanceData_instance_temple_of_ahnqiraj;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "at_temple_ahnqiraj";
+    pNewScript->pAreaTrigger = &AreaTrigger_at_temple_ahnqiraj;
     pNewScript->RegisterSelf();
 }

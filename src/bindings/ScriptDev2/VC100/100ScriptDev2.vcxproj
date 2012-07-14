@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -215,10 +215,6 @@
     <ClCompile Include="..\base\guard_ai.cpp" />
     <ClCompile Include="..\base\pet_ai.cpp" />
     <ClCompile Include="..\scripts\battlegrounds\battleground.cpp" />
-    <ClCompile Include="..\scripts\custom\go_custom.cpp" />
-    <ClCompile Include="..\scripts\custom\item_custom.cpp" />
-    <ClCompile Include="..\scripts\custom\npc_custom.cpp" />
-    <ClCompile Include="..\scripts\custom\spell_custom.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\alterac_mountains.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\arathi_highlands.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blasted_lands.cpp" />
@@ -409,12 +405,9 @@
     <ClCompile Include="..\scripts\kalimdor\azuremyst_isle.cpp" />
     <ClCompile Include="..\scripts\kalimdor\bloodmyst_isle.cpp" />
     <ClCompile Include="..\scripts\kalimdor\boss_azuregos.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_anetheron.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_azgalor.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_kazrogal.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_rage_winterchill.cpp" />
     <ClCompile Include="..\scripts\kalimdor\darkshore.cpp" />
     <ClCompile Include="..\scripts\kalimdor\desolace.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\durotar.cpp" />
     <ClCompile Include="..\scripts\kalimdor\dustwallow_marsh.cpp" />
     <ClCompile Include="..\scripts\kalimdor\felwood.cpp" />
     <ClCompile Include="..\scripts\kalimdor\feralas.cpp" />
@@ -600,7 +593,7 @@
     <ClInclude Include="..\scripts\eastern_kingdoms\karazhan\karazhan.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\magisters_terrace\magisters_terrace.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\molten_core\molten_core.h" />
-    <ClInclude Include="..\scripts\eastern_kingdoms\naxxramas\naxxramas.h" />
+	<ClInclude Include="..\scripts\eastern_kingdoms\naxxramas\naxxramas.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\scarlet_monastery\scarlet_monastery.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\scholomance\scholomance.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\shadowfang_keep\shadowfang_keep.h" />
@@ -635,6 +628,7 @@
     <ClInclude Include="..\scripts\outland\tempest_keep\arcatraz\arcatraz.h" />
     <ClInclude Include="..\scripts\outland\tempest_keep\the_eye\the_eye.h" />
     <ClInclude Include="..\scripts\outland\tempest_keep\the_mechanar\mechanar.h" />
+    <ClInclude Include="..\scripts\world\world_map_scripts.h" />
     <ClInclude Include="..\include\precompiled.h" />
     <ClInclude Include="..\include\sc_creature.h" />
     <ClInclude Include="..\include\sc_gossip.h" />

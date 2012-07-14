@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -43,6 +43,16 @@ void instance_scarlet_monastery::OnCreatureCreate(Creature* pCreature)
         case NPC_VORREL:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
+    }
+}
+
+void instance_scarlet_monastery::OnCreatureDeath(Creature* pCreature)
+{
+    if (pCreature->GetEntry() == NPC_INTERROGATOR_VISHAS)
+    {
+        // Any other actions to do with Vorrel? setStandState?
+        if (Creature* pVorrel = GetSingleCreatureFromStorage(NPC_VORREL))
+            DoScriptText(SAY_TRIGGER_VORREL, pVorrel);
     }
 }
 

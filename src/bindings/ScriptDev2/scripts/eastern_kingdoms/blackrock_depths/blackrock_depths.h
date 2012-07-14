@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -130,7 +130,7 @@ class MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
         float m_fArenaCenterX, m_fArenaCenterY, m_fArenaCenterZ;
 
-        GUIDSet m_sVaultNpcGuids;
+        GuidSet m_sVaultNpcGuids;
 };
 
 #endif

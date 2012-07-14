@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -33,10 +33,19 @@ EndScriptData */
 5 - Kil'Jaeden
 */
 
-instance_sunwell_plateau::instance_sunwell_plateau(Map* pMap) : ScriptedInstance(pMap),
+static const DialogueEntry aFelmystOutroDialogue[] =
+{
+    {NPC_KALECGOS,          0,              10000},
+    {SAY_KALECGOS_OUTRO,    NPC_KALECGOS,   10000},
+    {SPELL_OPEN_BACK_DOOR,  0,              0},
+    {0, 0, 0},
+};
+
+instance_sunwell_plateau::instance_sunwell_plateau(Map* pMap) : ScriptedInstance(pMap), DialogueHelper(aFelmystOutroDialogue),
     m_uiMuruBerserkTimer(0),
-	m_uiDeceiversKilled(0),
-    m_uiKalecRespawnTimer(0)
+    m_uiDeceiversKilled(0),
+    m_uiKalecRespawnTimer(0),
+    m_uiSpectralRealmTimer(5000)
 {
     Initialize();
 }
@@ -44,6 +53,7 @@ instance_sunwell_plateau::instance_sunwell_plateau(Map* pMap) : ScriptedInstance
 void instance_sunwell_plateau::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+    InitializeDialogueHelper(this);
 }
 
 bool instance_sunwell_plateau::IsEncounterInProgress() const
@@ -57,6 +67,20 @@ bool instance_sunwell_plateau::IsEncounterInProgress() const
     return false;
 }
 
+void instance_sunwell_plateau::OnPlayerEnter(Player* pPlayer)
+{
+    // Return if Felmyst already dead, or Brutallus alive
+    if (m_auiEncounter[TYPE_BRUTALLUS] != DONE || m_auiEncounter[TYPE_FELMYST] == DONE)
+        return;
+
+    // Return if already summoned
+    if (GetSingleCreatureFromStorage(NPC_FELMYST, true))
+        return;
+
+    // Summon Felmyst in reload case
+    pPlayer->SummonCreature(NPC_FELMYST, aMadrigosaGroundLoc[0], aMadrigosaGroundLoc[1], aMadrigosaGroundLoc[2], aMadrigosaGroundLoc[3], TEMPSUMMON_DEAD_DESPAWN, 0);
+}
+
 void instance_sunwell_plateau::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
@@ -64,27 +88,22 @@ void instance_sunwell_plateau::OnCreatureCreate(Creature* pCreature)
         case NPC_KALECGOS_DRAGON:
         case NPC_KALECGOS_HUMAN:
         case NPC_SATHROVARR:
-		case NPC_BRUTALLUS:
+        case NPC_FLIGHT_TRIGGER_LEFT:
+        case NPC_MADRIGOSA:
+        case NPC_BRUTALLUS:
+        case NPC_FELMYST:
         case NPC_ALYTHESS:
         case NPC_SACROLASH:
         case NPC_MURU:
         case NPC_ENTROPIUS:
-		case NPC_KILJAEDEN:
-		case NPC_KILJAEDEN_CONTROLLER:
-		case NPC_KALECGOS:
-		case NPC_ANVEENA:
+        case NPC_KILJAEDEN_CONTROLLER:
+        case NPC_KILJAEDEN:
+        case NPC_KALECGOS:
+        case NPC_ANVEENA:
         case NPC_VELEN:
         case NPC_LIADRIN:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
-		case NPC_FELMYST:
-			m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-			if(m_auiEncounter[1] != DONE)
-				{
-					pCreature->SetDisplayId(11686);
-					pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				}
-			break;
     }
 }
 
@@ -100,6 +119,8 @@ void instance_sunwell_plateau::OnCreatureDeath(Creature* pCreature)
             {
                 if (Creature* pKiljaeden = pController->SummonCreature(NPC_KILJAEDEN, pController->GetPositionX(), pController->GetPositionY(), pController->GetPositionZ(), pController->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0))
                     pKiljaeden->SetInCombatWithZone();
+
+                pController->RemoveAurasDueToSpell(SPELL_ANVEENA_DRAIN);
             }
         }
     }
@@ -114,19 +135,13 @@ void instance_sunwell_plateau::OnObjectCreate(GameObject* pGo)
         case GO_BOSS_COLLISION_2:
         case GO_ICE_BARRIER:
             break;
-		case GO_KALEC_GATE:
-            if (m_auiEncounter[TYPE_KALECGOS] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE);
-            break;
         case GO_FIRE_BARRIER:
             if (m_auiEncounter[TYPE_KALECGOS] == DONE && m_auiEncounter[TYPE_BRUTALLUS] == DONE && m_auiEncounter[TYPE_FELMYST] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
-        case GO_TWINS_ENTER_GATE:
-			if (m_auiEncounter[TYPE_KALECGOS] == DONE && m_auiEncounter[TYPE_BRUTALLUS] == DONE && m_auiEncounter[TYPE_FELMYST] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE);
+        case GO_FIRST_GATE:
             break;
-        case GO_TWINS_EXIT_GATE:
+        case GO_SECOND_GATE:
             if (m_auiEncounter[TYPE_EREDAR_TWINS] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
@@ -135,6 +150,10 @@ void instance_sunwell_plateau::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_MURU_EXIT_GATE:
+            if (m_auiEncounter[TYPE_MURU] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
+        case GO_THIRD_GATE:
             if (m_auiEncounter[TYPE_MURU] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
@@ -165,29 +184,28 @@ void instance_sunwell_plateau::SetData(uint32 uiType, uint32 uiData)
                     pKalecHuman->ForcedDespawn();
                 if (Creature* pSathrovarr = GetSingleCreatureFromStorage(NPC_SATHROVARR))
                     pSathrovarr->AI()->EnterEvadeMode();
-			}
-			if (uiData == DONE)
-				DoUseDoorOrButton(GO_KALEC_GATE);
+            }
             break;
         case TYPE_BRUTALLUS:
             m_auiEncounter[uiType] = uiData;
+            // Temporary - until spells 46609 and 46637 are properly fixed
             if (uiData == SPECIAL)
                 DoUseDoorOrButton(GO_ICE_BARRIER, MINUTE);
             break;
         case TYPE_FELMYST:
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
-			{
+            {
+                StartNextDialogueText(NPC_KALECGOS);
+                // Temporary - until spell 46650 is properly fixed
                 DoUseDoorOrButton(GO_FIRE_BARRIER);
-				DoUseDoorOrButton(GO_TWINS_ENTER_GATE);
-			}
+            }
             break;
         case TYPE_EREDAR_TWINS:
             m_auiEncounter[uiType] = uiData;
-			DoUseDoorOrButton(GO_TWINS_ENTER_GATE);
             if (uiData == DONE)
             {
-                DoUseDoorOrButton(GO_TWINS_EXIT_GATE);
+                DoUseDoorOrButton(GO_SECOND_GATE);
                 DoUseDoorOrButton(GO_MURU_ENTER_GATE);
             }
             break;
@@ -196,7 +214,10 @@ void instance_sunwell_plateau::SetData(uint32 uiType, uint32 uiData)
             // combat door
             DoUseDoorOrButton(GO_MURU_ENTER_GATE);
             if (uiData == DONE)
+            {
                 DoUseDoorOrButton(GO_MURU_EXIT_GATE);
+                DoUseDoorOrButton(GO_THIRD_GATE);
+            }
             else if (uiData == IN_PROGRESS)
                 m_uiMuruBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
             break;
@@ -225,7 +246,6 @@ void instance_sunwell_plateau::SetData(uint32 uiType, uint32 uiData)
 
 uint32 instance_sunwell_plateau::GetData(uint32 uiType)
 {
-
     if (uiType < MAX_ENCOUNTER)
         return m_auiEncounter[uiType];
 
@@ -234,6 +254,8 @@ uint32 instance_sunwell_plateau::GetData(uint32 uiType)
 
 void instance_sunwell_plateau::Update(uint32 uiDiff)
 {
+    DialogueUpdate(uiDiff);
+
     if (m_uiKalecRespawnTimer)
     {
         if (m_uiKalecRespawnTimer <= uiDiff)
@@ -286,6 +308,28 @@ void instance_sunwell_plateau::Load(const char* in)
     }
 
     OUT_LOAD_INST_DATA_COMPLETE;
+}
+
+void instance_sunwell_plateau::JustDidDialogueStep(int32 iEntry)
+{
+    switch (iEntry)
+    {
+        case NPC_KALECGOS:
+            if (Creature* pTrigger = GetSingleCreatureFromStorage(NPC_FLIGHT_TRIGGER_LEFT))
+            {
+                if (Creature* pKalec = pTrigger->SummonCreature(NPC_KALECGOS, pTrigger->GetPositionX(), pTrigger->GetPositionY(), pTrigger->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 1*MINUTE*IN_MILLISECONDS))
+                {
+                    pKalec->SetWalk(false);
+                    pKalec->SetLevitate(true);
+                    pKalec->GetMotionMaster()->MovePoint(0, aMadrigosaFlyLoc[0], aMadrigosaFlyLoc[1], aMadrigosaFlyLoc[2]);
+                }
+            }
+            break;
+        case SPELL_OPEN_BACK_DOOR:
+            if (Creature* pKalec = GetSingleCreatureFromStorage(NPC_KALECGOS))
+                pKalec->CastSpell(pKalec, SPELL_OPEN_BACK_DOOR, true);
+            break;
+    }
 }
 
 InstanceData* GetInstanceData_instance_sunwell_plateau(Map* pMap)

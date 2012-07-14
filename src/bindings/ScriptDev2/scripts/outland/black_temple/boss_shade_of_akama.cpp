@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -36,7 +36,7 @@ EndScriptData */
 
 enum
 {
-	GOSSIP_ITEM_START_ENCOUNTER     = -3564000,
+    GOSSIP_ITEM_START_ENCOUNTER     = -3564000,
     TEXT_ID_AKAMA                   = 907,
 
     SAY_DEATH                       = -1564013,
@@ -125,8 +125,8 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
 
-    GUIDList m_lChannelersGUIDList;
-    GUIDList m_lSorcerersGUIDList;
+    GuidList m_lChannelersGUIDList;
+    GuidList m_lSorcerersGUIDList;
 
     uint32 m_uiDeathChannelerCount;
 
@@ -203,7 +203,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         {
             if (Creature* pSorcerer = m_creature->SummonCreature(NPC_ASH_SORCERER,
                 afSpawnLoc[uiRand].m_fX, afSpawnLoc[uiRand].m_fY, afSpawnLoc[uiRand].m_fZ, afSpawnLoc[uiRand].m_fO,
-				TEMPSUMMON_DEAD_DESPAWN, 0))
+                TEMPSUMMON_DEAD_DESPAWN, 0))
             {
                 pSorcerer->SetWalk(false);
                 pSorcerer->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
@@ -220,7 +220,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             {
                 if (Creature* pSpawn = m_creature->SummonCreature(auiRandSpawnEntry[i],
                     afSpawnLoc[uiRand].m_fX, afSpawnLoc[uiRand].m_fY, afSpawnLoc[uiRand].m_fZ, afSpawnLoc[uiRand].m_fO,
-					TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                 {
                     pSpawn->SetWalk(false);
                     pSpawn->GetMotionMaster()->MovePoint(0, LOC_RAND_TO_CENTER_X, LOC_RAND_TO_CENTER_Y, LOC_RAND_TO_CENTER_Z);
@@ -231,7 +231,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
     void DespawnSorceres()
     {
-        for (GUIDList::const_iterator itr = m_lSorcerersGUIDList.begin(); itr != m_lSorcerersGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lSorcerersGUIDList.begin(); itr != m_lSorcerersGUIDList.end(); ++itr)
         {
             if (Creature* pSorcerer = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
     void RespawnChannelersIfDeadOrEvade()
     {
-        for (GUIDList::const_iterator itr = m_lChannelersGUIDList.begin(); itr != m_lChannelersGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lChannelersGUIDList.begin(); itr != m_lChannelersGUIDList.end(); ++itr)
         {
             if (Creature* pChanneler = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -268,7 +268,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             for (std::list<Creature*>::iterator itr = lChannelerList.begin(); itr != lChannelerList.end(); ++itr)
             {
                 m_lChannelersGUIDList.push_back((*itr)->GetObjectGuid());
-                
+
                 (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
         }
@@ -304,8 +304,8 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 uint32 uiRand = urand(0, countof(afSpawnLoc) - 1);
 
                 if (Creature* pDefender = m_creature->SummonCreature(NPC_ASH_DEFENDER,
-                   afSpawnLoc[uiRand].m_fX, afSpawnLoc[uiRand].m_fY, afSpawnLoc[uiRand].m_fZ, afSpawnLoc[uiRand].m_fO,
-				   TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    afSpawnLoc[uiRand].m_fX, afSpawnLoc[uiRand].m_fY, afSpawnLoc[uiRand].m_fZ, afSpawnLoc[uiRand].m_fO,
+                    TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                 {
                     if (Creature* pAkama = m_pInstance->GetSingleCreatureFromStorage(NPC_AKAMA_SHADE))
                         pDefender->AI()->AttackStart(pAkama);
@@ -405,7 +405,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
     uint32 m_uiWayPointId;
     uint32 m_uiBrokenSummonIndex;
 
-    GUIDList m_lBrokenGUIDList;
+    GuidList m_lBrokenGUIDList;
 
     bool m_bIsEventBegun;
     bool m_bIsShadeDead;
@@ -603,7 +603,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                         {
                             bool bYelled = false;
 
-                            for (GUIDList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
+                            for (GuidList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                             {
                                 if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
                                 {
@@ -621,7 +621,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                         m_uiSoulRetrieveTimer = 1500;
                         break;
                     case 3:
-                        for (GUIDList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
+                        for (GuidList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                         {
                             // This is the incorrect spell, but can't seem to find the right one.
                             if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
@@ -631,7 +631,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                         m_uiSoulRetrieveTimer = 5000;
                         break;
                     case 4:
-                        for (GUIDList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
+                        for (GuidList::const_iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                         {
                             if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
                                 DoScriptText(SAY_BROKEN_FREE_02, pBroken);

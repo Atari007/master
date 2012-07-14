@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -11,7 +11,6 @@ enum
 
     // Special data fields for Onyxia
     DATA_LIFTOFF                = 4,
-    DATA_PLAYER_TOASTED         = 5,
 
     NPC_ONYXIA_WHELP            = 11262,
     NPC_ONYXIA_TRIGGER          = 12758,

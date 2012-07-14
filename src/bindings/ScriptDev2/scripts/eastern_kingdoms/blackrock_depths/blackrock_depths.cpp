@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
     uint32 m_uiGladiatorId[MAX_THELDREN_ADDS];
 
-    GUIDList m_lSummonedGUIDList;
+    GuidList m_lSummonedGUIDList;
 
     void Reset()
     {
@@ -323,7 +323,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
             }
 
             // Despawn Summoned Mobs
-            for (GUIDList::const_iterator itr = m_lSummonedGUIDList.begin(); itr != m_lSummonedGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lSummonedGUIDList.begin(); itr != m_lSummonedGUIDList.end(); ++itr)
             {
                 if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                     pSummoned->ForcedDespawn();

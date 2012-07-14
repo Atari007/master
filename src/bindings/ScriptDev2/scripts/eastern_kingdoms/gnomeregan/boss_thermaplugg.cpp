@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -59,8 +59,8 @@ struct MANGOS_DLL_DECL boss_thermapluggAI : public ScriptedAI
     sBombFace* m_asBombFaces;
     float m_afSpawnPos[3];
 
-    GUIDList m_lSummonedBombGUIDs;
-    GUIDList m_lLandedBombGUIDs;
+    GuidList m_lSummonedBombGUIDs;
+    GuidList m_lLandedBombGUIDs;
 
     void Reset()
     {
@@ -118,7 +118,7 @@ struct MANGOS_DLL_DECL boss_thermapluggAI : public ScriptedAI
             m_pInstance->SetData(TYPE_THERMAPLUGG, FAIL);
 
         // Remove remaining bombs
-        for (GUIDList::const_iterator itr = m_lSummonedBombGUIDs.begin(); itr != m_lSummonedBombGUIDs.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lSummonedBombGUIDs.begin(); itr != m_lSummonedBombGUIDs.end(); ++itr)
         {
             if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
                 pBomb->ForcedDespawn();
@@ -158,7 +158,7 @@ struct MANGOS_DLL_DECL boss_thermapluggAI : public ScriptedAI
         // Movement of Summoned mobs
         if (!m_lLandedBombGUIDs.empty())
         {
-            for (GUIDList::const_iterator itr = m_lLandedBombGUIDs.begin(); itr != m_lLandedBombGUIDs.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lLandedBombGUIDs.begin(); itr != m_lLandedBombGUIDs.end(); ++itr)
             {
                 if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
                     pBomb->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);

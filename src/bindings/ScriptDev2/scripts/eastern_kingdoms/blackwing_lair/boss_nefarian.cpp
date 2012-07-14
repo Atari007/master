@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -27,9 +27,8 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                   = -1469007,
     SAY_XHEALTH                 = -1469008,             // at 5% hp
-    SAY_SHADOWFLAME             = -1469009,
+    SAY_AGGRO                   = -1469009,
     SAY_RAISE_SKELETONS         = -1469010,
     SAY_SLAY                    = -1469011,
     SAY_DEATH                   = -1469012,
@@ -51,7 +50,7 @@ enum
     SPELL_VEIL_OF_SHADOW        = 22687,                // old spell id 7068 -> wrong
     SPELL_CLEAVE                = 20691,
     SPELL_TAIL_LASH             = 23364,
-    SPELL_BONE_CONTRUST         = 23363,                //23362, 23361   Missing from DBC!
+    //SPELL_BONE_CONTRUST       = 23363,                //23362, 23361   Missing from DBC!
 
     SPELL_MAGE                  = 23410,                // wild magic
     SPELL_WARRIOR               = 23397,                // beserk
@@ -153,11 +152,7 @@ struct MANGOS_DLL_DECL boss_nefarianAI : public ScriptedAI
         if (m_uiShadowFlameTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_SHADOWFLAME) == CAST_OK)
-            {
-                // ToDo: check if he yells at every cast
-                DoScriptText(SAY_SHADOWFLAME, m_creature);
                 m_uiShadowFlameTimer = 12000;
-            }
         }
         else
             m_uiShadowFlameTimer -= uiDiff;
@@ -253,7 +248,8 @@ struct MANGOS_DLL_DECL boss_nefarianAI : public ScriptedAI
         // Phase3 begins when we are below X health
         if (!m_bPhase3 && m_creature->GetHealthPercent() < 20.0f)
         {
-            // todo revive all dead dragos as 14605
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_NEFARIAN, SPECIAL);
             m_bPhase3 = true;
             DoScriptText(SAY_RAISE_SKELETONS, m_creature);
         }

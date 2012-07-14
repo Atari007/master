@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,76 +16,16 @@
 
 /* ScriptData
 SDName: Elwynn_Forest
-SD%Complete: 50
-SDComment: Quest support: 1786
+SD%Complete: 0
+SDComment: Placeholder
 SDCategory: Elwynn Forest
 EndScriptData */
 
 /* ContentData
-npc_henze_faulk
 EndContentData */
 
 #include "precompiled.h"
 
-/*######
-## npc_henze_faulk
-######*/
-
-#define SAY_HEAL    -1000187
-
-struct MANGOS_DLL_DECL npc_henze_faulkAI : public ScriptedAI
-{
-    uint32 lifeTimer;
-    bool spellHit;
-
-    npc_henze_faulkAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-    void Reset()
-    {
-        lifeTimer = 120000;
-        m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
-        spellHit = false;
-    }
-
-    void MoveInLineOfSight(Unit *who) { }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (m_creature->IsStandState())
-        {
-            if (lifeTimer < diff)
-                m_creature->AI()->EnterEvadeMode();
-            else
-                lifeTimer -= diff;
-        }
-    }
-
-    void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
-    {
-        if (Spellkind->Id == 8593 && !spellHit)
-        {
-            DoCastSpellIfCan(m_creature,32343);
-            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-            m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-            //m_creature->RemoveAllAuras();
-            DoScriptText(SAY_HEAL, m_creature, Hitter);
-            spellHit = true;
-        }
-    }
-
-};
-CreatureAI* GetAI_npc_henze_faulk(Creature* pCreature)
-{
-    return new npc_henze_faulkAI(pCreature);
-}
-
 void AddSC_elwynn_forest()
 {
-    Script* pNewScript;
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_henze_faulk";
-    pNewScript->GetAI = &GetAI_npc_henze_faulk;
-    pNewScript->RegisterSelf();
 }

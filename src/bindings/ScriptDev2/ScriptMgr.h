@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -29,12 +29,6 @@ class ObjectGuid;
 // Basic defines
 #define VISIBLE_RANGE       (166.0f)                        // MAX visible range (size of grid)
 #define DEFAULT_TEXT        "<ScriptDev2 Text Entry Missing!>"
-
-// Some typedefs for storing Guids
-typedef std::list<ObjectGuid> GUIDList;
-typedef std::set<ObjectGuid> GUIDSet;
-typedef std::vector<ObjectGuid> GUIDVector;
-typedef std::map<uint32, ObjectGuid> EntryGuidMap;
 
 /* Escort Factions
  * TODO: find better namings and definitions.

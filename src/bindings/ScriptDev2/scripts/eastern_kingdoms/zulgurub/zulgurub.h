@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -24,6 +24,13 @@ enum
     NPC_THEKAL              = 14509,
     NPC_JINDO               = 11380,
     NPC_HAKKAR              = 14834,
+    NPC_PANTHER_TRIGGER     = 15091,
+    NPC_BLOODLORD_MANDOKIR  = 11382,
+    NPC_MARLI               = 14510,
+
+    GO_SPIDER_EGG           = 179985,
+    GO_GONG_OF_BETHEKK      = 180526,
+    GO_FORCEFIELD           = 180497,
 
     SAY_MINION_DESTROY      = -1309022,
     SAY_HAKKAR_PROTECT      = -1309023,
@@ -33,6 +40,8 @@ enum
     AREATRIGGER_ENTER       = 3958,
     AREATRIGGER_ALTAR       = 3960,
 };
+
+static const float aMandokirDownstairsPos[3] = {-12196.30f, -1948.37f, 130.31f};
 
 class MANGOS_DLL_DECL instance_zulgurub : public ScriptedInstance
 {
@@ -44,6 +53,7 @@ class MANGOS_DLL_DECL instance_zulgurub : public ScriptedInstance
         // IsEncounterInProgress() const { return false; }  // not active in Zul'Gurub
 
         void OnCreatureCreate(Creature* pCreature);
+        void OnObjectCreate(GameObject* pGo);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
@@ -53,11 +63,17 @@ class MANGOS_DLL_DECL instance_zulgurub : public ScriptedInstance
 
         void DoYellAtTriggerIfCan(uint32 uiTriggerId);
 
+        Creature* SelectRandomPantherTrigger(bool bIsLeft);
+
     protected:
         void DoLowerHakkarHitPoints();
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
+
+        GuidList m_lRightPantherTriggerGUIDList;
+        GuidList m_lLeftPantherTriggerGUIDList;
+        GuidList m_lSpiderEggGUIDList;
 
         bool m_bHasIntroYelled;
         bool m_bHasAltarYelled;

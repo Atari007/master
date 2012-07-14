@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -51,6 +51,8 @@ struct MANGOS_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         {
             if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
                 DoCastSpellIfCan(m_creature, SPELL_BANISH, CAST_TRIGGERED);
+            else
+                m_creature->GetMotionMaster()->MoveWaypoint();
         }
     }
 
@@ -64,8 +66,8 @@ struct MANGOS_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiCorrosiveAcidTimer  = urand(5000, 10000);
-        m_uiFearTimer           = urand(25000, 30000);
+        m_uiCorrosiveAcidTimer  = urand(20000, 23000);
+        m_uiFearTimer           = urand(20000, 26000);
         m_uiEnrageTimer         = 3*MINUTE*IN_MILLISECONDS;
         m_bIsEnraged            = false;
     }
@@ -110,7 +112,7 @@ struct MANGOS_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         if (m_uiCorrosiveAcidTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_CORROSIVE_ACID) == CAST_OK)
-                m_uiCorrosiveAcidTimer = urand(15000, 25000);
+                m_uiCorrosiveAcidTimer = urand(23000, 35000);
         }
         else
             m_uiCorrosiveAcidTimer -= uiDiff;
@@ -118,7 +120,7 @@ struct MANGOS_DLL_DECL boss_ambassador_hellmawAI : public ScriptedAI
         if (m_uiFearTimer < uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_FEAR) == CAST_OK)
-                m_uiFearTimer = urand(20000, 35000);
+                m_uiFearTimer = urand(20000, 38000);
         }
         else
             m_uiFearTimer -= uiDiff;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -97,7 +97,7 @@ void instance_uldaman::SetData(uint32 uiType, uint32 uiData)
         case TYPE_ARCHAEDAS:
             if (uiData == FAIL)
             {
-                for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
                     if (Creature* pWarden = instance->GetCreature(*itr))
                     {
@@ -109,7 +109,7 @@ void instance_uldaman::SetData(uint32 uiType, uint32 uiData)
             }
             else if (uiData == DONE)
             {
-                for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
                     Creature* pWarden = instance->GetCreature(*itr);
                     if (pWarden && pWarden->isAlive())
@@ -221,7 +221,7 @@ Creature* instance_uldaman::GetClosestDwarfNotInCombat(Creature* pSearcher, uint
 {
     std::list<Creature*> lTemp;
 
-    for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+    for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
     {
         Creature* pTemp = instance->GetCreature(*itr);
 

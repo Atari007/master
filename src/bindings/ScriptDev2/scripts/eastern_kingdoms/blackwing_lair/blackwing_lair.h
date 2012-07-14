@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -26,17 +26,23 @@ enum
     NPC_FLAMEGOR                = 11981,
     NPC_CHROMAGGUS              = 14020,
     NPC_NEFARIAN                = 11583,
-    NPC_LORD_NEFARIAN           = 10162,
+    NPC_LORD_VICTOR_NEFARIUS    = 10162,
     NPC_BLACKWING_TECHNICIAN    = 13996,                    // Flees at Vael intro event
+    NPC_GRETHOK_CONTROLLER      = 12557,
+    NPC_BLACKWING_ORB_TRIGGER   = 14449,
+    NPC_MONSTER_GENERATOR       = 12434,
 
     GO_DOOR_RAZORGORE_ENTER     = 176964,
     GO_DOOR_RAZORGORE_EXIT      = 176965,
     GO_DOOR_NEFARIAN            = 176966,
-    GO_DOOR_CHROMAGGUS_ENTER    = 179115,
-    GO_DOOR_CHROMAGGUS_SIDE     = 179116,
+    //GO_DOOR_CHROMAGGUS_ENTER  = 179115,
+    //GO_DOOR_CHROMAGGUS_SIDE   = 179116,
     GO_DOOR_CHROMAGGUS_EXIT     = 179117,
     GO_DOOR_VAELASTRASZ         = 179364,
     GO_DOOR_LASHLAYER           = 179365,
+    GO_ORB_OF_DOMINATION        = 177808,                   // trigger 19832 on Razorgore
+    GO_BLACK_DRAGON_EGG         = 177807,
+    GO_DRAKONID_BONES           = 179804,
 };
 
 // Coords used to spawn Nefarius at the throne
@@ -53,6 +59,7 @@ class MANGOS_DLL_DECL instance_blackwing_lair : public ScriptedInstance
 
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
+        void OnCreatureDeath(Creature* pCreature);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
@@ -64,7 +71,10 @@ class MANGOS_DLL_DECL instance_blackwing_lair : public ScriptedInstance
         std::string m_strInstData;
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        GUIDList m_lTechnicianGuids;
+        GuidList m_lTechnicianGuids;
+        GuidList m_lGeneratorGuids;
+        GuidList m_lDragonEggGuids;
+        GuidList m_lDrakonidBonesGuids;
 };
 
 #endif

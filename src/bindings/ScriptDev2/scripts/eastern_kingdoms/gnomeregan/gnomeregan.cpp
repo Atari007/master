@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL npc_blastmaster_emi_shortfuseAI : public npc_escortAI
     uint32 m_uiPhaseTimer;
     ObjectGuid m_playerGuid;
     bool m_bDidAggroText, m_bSouthernCaveInOpened, m_bNorthernCaveInOpened;
-    GUIDList m_luiSummonedMobGUIDs;
+    GuidList m_luiSummonedMobGUIDs;
 
     void Reset()
     {
@@ -251,7 +251,7 @@ struct MANGOS_DLL_DECL npc_blastmaster_emi_shortfuseAI : public npc_escortAI
         if (m_bNorthernCaveInOpened)                        // close northern cave-in door
             m_pInstance->DoUseDoorOrButton(GO_CAVE_IN_NORTH);
 
-        for (GUIDList::const_iterator itr = m_luiSummonedMobGUIDs.begin(); itr != m_luiSummonedMobGUIDs.end(); ++itr)
+        for (GuidList::const_iterator itr = m_luiSummonedMobGUIDs.begin(); itr != m_luiSummonedMobGUIDs.end(); ++itr)
         {
             if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                 pSummoned->ForcedDespawn();

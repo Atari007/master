@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Areatrigger_Scripts
 SD%Complete: 100
-SDComment: Quest support: 6681, 10589/10604
+SDComment: Quest support: 4291, 6681, 10589/10604
 SDCategory: Areatrigger
 EndScriptData */
 
@@ -26,9 +26,12 @@ at_coilfang_waterfall           4591
 at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
 at_ravenholdt
 at_childrens_week_spot          3546,3547,3548,3552,3549,3550
+at_scent_larkorwi               1726,1727,1728,1729,1730,1731,1732,1733,1734,1735,1736,1737,1738,1739,1740
+at_murkdeep                     1966
 EndContentData */
 
 #include "precompiled.h"
+#include "world_map_scripts.h"
 
 static uint32 TriggerOrphanSpell[6][3] =
 {
@@ -124,6 +127,67 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, AreaTriggerEntry const* pAt)
     return false;
 }
 
+/*######
+## at_scent_larkorwi
+######*/
+
+enum
+{
+    QUEST_SCENT_OF_LARKORWI     = 4291,
+    NPC_LARKORWI_MATE           = 9683
+};
+
+bool AreaTrigger_at_scent_larkorwi(Player* pPlayer, AreaTriggerEntry const* pAt)
+{
+    if (pPlayer->isAlive() && !pPlayer->isGameMaster() && pPlayer->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (!GetClosestCreatureWithEntry(pPlayer, NPC_LARKORWI_MATE, 25.0f, false, false))
+            pPlayer->SummonCreature(NPC_LARKORWI_MATE, pAt->x, pAt->y, pAt->z, 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2*MINUTE*IN_MILLISECONDS);
+    }
+
+    return false;
+}
+
+/*######
+## at_murkdeep
+######*/
+
+bool AreaTrigger_at_murkdeep(Player* pPlayer, AreaTriggerEntry const* pAt)
+{
+    // Handle Murkdeep event start
+    // The area trigger summons 3 Greymist Coastrunners; The rest of the event is handled by world map scripts
+    if (pPlayer->isAlive() && !pPlayer->isGameMaster() && pPlayer->GetQuestStatus(QUEST_WANTED_MURKDEEP) == QUEST_STATUS_INCOMPLETE)
+    {
+        ScriptedMap* pScriptedMap = (ScriptedMap*)pPlayer->GetInstanceData();
+        if (!pScriptedMap)
+            return false;
+
+        // If Murkdeep is already spawned, skip the rest
+        if (pScriptedMap->GetSingleCreatureFromStorage(NPC_MURKDEEP, true))
+            return true;
+
+        // Check if there are already coastrunners (dead or alive) around the area
+        if (GetClosestCreatureWithEntry(pPlayer, NPC_GREYMIST_COASTRUNNNER, 60.0f, false, false))
+            return true;
+
+        float fX, fY, fZ;
+        for (uint8 i = 0; i < 3; ++i)
+        {
+            // Spawn locations are defined in World Maps Scripts.h
+            pPlayer->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][0], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][1], aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][2], 5.0f, fX, fY, fZ);
+
+            if (Creature* pTemp = pPlayer->SummonCreature(NPC_GREYMIST_COASTRUNNNER, fX, fY, fZ, aSpawnLocations[POS_IDX_MURKDEEP_SPAWN][3], TEMPSUMMON_DEAD_DESPAWN, 0))
+            {
+                pTemp->SetWalk(false);
+                pTemp->GetRandomPoint(aSpawnLocations[POS_IDX_MURKDEEP_MOVE][0], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][1], aSpawnLocations[POS_IDX_MURKDEEP_MOVE][2], 5.0f, fX, fY, fZ);
+                pTemp->GetMotionMaster()->MovePoint(0, fX, fY, fZ);
+            }
+        }
+    }
+
+    return false;
+}
+
 void AddSC_areatrigger_scripts()
 {
     Script* pNewScript;
@@ -146,5 +210,15 @@ void AddSC_areatrigger_scripts()
     pNewScript = new Script;
     pNewScript->Name = "at_ravenholdt";
     pNewScript->pAreaTrigger = &AreaTrigger_at_ravenholdt;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "at_scent_larkorwi";
+    pNewScript->pAreaTrigger = &AreaTrigger_at_scent_larkorwi;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "at_murkdeep";
+    pNewScript->pAreaTrigger = &AreaTrigger_at_murkdeep;
     pNewScript->RegisterSelf();
 }

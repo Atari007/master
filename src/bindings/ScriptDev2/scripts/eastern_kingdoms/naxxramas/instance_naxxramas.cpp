@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -26,16 +26,27 @@ EndScriptData */
 
 static const DialogueEntry aNaxxDialogue[] =
 {
-    {SAY_SAPP_DIALOG1,      NPC_KELTHUZAD,      6000},
-    {SAY_SAPP_DIALOG2_LICH, NPC_THE_LICHKING,   6000},
-    {SAY_SAPP_DIALOG3,      NPC_KELTHUZAD,      10000},
-    {SAY_SAPP_DIALOG4_LICH, NPC_THE_LICHKING,   12000},
+    {NPC_KELTHUZAD,         0,                  10000},
+    {SAY_SAPP_DIALOG1,      NPC_KELTHUZAD,      5000},
+    {SAY_SAPP_DIALOG2_LICH, NPC_THE_LICHKING,   17000},
+    {SAY_SAPP_DIALOG3,      NPC_KELTHUZAD,      6000},
+    {SAY_SAPP_DIALOG4_LICH, NPC_THE_LICHKING,   8000},
     {SAY_SAPP_DIALOG5,      NPC_KELTHUZAD,      0},
+    {NPC_THANE,             0,                  10000},
+    {SAY_KORT_TAUNT1,       NPC_THANE,          5000},
+    {SAY_ZELI_TAUNT1,       NPC_ZELIEK,         6000},
+    {SAY_BLAU_TAUNT1,       NPC_BLAUMEUX,       6000},
+    {SAY_MORG_TAUNT1,       NPC_MOGRAINE,       7000},
+    {SAY_BLAU_TAUNT2,       NPC_BLAUMEUX,       6000},
+    {SAY_ZELI_TAUNT2,       NPC_ZELIEK,         5000},
+    {SAY_KORT_TAUNT2,       NPC_THANE,          7000},
+    {SAY_MORG_TAUNT2,       NPC_MOGRAINE,       0},
     {0,0,0}
 };
 
 instance_naxxramas::instance_naxxramas(Map* pMap) : ScriptedInstance(pMap),
     m_uiTauntTimer(0),
+    m_uiHorseMenKilled(0),
     m_dialogueHelper(aNaxxDialogue),
     m_fChamberCenterX(0.0f),
     m_fChamberCenterY(0.0f),
@@ -63,7 +74,11 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
         case NPC_ZELIEK:
         case NPC_THANE:
         case NPC_BLAUMEUX:
-        case NPC_RIVENDARE:
+        case NPC_MOGRAINE:
+        case NPC_SPIRIT_OF_BLAUMEUX:
+        case NPC_SPIRIT_OF_MOGRAINE:
+        case NPC_SPIRIT_OF_KORTHAZZ:
+        case NPC_SPIRIT_OF_ZELIREK:
         case NPC_GOTHIK:
         case NPC_KELTHUZAD:
         case NPC_THE_LICHKING:
@@ -110,7 +125,7 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
             if (m_auiEncounter[TYPE_NOTH] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
-        case GO_PLAG_HEIG_EXIT_DOOR:
+        case GO_PLAG_HEIG_EXIT_HALLWAY:
             if (m_auiEncounter[TYPE_HEIGAN] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
@@ -131,7 +146,6 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_CHEST_HORSEMEN_NORM:
-        case GO_CHEST_HORSEMEN_HERO:
             break;
 
         // Construct Quarter
@@ -162,31 +176,50 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_KELTHUZAD_EXIT_DOOR:
+        case GO_KELTHUZAD_WINDOW_1:
+        case GO_KELTHUZAD_WINDOW_2:
+        case GO_KELTHUZAD_WINDOW_3:
+        case GO_KELTHUZAD_WINDOW_4:
             break;
 
         // Eyes
         case GO_ARAC_EYE_RAMP:
+        case GO_ARAC_EYE_BOSS:
             if (m_auiEncounter[TYPE_MAEXXNA] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_PLAG_EYE_RAMP:
+        case GO_PLAG_EYE_BOSS:
             if (m_auiEncounter[TYPE_LOATHEB] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_MILI_EYE_RAMP:
+        case GO_MILI_EYE_BOSS:
             if (m_auiEncounter[TYPE_FOUR_HORSEMEN] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_CONS_EYE_RAMP:
+        case GO_CONS_EYE_BOSS:
             if (m_auiEncounter[TYPE_THADDIUS] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
 
         // Portals
         case GO_ARAC_PORTAL:
+            if (m_auiEncounter[TYPE_MAEXXNA] == DONE)
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            break;
         case GO_PLAG_PORTAL:
+            if (m_auiEncounter[TYPE_LOATHEB] == DONE)
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            break;
         case GO_MILI_PORTAL:
+            if (m_auiEncounter[TYPE_FOUR_HORSEMEN] == DONE)
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            break;
         case GO_CONS_PORTAL:
+            if (m_auiEncounter[TYPE_THADDIUS] == DONE)
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             break;
 
         default:
@@ -256,7 +289,9 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_ARAC_EYE_RAMP);
+                DoUseDoorOrButton(GO_ARAC_EYE_BOSS);
                 DoRespawnGameObject(GO_ARAC_PORTAL, 30*MINUTE);
+                DoToggleGameObjectFlags(GO_ARAC_PORTAL, GO_FLAG_NO_INTERACT, false);
                 m_uiTauntTimer = 5000;
             }
             break;
@@ -273,7 +308,7 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             DoUseDoorOrButton(GO_PLAG_HEIG_ENTRY_DOOR);
             if (uiData == DONE)
-                DoUseDoorOrButton(GO_PLAG_HEIG_EXIT_DOOR);
+                DoUseDoorOrButton(GO_PLAG_HEIG_EXIT_HALLWAY);
             break;
         case TYPE_LOATHEB:
             m_auiEncounter[uiType] = uiData;
@@ -281,7 +316,9 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_PLAG_EYE_RAMP);
+                DoUseDoorOrButton(GO_PLAG_EYE_BOSS);
                 DoRespawnGameObject(GO_PLAG_PORTAL, 30*MINUTE);
+                DoToggleGameObjectFlags(GO_PLAG_PORTAL, GO_FLAG_NO_INTERACT, false);
                 m_uiTauntTimer = 5000;
             }
             break;
@@ -308,18 +345,47 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
                     DoUseDoorOrButton(GO_MILI_GOTH_ENTRY_GATE);
                     DoUseDoorOrButton(GO_MILI_GOTH_EXIT_GATE);
                     DoUseDoorOrButton(GO_MILI_HORSEMEN_DOOR);
+
+                    m_dialogueHelper.StartNextDialogueText(NPC_THANE);
                     break;
             }
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_FOUR_HORSEMEN:
+            // Skip if already set
+            if (m_auiEncounter[uiType] == uiData)
+                return;
+            if (uiData == SPECIAL)
+            {
+                ++m_uiHorseMenKilled;
+
+                if (m_uiHorseMenKilled == 4)
+                    SetData(TYPE_FOUR_HORSEMEN, DONE);
+
+                // Don't store special data
+                break;
+            }
+            if (uiData == FAIL)
+                m_uiHorseMenKilled = 0;
             m_auiEncounter[uiType] = uiData;
             DoUseDoorOrButton(GO_MILI_HORSEMEN_DOOR);
             if (uiData == DONE)
             {
+                // Despawn spirits
+                if (Creature* pSpirit = GetSingleCreatureFromStorage(NPC_SPIRIT_OF_BLAUMEUX))
+                    pSpirit->ForcedDespawn();
+                if (Creature* pSpirit = GetSingleCreatureFromStorage(NPC_SPIRIT_OF_MOGRAINE))
+                    pSpirit->ForcedDespawn();
+                if (Creature* pSpirit = GetSingleCreatureFromStorage(NPC_SPIRIT_OF_KORTHAZZ))
+                    pSpirit->ForcedDespawn();
+                if (Creature* pSpirit = GetSingleCreatureFromStorage(NPC_SPIRIT_OF_ZELIREK))
+                    pSpirit->ForcedDespawn();
+
                 DoUseDoorOrButton(GO_MILI_EYE_RAMP);
+                DoUseDoorOrButton(GO_MILI_EYE_BOSS);
                 DoRespawnGameObject(GO_MILI_PORTAL, 30*MINUTE);
-                DoRespawnGameObject(instance->IsRegularDifficulty() ? GO_CHEST_HORSEMEN_NORM : GO_CHEST_HORSEMEN_HERO, 30*MINUTE);
+                DoToggleGameObjectFlags(GO_MILI_PORTAL, GO_FLAG_NO_INTERACT, false);
+                DoRespawnGameObject(GO_CHEST_HORSEMEN_NORM, 30*MINUTE);
                 m_uiTauntTimer = 5000;
             }
             break;
@@ -350,7 +416,9 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_CONS_EYE_RAMP);
+                DoUseDoorOrButton(GO_CONS_EYE_BOSS);
                 DoRespawnGameObject(GO_CONS_PORTAL, 30*MINUTE);
+                DoToggleGameObjectFlags(GO_CONS_PORTAL, GO_FLAG_NO_INTERACT, false);
                 m_uiTauntTimer = 5000;
             }
             break;
@@ -359,12 +427,23 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_KELTHUZAD_WATERFALL_DOOR);
-                m_dialogueHelper.StartNextDialogueText(SAY_SAPP_DIALOG1);
+                m_dialogueHelper.StartNextDialogueText(NPC_KELTHUZAD);
             }
             break;
         case TYPE_KELTHUZAD:
             m_auiEncounter[uiType] = uiData;
             DoUseDoorOrButton(GO_KELTHUZAD_EXIT_DOOR);
+            if (uiData == NOT_STARTED)
+            {
+                if (GameObject* pWindow = GetSingleGameObjectFromStorage(GO_KELTHUZAD_WINDOW_1))
+                    pWindow->ResetDoorOrButton();
+                if (GameObject* pWindow = GetSingleGameObjectFromStorage(GO_KELTHUZAD_WINDOW_2))
+                    pWindow->ResetDoorOrButton();
+                if (GameObject* pWindow = GetSingleGameObjectFromStorage(GO_KELTHUZAD_WINDOW_3))
+                    pWindow->ResetDoorOrButton();
+                if (GameObject* pWindow = GetSingleGameObjectFromStorage(GO_KELTHUZAD_WINDOW_4))
+                    pWindow->ResetDoorOrButton();
+            }
             break;
     }
 
@@ -442,7 +521,7 @@ void instance_naxxramas::SetGothTriggers()
     if (!pGoth)
         return;
 
-    for(GUIDList::const_iterator itr = m_lGothTriggerList.begin(); itr != m_lGothTriggerList.end(); ++itr)
+    for(GuidList::const_iterator itr = m_lGothTriggerList.begin(); itr != m_lGothTriggerList.end(); ++itr)
     {
         if (Creature* pTrigger = instance->GetCreature(*itr))
         {
@@ -510,7 +589,7 @@ void instance_naxxramas::DoTriggerHeiganTraps(Creature* pHeigan, uint32 uiAreaIn
     if (uiAreaIndex >= MAX_HEIGAN_TRAP_AREAS)
         return;
 
-    for (GUIDList::const_iterator itr = m_alHeiganTrapGuids[uiAreaIndex].begin(); itr != m_alHeiganTrapGuids[uiAreaIndex].end(); ++itr)
+    for (GuidList::const_iterator itr = m_alHeiganTrapGuids[uiAreaIndex].begin(); itr != m_alHeiganTrapGuids[uiAreaIndex].end(); ++itr)
     {
         if (GameObject* pTrap = instance->GetGameObject(*itr))
             pTrap->Use(pHeigan);
@@ -596,6 +675,17 @@ bool AreaTrigger_at_naxxramas(Player* pPlayer, AreaTriggerEntry const* pAt)
                     DoScriptText(SAY_THADDIUS_GREET, pThaddius);
                 }
             }
+        }
+    }
+
+    if (pAt->id == AREATRIGGER_FROSTWYRM_TELE)
+    {
+        if (instance_naxxramas* pInstance = (instance_naxxramas*)pPlayer->GetInstanceData())
+        {
+            // Area trigger handles teleport in DB. Here we only need to check if all the end wing encounters are done
+            if (pInstance->GetData(TYPE_THADDIUS) != DONE || pInstance->GetData(TYPE_LOATHEB) != DONE || pInstance->GetData(TYPE_MAEXXNA) != DONE ||
+                pInstance->GetData(TYPE_FOUR_HORSEMEN) != DONE)
+                return true;
         }
     }
 

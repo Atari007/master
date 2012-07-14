@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -36,10 +36,9 @@ npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 56
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
 npc_innkeeper            25%    ScriptName not assigned. Innkeepers in general.
-npc_lunaclaw_spirit     100%    Appears at two different locations, quest 6001/6002
 npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
-npc_rogue_trainer        80%    Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
+npc_redemption_target   100%    Used for the paladin quests: 1779,1781,9600,9685
 EndContentData */
 
 /*########
@@ -106,9 +105,7 @@ struct MANGOS_DLL_DECL npc_air_force_botsAI : public ScriptedAI
         m_pSpawnAssoc = NULL;
 
         // find the correct spawnhandling
-        static uint32 uiEntryCount = sizeof(m_aSpawnAssociations)/sizeof(SpawnAssociation);
-
-        for (uint8 i=0; i<uiEntryCount; ++i)
+        for (uint8 i = 0; i < countof(m_aSpawnAssociations); ++i)
         {
             if (m_aSpawnAssociations[i].m_uiThisCreatureEntry == pCreature->GetEntry())
             {
@@ -483,7 +480,7 @@ struct MANGOS_DLL_DECL npc_doctorAI : public ScriptedAI
 
     bool Event;
 
-    GUIDList Patients;
+    GuidList Patients;
     std::vector<Location*> Coordinates;
 
     void Reset()
@@ -698,7 +695,7 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Po
 
             if (PatientSavedCount == 15)
             {
-                for(GUIDList::const_iterator itr = Patients.begin(); itr != Patients.end(); ++itr)
+                for(GuidList::const_iterator itr = Patients.begin(); itr != Patients.end(); ++itr)
                 {
                     if (Creature* Patient = m_creature->GetMap()->GetCreature(*itr))
                         Patient->SetDeathState(JUST_DIED);
@@ -850,8 +847,6 @@ struct MANGOS_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
         m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
         // expect database to have RegenHealth=0
         m_creature->SetHealth(int(m_creature->GetMaxHealth()*0.7));
-
-		m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -1101,40 +1096,6 @@ bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiS
 }
 
 /*######
-## npc_lunaclaw_spirit
-######*/
-
-enum
-{
-    QUEST_BODY_HEART_A      = 6001,
-    QUEST_BODY_HEART_H      = 6002,
-
-    TEXT_ID_DEFAULT         = 4714,
-    TEXT_ID_PROGRESS        = 4715
-};
-
-#define GOSSIP_ITEM_GRANT   "You have thought well, spirit. I ask you to grant me the strength of your body and the strength of your heart."
-
-bool GossipHello_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature)
-{
-    if (pPlayer->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    pPlayer->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, pCreature->GetObjectGuid());
-    return true;
-}
-
-bool GossipSelect_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        pPlayer->SEND_GOSSIP_MENU(TEXT_ID_PROGRESS, pCreature->GetObjectGuid());
-        pPlayer->AreaExploredOrEventHappens((pPlayer->GetTeam() == ALLIANCE) ? QUEST_BODY_HEART_A : QUEST_BODY_HEART_H);
-    }
-    return true;
-}
-
-/*######
 ## npc_mount_vendor
 ######*/
 
@@ -1219,50 +1180,6 @@ bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature* pCreature, uint32 
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
 
-    return true;
-}
-
-/*######
-## npc_rogue_trainer
-######*/
-
-bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
-
-    if (pCreature->isTrainer())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-    if (pCreature->CanTrainAndResetTalentsOf(pPlayer))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "I wish to unlearn my talents", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
-
-    if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Take the letter>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetObjectGuid());
-    } else
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiAction)
-    {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer,21100,false);
-            break;
-        case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(pCreature->GetObjectGuid());
-            break;
-        case GOSSIP_OPTION_UNLEARNTALENTS:
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->SendTalentWipeConfirm(pCreature->GetObjectGuid());
-            break;
-    }
     return true;
 }
 
@@ -1400,6 +1317,109 @@ bool GossipSelect_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiSende
     return true;
 }
 
+/*######
+## npc_redemption_target
+######*/
+
+enum
+{
+    SAY_HEAL                    = -1000187,
+
+    SPELL_SYMBOL_OF_LIFE        = 8593,
+    SPELL_SHIMMERING_VESSEL     = 31225,
+    SPELL_REVIVE_SELF           = 32343,
+
+    NPC_FURBOLG_SHAMAN          = 17542,        // draenei side
+    NPC_BLOOD_KNIGHT            = 17768,        // blood elf side
+};
+
+struct MANGOS_DLL_DECL npc_redemption_targetAI : public ScriptedAI
+{
+    npc_redemption_targetAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 m_uiEvadeTimer;
+    uint32 m_uiHealTimer;
+
+    ObjectGuid m_playerGuid;
+
+    void Reset()
+    {
+        m_uiEvadeTimer = 0;
+        m_uiHealTimer  = 0;
+
+        m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+    }
+
+    void DoReviveSelf(ObjectGuid m_guid)
+    {
+        // Wait until he resets again
+        if (m_uiEvadeTimer)
+            return;
+
+        DoCastSpellIfCan(m_creature, SPELL_REVIVE_SELF);
+        m_creature->SetDeathState(JUST_ALIVED);
+        m_playerGuid = m_guid;
+        m_uiHealTimer = 2000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiHealTimer)
+        {
+            if (m_uiHealTimer <= uiDiff)
+            {
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                {
+                    DoScriptText(SAY_HEAL, m_creature, pPlayer);
+
+                    // Quests 9600 and 9685 requires kill credit
+                    if (m_creature->GetEntry() == NPC_FURBOLG_SHAMAN || m_creature->GetEntry() == NPC_BLOOD_KNIGHT)
+                        pPlayer->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetObjectGuid());
+                }
+
+                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                m_uiHealTimer = 0;
+                m_uiEvadeTimer = 2*MINUTE*IN_MILLISECONDS;
+            }
+            else
+                m_uiHealTimer -= uiDiff;
+        }
+
+        if (m_uiEvadeTimer)
+        {
+            if (m_uiEvadeTimer <= uiDiff)
+            {
+                EnterEvadeMode();
+                m_uiEvadeTimer = 0;
+            }
+            else
+                m_uiEvadeTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_redemption_target(Creature* pCreature)
+{
+    return new npc_redemption_targetAI(pCreature);
+}
+
+bool EffectDummyCreature_npc_redemption_target(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
+{
+    //always check spellid and effectindex
+    if ((uiSpellId == SPELL_SYMBOL_OF_LIFE || uiSpellId == SPELL_SHIMMERING_VESSEL) && uiEffIndex == EFFECT_INDEX_0)
+    {
+        if (npc_redemption_targetAI* pTargetAI = dynamic_cast<npc_redemption_targetAI*>(pCreatureTarget->AI()))
+            pTargetAI->DoReviveSelf(pCaster->GetObjectGuid());
+
+        //always return true when we are handling this spell and effect
+        return true;
+    }
+
+    return false;
+}
+
 void AddSC_npcs_special()
 {
     Script* pNewScript;
@@ -1449,26 +1469,20 @@ void AddSC_npcs_special()
     pNewScript->RegisterSelf(false);                         // script and error report disabled, but script can be used for custom needs, adding ScriptName
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_lunaclaw_spirit";
-    pNewScript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
-    pNewScript->pGossipSelect = &GossipSelect_npc_lunaclaw_spirit;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "npc_mount_vendor";
     pNewScript->pGossipHello =  &GossipHello_npc_mount_vendor;
     pNewScript->pGossipSelect = &GossipSelect_npc_mount_vendor;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_rogue_trainer";
-    pNewScript->pGossipHello =  &GossipHello_npc_rogue_trainer;
-    pNewScript->pGossipSelect = &GossipSelect_npc_rogue_trainer;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "npc_sayge";
     pNewScript->pGossipHello = &GossipHello_npc_sayge;
     pNewScript->pGossipSelect = &GossipSelect_npc_sayge;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_redemption_target";
+    pNewScript->GetAI = &GetAI_npc_redemption_target;
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_redemption_target;
     pNewScript->RegisterSelf();
 }

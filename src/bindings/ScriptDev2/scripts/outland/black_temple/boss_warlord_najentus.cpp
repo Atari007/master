@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -183,7 +183,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
             m_bIsShielded = true;
             m_uiTidalShieldTimer = 60000;
 
-            // Skip needle spines for 10s
+            // Skip needle splines for 10s
             m_uiNeedleSpineTimer += 10000;
         }
         else

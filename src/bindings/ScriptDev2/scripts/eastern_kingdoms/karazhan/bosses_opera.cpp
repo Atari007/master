@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -146,7 +146,7 @@ struct MANGOS_DLL_DECL boss_dorotheeAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DOROTHEE_DEATH, m_creature);
-        //PATCH TO STOP TITO FROM COMING BACK FROM THE DEAD
+		//PATCH TO STOP TITO FROM COMING BACK FROM THE DEAD
         SummonTitoTimer = 0;
 
         if (m_pInstance)
@@ -1029,8 +1029,6 @@ struct MANGOS_DLL_DECL boss_julianneAI : public ScriptedAI
     {
         DoScriptText(SAY_JULIANNE_DEATH02, m_creature);
 
-		//m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-
         if (m_pInstance)
             m_pInstance->SetData(TYPE_OPERA, DONE);
     }
@@ -1116,8 +1114,6 @@ struct MANGOS_DLL_DECL boss_romuloAI : public ScriptedAI
     {
         DoScriptText(SAY_ROMULO_DEATH, m_creature);
 
-		//m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-
         if (m_pInstance)
             m_pInstance->SetData(TYPE_OPERA, DONE);
     }
@@ -1171,8 +1167,8 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
                 Romulo->SetDeathState(JUST_DIED);
                 Romulo->CombatStop(true);
                 Romulo->DeleteThreatList();
+                Romulo->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 				Romulo->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                //Romulo->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
             return;
         }
@@ -1228,15 +1224,15 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
     {
         if (JulianneDead)
         {
-			if (Creature* Julianne = m_creature->GetMap()->GetCreature(m_julianneGuid))
+            if (Creature* Julianne = m_creature->GetMap()->GetCreature(m_julianneGuid))
             {
                 Julianne->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Julianne->GetMotionMaster()->Clear();
                 Julianne->SetDeathState(JUST_DIED);
                 Julianne->CombatStop(true);
                 Julianne->DeleteThreatList();
+                Julianne->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 				Julianne->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                //Julianne->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
             return;
         }

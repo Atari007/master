@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -8,10 +8,6 @@
 extern void AddSC_battleground();
 
 // custom
-extern void AddSC_go_custom();
-extern void AddSC_item_custom();
-extern void AddSC_npc_custom();
-extern void AddSC_spell_custom();
 
 // examples
 extern void AddSC_example_creature();
@@ -224,10 +220,6 @@ extern void AddSC_boss_temporus();
 extern void AddSC_dark_portal();
 extern void AddSC_instance_dark_portal();
 extern void AddSC_hyjal();                                  // COT, hyjal
-extern void AddSC_boss_rage_winterchill();
-extern void AddSC_boss_azgalor();
-extern void AddSC_boss_kazrogal();
-extern void AddSC_boss_anetheron();
 extern void AddSC_boss_archimonde();
 extern void AddSC_instance_mount_hyjal();
 extern void AddSC_boss_captain_skarloc();                   // COT, old_hillsbrad
@@ -248,9 +240,11 @@ extern void AddSC_razorfen_downs();
 extern void AddSC_instance_razorfen_kraul();                // razorfen_kraul
 extern void AddSC_razorfen_kraul();
 extern void AddSC_boss_ayamiss();                           // ruins_of_ahnqiraj
+extern void AddSC_boss_buru();
 extern void AddSC_boss_kurinnaxx();
 extern void AddSC_boss_ossirian();
 extern void AddSC_boss_moam();
+extern void AddSC_boss_rajaxx();
 extern void AddSC_ruins_of_ahnqiraj();
 extern void AddSC_instance_ruins_of_ahnqiraj();
 extern void AddSC_boss_cthun();                             // temple_of_ahnqiraj
@@ -276,6 +270,7 @@ extern void AddSC_bloodmyst_isle();
 extern void AddSC_boss_azuregos();
 extern void AddSC_darkshore();
 extern void AddSC_desolace();
+extern void AddSC_durotar();
 extern void AddSC_dustwallow_marsh();
 extern void AddSC_felwood();
 extern void AddSC_feralas();
@@ -384,10 +379,6 @@ void AddScripts()
     AddSC_battleground();
 
     // custom
-	AddSC_go_custom();
-	AddSC_item_custom();
-	AddSC_npc_custom();
-	AddSC_spell_custom();
 
     // examples
     AddSC_example_creature();
@@ -600,10 +591,6 @@ void AddScripts()
     AddSC_dark_portal();
     AddSC_instance_dark_portal();
     AddSC_hyjal();                                          // CoT, hyjal
-	AddSC_boss_rage_winterchill();
-	AddSC_boss_azgalor();
-	AddSC_boss_kazrogal();
-	AddSC_boss_anetheron();
     AddSC_boss_archimonde();
     AddSC_instance_mount_hyjal();
     AddSC_boss_captain_skarloc();                           // CoT, old_hillsbrand
@@ -624,9 +611,11 @@ void AddScripts()
     AddSC_instance_razorfen_kraul();                        // razorfen_kraul
     AddSC_razorfen_kraul();
     AddSC_boss_ayamiss();                                   // ruins_of_ahnqiraj
+    AddSC_boss_buru();
     AddSC_boss_kurinnaxx();
-	AddSC_boss_ossirian();
+    AddSC_boss_ossirian();
     AddSC_boss_moam();
+    AddSC_boss_rajaxx();
     AddSC_ruins_of_ahnqiraj();
     AddSC_instance_ruins_of_ahnqiraj();
     AddSC_boss_cthun();                                     // temple_of_ahnqiraj
@@ -652,6 +641,7 @@ void AddScripts()
     AddSC_boss_azuregos();
     AddSC_darkshore();
     AddSC_desolace();
+    AddSC_durotar();
     AddSC_dustwallow_marsh();
     AddSC_felwood();
     AddSC_feralas();

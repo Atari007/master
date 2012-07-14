@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -141,9 +141,9 @@ class MANGOS_DLL_DECL instance_sunken_temple : public ScriptedInstance
         bool m_bIsFirstHakkarWave;
         bool m_bCanSummonBloodkeeper;
 
-        GUIDList m_luiFlameGUIDs;
-        GUIDList m_luiBigLightGUIDs;
-        GUIDVector m_vuiCircleGUIDs;
+        GuidList m_luiFlameGUIDs;
+        GuidList m_luiBigLightGUIDs;
+        GuidVector m_vuiCircleGUIDs;
 };
 
 #endif

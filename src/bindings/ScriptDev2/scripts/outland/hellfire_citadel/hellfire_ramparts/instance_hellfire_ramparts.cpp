@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -84,7 +84,10 @@ void instance_ramparts::SetData(uint32 uiType, uint32 uiData)
                 return;
             }
             if (uiData == DONE && m_auiEncounter[0] == DONE)
+            {
                 DoRespawnGameObject(instance->IsRegularDifficulty() ? GO_FEL_IRON_CHEST : GO_FEL_IRON_CHEST_H, HOUR);
+                DoToggleGameObjectFlags(instance->IsRegularDifficulty() ? GO_FEL_IRON_CHEST : GO_FEL_IRON_CHEST_H, GO_FLAG_NO_INTERACT, false);
+            }
             if (uiData == FAIL && m_auiEncounter[1] != FAIL)
                 DoFailVazruden();
 
@@ -112,7 +115,7 @@ void instance_ramparts::DoFailVazruden()
 
     // Restore Sentries (counter and respawn them)
     m_uiSentryCounter = 0;
-    for (GUIDList::const_iterator itr = m_lSentryGUIDs.begin(); itr != m_lSentryGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_lSentryGUIDs.begin(); itr != m_lSentryGUIDs.end(); ++itr)
     {
         if (Creature* pSentry = instance->GetCreature(*itr))
             pSentry->Respawn();

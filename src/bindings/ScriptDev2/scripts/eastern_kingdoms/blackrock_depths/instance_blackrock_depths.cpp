@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -124,7 +124,7 @@ void instance_blackrock_depths::SetData(uint32 uiType, uint32 uiData)
                     Creature* pConstruct = NULL;
 
                     // Activate vault constructs
-                    for (GUIDSet::const_iterator itr = m_sVaultNpcGuids.begin(); itr != m_sVaultNpcGuids.end(); ++itr)
+                    for (GuidSet::const_iterator itr = m_sVaultNpcGuids.begin(); itr != m_sVaultNpcGuids.end(); ++itr)
                     {
                         if (pConstruct = instance->GetCreature(*itr))
                             pConstruct->RemoveAurasDueToSpell(SPELL_STONED);
@@ -260,7 +260,7 @@ void instance_blackrock_depths::OnCreatureEvade(Creature* pCreature)
 {
     if (GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || GetData(TYPE_RING_OF_LAW) == SPECIAL)
     {
-        for (uint8 i = 0; i < sizeof(aArenaNPCs)/sizeof(uint32); ++i)
+        for (uint8 i = 0; i < countof(aArenaNPCs); ++i)
         {
             if (pCreature->GetEntry() == aArenaNPCs[i])
             {

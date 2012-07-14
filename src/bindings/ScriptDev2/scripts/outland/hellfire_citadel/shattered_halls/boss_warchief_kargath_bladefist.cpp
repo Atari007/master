@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -65,8 +65,8 @@ struct MANGOS_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
 
-    GUIDVector m_vAddGuids;
-    GUIDVector m_vAssassinGuids;
+    GuidVector m_vAddGuids;
+    GuidVector m_vAssassinGuids;
 
     uint32 m_uiChargeTimer;
     uint32 m_uiBladeDanceTimer;
@@ -170,7 +170,7 @@ struct MANGOS_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
     // Note: this should be done by creature linkin in core
     void DoDespawnAdds()
     {
-        for (GUIDVector::const_iterator itr = m_vAddGuids.begin(); itr != m_vAddGuids.end(); ++itr)
+        for (GuidVector::const_iterator itr = m_vAddGuids.begin(); itr != m_vAddGuids.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
                 pTemp->ForcedDespawn();
@@ -178,7 +178,7 @@ struct MANGOS_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
         m_vAddGuids.clear();
 
-        for (GUIDVector::const_iterator itr = m_vAssassinGuids.begin(); itr != m_vAssassinGuids.end(); ++itr)
+        for (GuidVector::const_iterator itr = m_vAssassinGuids.begin(); itr != m_vAssassinGuids.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
                 pTemp->ForcedDespawn();

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -21,7 +21,7 @@ enum
 
     SAY_INTRO       = -1043000,                             // Say when the first 4 encounter are DONE
 
-	GO_MYSTERIOUS_CHEST     = 180055,                       // used for quest 7944; spawns in the instance only if one of the players has the quest
+    GO_MYSTERIOUS_CHEST     = 180055,                       // used for quest 7944; spawns in the instance only if one of the players has the quest
 
     QUEST_FORTUNE_AWAITS    = 7944,
 };
@@ -34,9 +34,9 @@ class MANGOS_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 
         void Initialize();
 
-		void OnPlayerEnter(Player* pPlayer);
+        void OnPlayerEnter(Player* pPlayer);
         void OnCreatureCreate(Creature* pCreature);
-		void OnObjectCreate(GameObject* pGo);
+        void OnObjectCreate(GameObject* pGo);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -428,7 +428,7 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             if (pGate && !pGate->GetGoState())
                 pGate->SetGoState(GO_STATE_READY);
 
-            for(uint32 i = GO_ILLIDAN_DOOR_R; i < GO_ILLIDAN_DOOR_L + 1; ++i)
+            for(uint32 i = GO_ILLIDAN_DOOR_R; i <= GO_ILLIDAN_DOOR_L; ++i)
             {
                 if (GameObject* pDoor = m_pInstance->GetSingleGameObjectFromStorage(i))
                     pDoor->SetGoState(GO_STATE_ACTIVE);
@@ -476,9 +476,9 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void KillAllElites()
     {
-        std::vector<ObjectGuid> vGuids;
+        GuidVector vGuids;
         m_creature->FillGuidsListFromThreatList(vGuids);
-        for (std::vector<ObjectGuid>::const_iterator itr = vGuids.begin();itr != vGuids.end(); ++itr)
+        for (GuidVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
         {
             Unit* pUnit = m_creature->GetMap()->GetUnit(*itr);
 
@@ -644,13 +644,13 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (!m_pInstance)
+            return;
+
         if (m_illidanGuid)
         {
             if (Creature* Illidan = m_creature->GetMap()->GetCreature(m_illidanGuid))
             {
-                if (Illidan->IsInEvadeMode() && !m_creature->IsInEvadeMode())
-                    EnterEvadeMode();
-
                 if (Illidan->GetHealthPercent() < 85.0f && m_creature->isInCombat() && !m_bFightMinions)
                 {
                     if (m_uiTalkTimer < diff)
@@ -692,10 +692,23 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                 if (Illidan->GetHealthPercent() < 4.0f && !m_bIsReturningToIllidan)
                     ReturnToIllidan();
             }
-        }else
+        }
+        else
+            m_illidanGuid = m_pInstance->GetGuid(NPC_ILLIDAN_STORMRAGE);
+
+        // Reset Encounter
+        if (m_pInstance->GetData(TYPE_ILLIDAN) == FAIL)
         {
-            if (m_pInstance)
-                m_illidanGuid = m_pInstance->GetGuid(NPC_ILLIDAN_STORMRAGE);
+            m_pInstance->SetData(TYPE_ILLIDAN, NOT_STARTED);
+
+            m_creature->GetMotionMaster()->Clear(false);
+            Reset();
+            // Get Akama Home
+            float fX, fY, fZ, fO;
+            m_creature->GetRespawnCoord(fX, fY, fZ, &fO);
+            m_creature->NearTeleportTo(fX, fY, fZ, fO);
+
+            return;
         }
 
         if (m_bIsWalking && m_uiWalkTimer)
@@ -822,17 +835,6 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         {
             if (m_uiSummonMinionTimer < diff)
             {
-                if (m_illidanGuid)
-                {
-                    Creature* Illidan = m_creature->GetMap()->GetCreature(m_illidanGuid);
-                    if (!Illidan || !Illidan->isInCombat())
-                    {
-                        Reset();
-                        EnterEvadeMode();
-                        return;
-                    }
-                }
-
                 float x,y,z;
                 m_creature->GetPosition(x,y,z);
                 Creature* Elite = m_creature->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
@@ -913,34 +915,6 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         m_uiPhase = PHASE_NORMAL;
 
-        // Check if any flames/glaives are alive/existing. Kill if alive and set GUIDs to 0
-        for(uint8 i = 0; i < 2; ++i)
-        {
-            if (Creature* pFlame = m_creature->GetMap()->GetCreature(m_flameGuids[i]))
-            {
-                if (pFlame->isAlive())
-                    pFlame->SetDeathState(JUST_DIED);
-
-                m_flameGuids[i].Clear();
-            }
-
-            if (Creature* pGlaive = m_creature->GetMap()->GetCreature(m_glaiveGuids[i]))
-            {
-                if (pGlaive->isAlive())
-                    pGlaive->SetDeathState(JUST_DIED);
-
-                m_glaiveGuids[i].Clear();
-            }
-        }
-
-        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_akamaGuid))
-        {
-            if (!pAkama->isAlive())
-                pAkama->Respawn();
-
-            pAkama->AI()->EnterEvadeMode();
-        }
-
         m_bRefaceVictim = false;
         m_bHasSummoned = false;
 
@@ -993,8 +967,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         m_uiTalkCount = 0;
         m_uiTalkTimer = 0;
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ILLIDAN, NOT_STARTED);
+        SetCombatMovement(false);                           // Start idle
     }
 
     void GetAIInformation(ChatHandler& reader)
@@ -1004,22 +977,43 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         reader.PSendSysMessage("Guids: Akama is %s, Maiev is %s", m_akamaGuid.GetString().c_str(), m_maievGuid.GetString().c_str());
     }
 
-    void AttackStart(Unit* pWho)
+    void JustReachedHome()
     {
-        if (!pWho || m_bIsTalking || m_uiPhase == PHASE_FLIGHT || m_uiPhase == PHASE_DEMON || m_uiPhase == PHASE_DEMON_SEQUENCE || m_creature->HasAura(SPELL_KNEEL, EFFECT_INDEX_0))
-            return;
+        // Check if Maiev are alive/existing. Despawn and clear Guid
+        if (Creature* Maiev = m_creature->GetMap()->GetCreature(m_maievGuid))
+            Maiev->ForcedDespawn();
+        m_maievGuid.Clear();
 
-        if (pWho == m_creature)
-            return;
-
-        if (m_creature->Attack(pWho, true))
+        // Check if any flames/glaives are alive/existing. Kill if alive and clear Guids
+        for (uint8 i = 0; i < 2; ++i)
         {
-            m_creature->AddThreat(pWho);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            if (Creature* pFlame = m_creature->GetMap()->GetCreature(m_flameGuids[i]))
+            {
+                if (pFlame->isAlive())
+                    pFlame->SetDeathState(JUST_DIED);
 
-            DoStartMovement(pWho);
+                m_flameGuids[i].Clear();
+            }
+
+            if (Creature* pGlaive = m_creature->GetMap()->GetCreature(m_glaiveGuids[i]))
+            {
+                if (pGlaive->isAlive())
+                    pGlaive->SetDeathState(JUST_DIED);
+
+                m_glaiveGuids[i].Clear();
+            }
         }
+
+        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_akamaGuid))
+        {
+            if (!pAkama->isAlive())
+                pAkama->Respawn();
+
+            pAkama->AI()->EnterEvadeMode();
+        }
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ILLIDAN, FAIL);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -1245,6 +1239,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         else
         {
             // Refollow and attack our old victim
+            SetCombatMovement(true);
             m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
 
             // Depending on whether we summoned Maiev, we switch to either uiPhase 5 or 3
@@ -1285,7 +1280,8 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
         // We now hover!
         m_creature->SetLevitate(true);
-
+        SetCombatMovement(false);
+        m_creature->GetMotionMaster()->Clear(false);
         m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, CENTER_Z);
         for(uint8 i = 0; i < 2; ++i)
         {
@@ -1380,6 +1376,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         Maiev = m_creature->SummonCreature(MAIEV_SHADOWSONG, m_creature->GetPositionX() + 10, m_creature->GetPositionY() + 5, m_creature->GetPositionZ()+2, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
         if (Maiev)
         {
+            SetCombatMovement(false);
             m_creature->GetMotionMaster()->Clear(false);    // Stop moving, it's rude to walk and talk!
             m_creature->GetMotionMaster()->MoveIdle();
                                                             // Just in case someone is unaffected by Shadow Prison
@@ -1402,9 +1399,10 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     void InitializeDeath()
     {
         m_creature->RemoveAllAuras();
-        DoCastSpellIfCan(m_creature, SPELL_DEATH);                    // Animate his kneeling + stun him
+        DoCastSpellIfCan(m_creature, SPELL_DEATH);          // Animate his kneeling + stun him
                                                             // Don't let the players interrupt our talk!
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        SetCombatMovement(false);
         m_creature->GetMotionMaster()->Clear(false);        // No moving!
         m_creature->GetMotionMaster()->MoveIdle();
 
@@ -1450,6 +1448,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                         m_creature->setFaction(14);
                         break;
                     case 9:
+                        SetCombatMovement(true);
                         if (m_akamaGuid)
                         {
                             if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_akamaGuid))
@@ -1499,6 +1498,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                             pMaiev->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         }
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        SetCombatMovement(true);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                         m_bIsTalking = false;
                         m_uiFaceVictimTimer = 2000;
@@ -1527,11 +1527,10 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             }
             else
                 m_uiTalkTimer -= uiDiff;
-        }
 
-        // No further action while talking
-        if (m_bIsTalking)
+            // No further action while talking
             return;
+        }
 
         // If we don't have a target, return.
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
@@ -1577,15 +1576,15 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             return;
         }
 
-        /** Signal to summon Maiev **/
-        if (m_creature->GetHealthPercent() < 30.0f && !m_maievGuid && (m_uiPhase != PHASE_DEMON || m_uiPhase != PHASE_DEMON_SEQUENCE))
+        /** Signal to summon Maiev at 30% health**/
+        if (!m_maievGuid && !(m_uiPhase == PHASE_DEMON || m_uiPhase == PHASE_DEMON_SEQUENCE) && m_creature->GetHealthPercent() < 30.0f)
         {
             SummonMaiev();
             return;
         }
 
         /** Time for the death speech **/
-        if (m_creature->GetHealthPercent() < 1.0f && (m_uiPhase != PHASE_DEMON || m_uiPhase != PHASE_DEMON_SEQUENCE))
+        if (!(m_uiPhase == PHASE_DEMON || m_uiPhase == PHASE_DEMON_SEQUENCE) && m_creature->GetHealthPercent() < 1.0f)
         {
             InitializeDeath();
             return;
@@ -1761,6 +1760,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                         m_creature->SetTargetGuid(m_creature->getVictim()->GetObjectGuid());
 
                         // Chase our victim!
+                        SetCombatMovement(true);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                     }
                     else
@@ -1837,6 +1837,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 m_uiTransformTimer = 60000;
                 m_uiFlameBurstTimer = 10000;
                 m_uiShadowDemonTimer = 30000;
+                SetCombatMovement(false);
                 m_creature->GetMotionMaster()->Clear(false);// Stop moving
             }
             else

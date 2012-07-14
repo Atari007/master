@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -113,8 +113,8 @@ void instance_old_hillsbrad::SetData(uint32 uiType, uint32 uiData)
                     UpdateLodgeQuestCredit();
 
                     if (Player* pPlayer = GetPlayerInMap())
-                        //pPlayer->SummonCreature(NPC_DRAKE, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
-                        pPlayer->SummonCreature(NPC_DRAKE, 2110.56f, 82.65f, 53.32f, 1.28f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                       // pPlayer->SummonCreature(NPC_DRAKE, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+					   pPlayer->SummonCreature(NPC_DRAKE, 2110.56f, 82.65f, 53.32f, 1.28f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
                     else
                         debug_log("SD2: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any pPlayer.", uiType, uiData);
 

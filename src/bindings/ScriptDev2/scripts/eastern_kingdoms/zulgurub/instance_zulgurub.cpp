@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -59,9 +59,32 @@ void instance_zulgurub::OnCreatureCreate(Creature* pCreature)
         case NPC_THEKAL:
         case NPC_JINDO:
         case NPC_HAKKAR:
+        case NPC_BLOODLORD_MANDOKIR:
+        case NPC_MARLI:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
+        case NPC_PANTHER_TRIGGER:
+            if (pCreature->GetPositionY() < -1626)
+                m_lLeftPantherTriggerGUIDList.push_back(pCreature->GetObjectGuid());
+            else
+                m_lRightPantherTriggerGUIDList.push_back(pCreature->GetObjectGuid());
+            break;
     }
+}
+
+void instance_zulgurub::OnObjectCreate(GameObject* pGo)
+{
+    switch (pGo->GetEntry())
+    {
+        case GO_GONG_OF_BETHEKK:
+        case GO_FORCEFIELD:
+            break;
+        case GO_SPIDER_EGG:
+            m_lSpiderEggGUIDList.push_back(pGo->GetObjectGuid());
+            return;
+    }
+
+    m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
 }
 
 void instance_zulgurub::SetData(uint32 uiType, uint32 uiData)
@@ -70,14 +93,55 @@ void instance_zulgurub::SetData(uint32 uiType, uint32 uiData)
     {
         case TYPE_JEKLIK:
         case TYPE_VENOXIS:
-        case TYPE_MARLI:
         case TYPE_THEKAL:
-        case TYPE_ARLOKK:
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
                 DoLowerHakkarHitPoints();
             break;
+        case TYPE_MARLI:
+            m_auiEncounter[uiType] = uiData;
+            if (uiData == DONE)
+                DoLowerHakkarHitPoints();
+            if (uiData == FAIL)
+            {
+                for (GuidList::const_iterator itr = m_lSpiderEggGUIDList.begin(); itr != m_lSpiderEggGUIDList.end(); ++itr)
+                {
+                    if (GameObject* pEgg = instance->GetGameObject(*itr))
+                    {
+                        // Note: this type of Gameobject needs to be respawned manually
+                        pEgg->SetRespawnTime(2*DAY);
+                        pEgg->Respawn();
+                    }
+                }
+            }
+            break;
+        case TYPE_ARLOKK:
+            m_auiEncounter[uiType] = uiData;
+            DoUseDoorOrButton(GO_FORCEFIELD);
+            if (uiData == DONE)
+                DoLowerHakkarHitPoints();
+            if (uiData == FAIL)
+            {
+                // Note: this gameobject should change flags - currently it despawns which isn't correct
+                if (GameObject* pGong = GetSingleGameObjectFromStorage(GO_GONG_OF_BETHEKK))
+                {
+                    pGong->SetRespawnTime(2*DAY);
+                    pGong->Respawn();
+                }
+            }
+            break;
         case TYPE_OHGAN:
+            // Note: SPECIAL instance data is set via ACID!
+            if (uiData == SPECIAL)
+            {
+                if (Creature* pMandokir = GetSingleCreatureFromStorage(NPC_BLOODLORD_MANDOKIR))
+                {
+                    pMandokir->SetWalk(false);
+                    pMandokir->GetMotionMaster()->MovePoint(1, aMandokirDownstairsPos[0], aMandokirDownstairsPos[1], aMandokirDownstairsPos[2]);
+                }
+            }
+            m_auiEncounter[uiType] = uiData;
+            break;
         case TYPE_LORKHAN:
         case TYPE_ZATH:
             m_auiEncounter[uiType] = uiData;
@@ -142,6 +206,24 @@ uint32 instance_zulgurub::GetData(uint32 uiType)
         return m_auiEncounter[uiType];
 
     return 0;
+}
+
+Creature* instance_zulgurub::SelectRandomPantherTrigger(bool bIsLeft)
+{
+    GuidList* plTempList = bIsLeft ? &m_lLeftPantherTriggerGUIDList : &m_lRightPantherTriggerGUIDList;
+    std::vector<Creature*> vTriggers;
+    vTriggers.reserve(plTempList->size());
+
+    for (GuidList::const_iterator itr = plTempList->begin(); itr != plTempList->end(); ++itr)
+    {
+        if (Creature* pTemp = instance->GetCreature(*itr))
+            vTriggers.push_back(pTemp);
+    }
+
+    if (vTriggers.empty())
+        return NULL;
+
+    return vTriggers[urand(0, vTriggers.size()-1)];
 }
 
 InstanceData* GetInstanceData_instance_zulgurub(Map* pMap)

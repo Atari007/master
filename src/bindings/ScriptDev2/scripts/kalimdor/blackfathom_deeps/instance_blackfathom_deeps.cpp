@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -77,7 +77,7 @@ void instance_blackfathom_deeps::DoSpawnMobs(uint8 uiWaveIndex)
 
     pKelris->GetRespawnCoord(fX_resp, fY_resp, fZ_resp);
 
-    for (uint8 i = 0; i < sizeof(aWaveSummonInformation) / sizeof(SummonInformation); ++i)
+    for (uint8 i = 0; i < countof(aWaveSummonInformation); ++i)
     {
         if (aWaveSummonInformation[i].m_uiWaveIndex != uiWaveIndex)
             continue;

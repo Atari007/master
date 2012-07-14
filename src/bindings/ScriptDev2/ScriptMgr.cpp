@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -34,7 +34,7 @@ void LoadDatabase()
     // Initialize connection to DB
     if (SD2Database.Initialize(strSD2DBinfo.c_str()))
     {
-        outstring_log("SD2: ScriptDev2 database at %s initialized.", strSD2DBinfo.c_str());
+        outstring_log("SD2: ScriptDev2 database initialized.");
         outstring_log("");
 
         pSystemMgr.LoadVersion();

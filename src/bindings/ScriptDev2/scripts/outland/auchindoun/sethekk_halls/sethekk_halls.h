@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -13,13 +13,20 @@ enum
     TYPE_ANZU                   = 1,
     TYPE_IKISS                  = 2,
 
-    GO_IKISS_DOOR               = 177203,
-	GO_IKISS_CHEST              = 187372,
+    NPC_ANZU                    = 23035,
+    NPC_RAVEN_GOD_TARGET        = 23057,
 
-    ITEM_PILGRIMS_HAT           = 46723,
-    ITEM_PILGRIMS_DRESS         = 44785,
-    ITEM_PILGRIMS_ROBE          = 46824,
-    ITEM_PILGRIMS_ATTIRE        = 46800,
+    GO_IKISS_DOOR               = 177203,
+    GO_IKISS_CHEST              = 187372,
+    GO_RAVENS_CLAW              = 185554,
+
+    SAY_ANZU_INTRO_1            = -1556016,
+    SAY_ANZU_INTRO_2            = -1556017,
+
+    // possible spells used for Anzu summoning event
+    SPELL_PORTAL                = 39952,
+    SPELL_SUMMONING_BEAMS       = 39978,
+    SPELL_RED_LIGHTNING         = 39990,
 };
 
 class MANGOS_DLL_DECL instance_sethekk_halls : public ScriptedInstance
@@ -29,6 +36,8 @@ class MANGOS_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         ~instance_sethekk_halls() {}
 
         void Initialize();
+
+        void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
         void SetData(uint32 uiType, uint32 uiData);

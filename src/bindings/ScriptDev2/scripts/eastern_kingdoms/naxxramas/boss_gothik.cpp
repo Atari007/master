@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -50,7 +50,6 @@ enum
 
     SPELL_HARVESTSOUL           = 28679,
     SPELL_SHADOWBOLT            = 29317,
-    SPELL_SHADOWBOLT_H          = 56405,
 };
 
 enum eSpellDummy
@@ -73,7 +72,6 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
     boss_gothikAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (instance_naxxramas*)pCreature->GetInstanceData();
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         SetCombatMovement(false);
         Reset();
     }
@@ -81,10 +79,10 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
-    GUIDList m_lSummonedAddGuids;
-    GUIDList m_lTraineeSummonPosGuids;
-    GUIDList m_lDeathKnightSummonPosGuids;
-    GUIDList m_lRiderSummonPosGuids;
+    GuidList m_lSummonedAddGuids;
+    GuidList m_lTraineeSummonPosGuids;
+    GuidList m_lDeathKnightSummonPosGuids;
+    GuidList m_lRiderSummonPosGuids;
 
     uint8 m_uiPhase;
     uint8 m_uiSpeech;
@@ -118,7 +116,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
         m_uiSpeechTimer = 1*IN_MILLISECONDS;
 
         // Despawn Adds
-        for (GUIDList::const_iterator itr = m_lSummonedAddGuids.begin(); itr != m_lSummonedAddGuids.end(); itr++)
+        for (GuidList::const_iterator itr = m_lSummonedAddGuids.begin(); itr != m_lSummonedAddGuids.end(); itr++)
         {
             if (Creature* pCreature = m_creature->GetMap()->GetCreature(*itr))
                 pCreature->ForcedDespawn();
@@ -207,7 +205,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 
         // Trainees and Rider
         uint8 index = 0;
-        uint8 uiTraineeCount = m_bIsRegularMode ? 2 : 3;
+        uint8 uiTraineeCount = 3;
         lSummonList.sort(ObjectDistanceOrder(m_creature));
         for (std::list<Creature*>::iterator itr = lSummonList.begin(); itr != lSummonList.end(); ++itr)
         {
@@ -227,7 +225,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
         }
 
         // DeathKnights
-        uint8 uiDeathKnightCount = m_bIsRegularMode ? 1 : 2;
+        uint8 uiDeathKnightCount = 2;
         lSummonList.sort(ObjectDistanceOrderReversed(m_creature));
         for (std::list<Creature*>::iterator itr = lSummonList.begin(); itr != lSummonList.end(); ++itr)
         {
@@ -243,7 +241,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
 
     void SummonAdds(bool bRightSide, uint32 uiSummonEntry)
     {
-        GUIDList* plSummonPosGuids;
+        GuidList* plSummonPosGuids;
         switch(uiSummonEntry)
         {
             case NPC_UNREL_TRAINEE:      plSummonPosGuids = &m_lTraineeSummonPosGuids;     break;
@@ -255,7 +253,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
         if (plSummonPosGuids->empty())
             return;
 
-        for (GUIDList::iterator itr = plSummonPosGuids->begin(); itr != plSummonPosGuids->end(); ++itr)
+        for (GuidList::iterator itr = plSummonPosGuids->begin(); itr != plSummonPosGuids->end(); ++itr)
         {
             if (Creature* pPos = m_creature->GetMap()->GetCreature(*itr))
                 m_creature->SummonCreature(uiSummonEntry, pPos->GetPositionX(), pPos->GetPositionY(), pPos->GetPositionZ(), pPos->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -412,7 +410,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
                 {
                     // Select valid target
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0, SPELL_SHADOWBOLT, SELECT_FLAG_IN_LOS))
-                        DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_SHADOWBOLT : SPELL_SHADOWBOLT_H);
+                        DoCastSpellIfCan(pTarget, SPELL_SHADOWBOLT);
                 }
 
                 break;
@@ -428,7 +426,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
                 if (m_pInstance && !HasPlayersInLeftSide())
                 {
                     ProcessCentralDoor();
-                    for (GUIDList::const_iterator itr = m_lSummonedAddGuids.begin(); itr != m_lSummonedAddGuids.end(); itr++)
+                    for (GuidList::const_iterator itr = m_lSummonedAddGuids.begin(); itr != m_lSummonedAddGuids.end(); itr++)
                     {
                         if (Creature* pCreature = m_pInstance->instance->GetCreature(*itr))
                         {

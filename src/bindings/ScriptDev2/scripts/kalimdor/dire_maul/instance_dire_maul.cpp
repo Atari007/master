@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -123,7 +123,10 @@ void instance_dire_maul::OnObjectCreate(GameObject* pGo)
             break;
         case GO_PRINCES_CHEST_AURA:
             break;
-
+        case GO_WARPWOOD_DOOR:
+            if (m_auiEncounter[TYPE_WARPWOOD] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
         default:
             return;
     }
@@ -163,7 +166,7 @@ void instance_dire_maul::SetData(uint32 uiType, uint32 uiData)
 
                 if (!m_lFelvineShardGUIDs.empty())
                 {
-                    for(GUIDList::const_iterator itr = m_lFelvineShardGUIDs.begin(); itr != m_lFelvineShardGUIDs.end(); ++itr)
+                    for(GuidList::const_iterator itr = m_lFelvineShardGUIDs.begin(); itr != m_lFelvineShardGUIDs.end(); ++itr)
                         DoRespawnGameObject(*itr);
                 }
             }
@@ -176,6 +179,11 @@ void instance_dire_maul::SetData(uint32 uiType, uint32 uiData)
             break;
 
         // West
+        case TYPE_WARPWOOD:
+            if (uiData == DONE)
+                DoUseDoorOrButton(GO_WARPWOOD_DOOR);
+            m_auiEncounter[uiType] = uiData;
+            break;
         case TYPE_IMMOLTHAR:
             if (uiData == DONE)
             {
@@ -231,7 +239,7 @@ void instance_dire_maul::SetData(uint32 uiType, uint32 uiData)
         saveStream    << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
                       << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " "
                       << m_auiEncounter[6] << " " << m_auiEncounter[7] << " " << m_auiEncounter[8] << " "
-                      << m_auiEncounter[9] << " " << m_auiEncounter[10];
+                      << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11];
 
         m_strInstData = saveStream.str();
 
@@ -283,9 +291,11 @@ void instance_dire_maul::OnCreatureDeath(Creature* pCreature)
         case NPC_ARCANE_ABERRATION:
         case NPC_MANA_REMNANT:
             PylonGuardJustDied(pCreature);
-
             break;
-        // - Set InstData for ImmolThar
+        // - InstData settings
+        case NPC_TENDRIS_WARPWOOD:
+            SetData(TYPE_WARPWOOD, DONE);
+            break;
         case NPC_IMMOLTHAR:
             SetData(TYPE_IMMOLTHAR, DONE);
             break;
@@ -312,7 +322,7 @@ void instance_dire_maul::Load(const char* chrIn)
     loadStream >>   m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >>
                     m_auiEncounter[3] >> m_auiEncounter[4] >> m_auiEncounter[5] >>
                     m_auiEncounter[6] >> m_auiEncounter[7] >> m_auiEncounter[8] >>
-                    m_auiEncounter[9] >> m_auiEncounter[10];
+                    m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11];
 
     if (m_auiEncounter[TYPE_ALZZIN] >= DONE)
        m_bWallDestroyed = true;
@@ -345,7 +355,7 @@ void instance_dire_maul::ProcessForceFieldOpening()
         return;
 
     bool bHasYelled = false;
-    for (GUIDList::const_iterator itr = m_luiHighborneSummonerGUIDs.begin(); itr != m_luiHighborneSummonerGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiHighborneSummonerGUIDs.begin(); itr != m_luiHighborneSummonerGUIDs.end(); ++itr)
     {
         Creature* pSummoner = instance->GetCreature(*itr);
 
@@ -375,7 +385,7 @@ void instance_dire_maul::SortPylonGuards()
                 continue;
 
             // Sort all remaining (alive) NPCs to unfinished generators
-            for (GUIDList::iterator itr = m_lGeneratorGuardGUIDs.begin(); itr != m_lGeneratorGuardGUIDs.end();)
+            for (GuidList::iterator itr = m_lGeneratorGuardGUIDs.begin(); itr != m_lGeneratorGuardGUIDs.end();)
             {
                 Creature* pGuard = instance->GetCreature(*itr);
                 if (!pGuard || pGuard->isDead())    // Remove invalid guids and dead guards

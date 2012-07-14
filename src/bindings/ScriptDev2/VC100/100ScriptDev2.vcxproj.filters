@@ -40,7 +40,7 @@
     <Filter Include="scripts\eastern_kingdoms\molten_core">
       <UniqueIdentifier>{920d1832-b347-4afd-bd05-4c943e5555f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scripts\eastern_kingdoms\naxxramas">
+	<Filter Include="scripts\eastern_kingdoms\naxxramas">
       <UniqueIdentifier>{a187836e-bd7b-4c74-a8bd-d86ed0793280}</UniqueIdentifier>
     </Filter>
     <Filter Include="scripts\eastern_kingdoms\scarlet_monastery">
@@ -402,6 +402,9 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\blackwing_lair\instance_blackwing_lair.cpp">
       <Filter>scripts\eastern_kingdoms\blackwing_lair</Filter>
     </ClCompile>
+    <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\boss_mr_smite.cpp">
+      <Filter>scripts\eastern_kingdoms\deadmines</Filter>
+    </ClCompile>
     <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\deadmines.cpp">
       <Filter>scripts\eastern_kingdoms\deadmines</Filter>
     </ClCompile>
@@ -510,7 +513,7 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\molten_core\molten_core.cpp">
       <Filter>scripts\eastern_kingdoms\molten_core</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripts\eastern_kingdoms\naxxramas\boss_anubrekhan.cpp">
+	<ClCompile Include="..\scripts\eastern_kingdoms\naxxramas\boss_anubrekhan.cpp">
       <Filter>scripts\eastern_kingdoms\naxxramas</Filter>
     </ClCompile>
     <ClCompile Include="..\scripts\eastern_kingdoms\naxxramas\boss_faerlina.cpp">
@@ -790,6 +793,9 @@
       <Filter>scripts\kalimdor</Filter>
     </ClCompile>
     <ClCompile Include="..\scripts\kalimdor\desolace.cpp">
+      <Filter>scripts\kalimdor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripts\kalimdor\durotar.cpp">
       <Filter>scripts\kalimdor</Filter>
     </ClCompile>
     <ClCompile Include="..\scripts\kalimdor\dustwallow_marsh.cpp">
@@ -1282,33 +1288,6 @@
       <Filter>system</Filter>
     </ClCompile>
     <ClCompile Include="..\ScriptMgr.cpp" />
-    <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\boss_mr_smite.cpp">
-      <Filter>scripts\eastern_kingdoms\deadmines</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\custom\npc_custom.cpp">
-      <Filter>scripts\custom</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\custom\spell_custom.cpp">
-      <Filter>scripts\custom</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\custom\item_custom.cpp">
-      <Filter>scripts\custom</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\custom\go_custom.cpp">
-      <Filter>scripts\custom</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_rage_winterchill.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\hyjal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_anetheron.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\hyjal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_azgalor.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\hyjal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_kazrogal.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\hyjal</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\base\escort_ai.h">
@@ -1347,7 +1326,7 @@
     <ClInclude Include="..\scripts\eastern_kingdoms\molten_core\molten_core.h">
       <Filter>scripts\eastern_kingdoms\molten_core</Filter>
     </ClInclude>
-    <ClInclude Include="..\scripts\eastern_kingdoms\naxxramas\naxxramas.h">
+	<ClInclude Include="..\scripts\eastern_kingdoms\naxxramas\naxxramas.h">
       <Filter>scripts\eastern_kingdoms\naxxramas</Filter>
     </ClInclude>
     <ClInclude Include="..\scripts\eastern_kingdoms\scarlet_monastery\scarlet_monastery.h">
@@ -1451,6 +1430,9 @@
     </ClInclude>
     <ClInclude Include="..\scripts\outland\tempest_keep\the_mechanar\mechanar.h">
       <Filter>scripts\outland\tempest_keep\the_mechanar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripts\world\world_map_scripts.h">
+      <Filter>scripts\world</Filter>
     </ClInclude>
     <ClInclude Include="..\include\precompiled.h">
       <Filter>include</Filter>

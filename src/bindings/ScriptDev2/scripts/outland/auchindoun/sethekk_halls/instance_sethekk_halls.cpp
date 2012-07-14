@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance - Sethekk Halls
-SD%Complete: 50
-SDComment: Instance Data for Sethekk Halls instance
+SD%Complete: 60
+SDComment: Summoning event for Anzu NYI
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
@@ -33,6 +33,12 @@ void instance_sethekk_halls::Initialize()
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 }
 
+void instance_sethekk_halls::OnCreatureCreate(Creature* pCreature)
+{
+    if (pCreature->GetEntry() == NPC_ANZU)
+        m_mNpcEntryGuidStore[NPC_ANZU] = pCreature->GetObjectGuid();
+}
+
 void instance_sethekk_halls::OnObjectCreate(GameObject* pGo)
 {
     switch (pGo->GetEntry())
@@ -45,11 +51,14 @@ void instance_sethekk_halls::OnObjectCreate(GameObject* pGo)
             if (m_auiEncounter[TYPE_IKISS] == DONE)
                 pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT | GO_FLAG_INTERACT_COND);
             break;
+        case GO_RAVENS_CLAW:
+            break;
+
         default:
             return;
     }
 
-	m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+    m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
 }
 
 void instance_sethekk_halls::SetData(uint32 uiType, uint32 uiData)
@@ -57,16 +66,22 @@ void instance_sethekk_halls::SetData(uint32 uiType, uint32 uiData)
     switch(uiType)
     {
         case TYPE_SYTH:
+            m_auiEncounter[uiType] = uiData;
+            break;
         case TYPE_ANZU:
             m_auiEncounter[uiType] = uiData;
+            // Respawn the Raven's Claw if event fails
+            if (uiData == FAIL)
+            {
+                if (GameObject* pClaw = GetSingleGameObjectFromStorage(GO_RAVENS_CLAW))
+                    pClaw->Respawn();
+            }
             break;
         case TYPE_IKISS:
             if (uiData == DONE)
-			{
+            {
                 DoUseDoorOrButton(GO_IKISS_DOOR, DAY);
-
-				if(GameObject* pChest = GetSingleGameObjectFromStorage(GO_IKISS_CHEST))
-                    pChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT | GO_FLAG_INTERACT_COND);
+                DoToggleGameObjectFlags(GO_IKISS_CHEST, GO_FLAG_NO_INTERACT | GO_FLAG_INTERACT_COND, false);
             }
             m_auiEncounter[uiType] = uiData;
             break;
@@ -123,6 +138,26 @@ InstanceData* GetInstanceData_instance_sethekk_halls(Map* pMap)
     return new instance_sethekk_halls(pMap);
 }
 
+bool ProcessEventId_event_spell_summon_raven_god(uint32 uiEventId, Object* pSource, Object* pTarget, bool bIsStart)
+{
+    if (bIsStart && pSource->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (instance_sethekk_halls* pInstance = (instance_sethekk_halls*)((Player*)pSource)->GetInstanceData())
+        {
+            // This should be checked by despawning the Raven Claw Go; However it's better to double check the condition
+            if (pInstance->GetData(TYPE_ANZU) == DONE || pInstance->GetData(TYPE_ANZU) == IN_PROGRESS)
+                return true;
+
+            // Don't summon him twice
+            if (pInstance->GetSingleCreatureFromStorage(NPC_ANZU, true))
+                return true;
+
+            // ToDo: add more code here to handle the summoning event. For the moment it's handled in DB because of the missing info
+        }
+    }
+    return false;
+}
+
 void AddSC_instance_sethekk_halls()
 {
     Script* pNewScript;
@@ -130,5 +165,10 @@ void AddSC_instance_sethekk_halls()
     pNewScript = new Script;
     pNewScript->Name = "instance_sethekk_halls";
     pNewScript->GetInstanceData = &GetInstanceData_instance_sethekk_halls;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "event_spell_summon_raven_god";
+    pNewScript->pProcessEventId = &ProcessEventId_event_spell_summon_raven_god;
     pNewScript->RegisterSelf();
 }

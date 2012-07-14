@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -7,7 +7,7 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 8,
+    MAX_ENCOUNTER               = 10,
     MAX_SILVERHAND              = 5,
     MAX_ZIGGURATS               = 3,
 
@@ -19,13 +19,8 @@ enum
     TYPE_BARON                  = 5,
     TYPE_BARTHILAS_RUN          = 6,
     TYPE_BLACK_GUARDS           = 7,
-
-    TYPE_SH_QUEST               = 20,
-    TYPE_SH_CATHELA             = 21,
-    TYPE_SH_GREGOR              = 22,
-    TYPE_SH_NEMAS               = 23,
-    TYPE_SH_VICAR               = 24,
-    TYPE_SH_AELMAR              = 25,
+    TYPE_POSTMASTER             = 8,
+    TYPE_TRUE_MASTERS           = 9,
 
     NPC_TIMMY_THE_CRUEL         = 10808,
     NPC_BARTHILAS               = 10435,
@@ -46,6 +41,13 @@ enum
     NPC_CRIMSON_GALLANT         = 10424,
     NPC_CRIMSON_GUARDSMAN       = 10418,
     NPC_CRIMSON_CONJURER        = 10419,
+    NPC_UNDEAD_POSTMAN          = 11142,
+    NPC_GREGOR_THE_JUSTICIAR    = 17910,                    // related to quest "True Masters of the Light"
+    NPC_CATHELA_THE_SEEKER      = 17911,
+    NPC_NEMAS_THE_ARBITER       = 17912,
+    NPC_AELMAR_THE_VANQUISHER   = 17913,
+    NPC_VICAR_HYERONIMUS        = 17914,
+    NPC_PALADIN_QUEST_CREDIT    = 17915,
 
     GO_SERVICE_ENTRANCE         = 175368,
     GO_GAUNTLET_GATE1           = 175357,
@@ -62,6 +64,7 @@ enum
 
     QUEST_DEAD_MAN_PLEA         = 8945,
     SPELL_BARON_ULTIMATUM       = 27861,
+    SPELL_SUMMON_POSTMASTER     = 24627,
 
     SAY_ANNOUNCE_ZIGGURAT_1     = -1329004,
     SAY_ANNOUNCE_ZIGGURAT_2     = -1329005,
@@ -105,7 +108,7 @@ struct ZigguratStore
 {
     ObjectGuid m_doorGuid;
     ObjectGuid m_crystalGuid;
-    GUIDList m_lZigguratAcolyteGuid;
+    GuidList m_lZigguratAcolyteGuid;
 };
 
 class MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
@@ -137,7 +140,6 @@ class MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
         void ThazudinAcolyteJustDied( Creature* pCreature );
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-        bool m_bIsSilverHandDead[MAX_SILVERHAND];
         std::string m_strInstData;
 
         uint32 m_uiBaronRunTimer;
@@ -147,15 +149,17 @@ class MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
 
         uint32 m_uiYellCounter;
         uint32 m_uiMindlessCount;
+        uint8 m_uiPostboxesUsed;
+        uint8 m_uiSilverHandKilled;
 
         ZigguratStore m_zigguratStorage[MAX_ZIGGURATS];
 
         std::set<uint32> m_suiCrimsonLowGuids;
-        GUIDList m_luiCrystalGUIDs;
-        GUIDSet m_sAbomnationGUID;
-        GUIDList m_luiAcolyteGUIDs;
-        GUIDList m_luiUndeadGUIDs;
-        GUIDList m_luiGuardGUIDs;
+        GuidList m_luiCrystalGUIDs;
+        GuidSet m_sAbomnationGUID;
+        GuidList m_luiAcolyteGUIDs;
+        GuidList m_luiUndeadGUIDs;
+        GuidList m_luiGuardGUIDs;
 };
 
 #endif

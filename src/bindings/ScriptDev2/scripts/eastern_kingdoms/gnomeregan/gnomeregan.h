@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -79,9 +79,9 @@ class MANGOS_DLL_DECL instance_gnomeregan : public ScriptedInstance
         sBombFace m_asBombFaces[MAX_GNOME_FACES];
         ObjectGuid m_aExplosiveSortedGuids[2][MAX_EXPLOSIVES_PER_SIDE];
 
-        GUIDList m_luiExplosiveChargeGUIDs;
-        GUIDList m_luiSpawnedExplosiveChargeGUIDs;
-        GUIDList m_lRedRocketGUIDs;
+        GuidList m_luiExplosiveChargeGUIDs;
+        GuidList m_luiSpawnedExplosiveChargeGUIDs;
+        GuidList m_lRedRocketGUIDs;
 };
 
 #endif
