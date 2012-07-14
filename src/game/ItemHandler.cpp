@@ -747,7 +747,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
 
         if (crItem)
         {
-            if (ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(crItem->item))
+            uint32 itemId = crItem->item;
+            ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemId);
+            if (pProto)
             {
                 if (!_player->isGameMaster())
                 {
@@ -766,7 +768,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
                 uint32 price = uint32(floor(pProto->BuyPrice * discountMod));
 
                 data << uint32(count);
-                data << uint32(crItem->item);
+                data << uint32(itemId);
                 data << uint32(pProto->DisplayInfoID);
                 data << uint32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));
                 data << uint32(price);
@@ -1307,7 +1309,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), true);
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();// current socketbonus state
-    if(SocketBonusActivated != SocketBonusToBeActivated)    //if there was a change...
+    if(SocketBonusActivated != SocketBonusToBeActivated)    // if there was a change...
     {
         _player->ApplyEnchantment(itemTarget,BONUS_ENCHANTMENT_SLOT, false);
         itemTarget->SetEnchantment(BONUS_ENCHANTMENT_SLOT, (SocketBonusToBeActivated ? itemTarget->GetProto()->socketBonus : 0), 0, 0);

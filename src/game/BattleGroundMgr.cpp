@@ -1205,13 +1205,13 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
 
     if (StatusID == 0 || !bg)
     {
-        data->Initialize(SMSG_BATTLEFIELD_STATUS, 4*3);
+        data->Initialize(SMSG_BATTLEFIELD_STATUS, 4+8);
         *data << uint32(QueueSlot);                         // queue id (0...2)
         *data << uint64(0);
         return;
     }
 
-    data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+1+1+4+2+4+1+4+4+4));
+    data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+8+4+1+4+4+4));
     *data << uint32(QueueSlot);                             // queue id (0...2) - player can be in 3 queues in time
     // uint64 in client
     *data << uint64( uint64(arenatype) | (uint64(0x0D) << 8) | (uint64(bg->GetTypeID()) << 16) | (uint64(0x1F90) << 48) );
@@ -1293,11 +1293,12 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         }
         else
         {
-            Player *plr = sObjectMgr.GetPlayer(itr->first);
             Team team = bg->GetPlayerTeam(itr->first);
-            if (!team && plr)
-                team = plr->GetTeam();
-            if (( bg->GetWinner()==0 && team == ALLIANCE ) || ( bg->GetWinner()==1 && team==HORDE ))
+            if (!team)
+                if (Player* player = sObjectMgr.GetPlayer(itr->first))
+                    team = player->GetTeam();
+
+            if (bg->GetWinner() == team && team != TEAM_NONE)
                 *data << uint8(1);
             else
                 *data << uint8(0);
