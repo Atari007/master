@@ -103,7 +103,7 @@ struct MANGOS_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     Phases m_Phase;
 
-    GuidVector m_vSpotLightsGuidVector;
+    GUIDVector m_vSpotLightsGuidVector;
 
     void Reset()
     {

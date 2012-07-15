@@ -134,7 +134,7 @@ void instance_magisters_terrace::SetData(uint32 uiType, uint32 uiData)
             if (uiData == FAIL)
             {
                 // Reset crystals - respawn and kill is handled by creature linking
-                for (GuidList::const_iterator itr = m_lFelCrystalGuid.begin(); itr != m_lFelCrystalGuid.end(); ++itr)
+                for (GUIDList::const_iterator itr = m_lFelCrystalGuid.begin(); itr != m_lFelCrystalGuid.end(); ++itr)
                 {
                     if (Creature* pTemp = instance->GetCreature(*itr))
                     {
@@ -149,7 +149,7 @@ void instance_magisters_terrace::SetData(uint32 uiType, uint32 uiData)
             if (uiData == IN_PROGRESS)
             {
                 // Stop channeling when the fight starts
-                for (GuidList::const_iterator itr = m_lFelCrystalGuid.begin(); itr != m_lFelCrystalGuid.end(); ++itr)
+                for (GUIDList::const_iterator itr = m_lFelCrystalGuid.begin(); itr != m_lFelCrystalGuid.end(); ++itr)
                 {
                     if (Creature* pTemp = instance->GetCreature(*itr))
                         pTemp->InterruptNonMeleeSpells(false);

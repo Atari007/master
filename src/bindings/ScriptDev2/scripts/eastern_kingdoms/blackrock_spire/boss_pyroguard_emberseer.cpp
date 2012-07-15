@@ -125,10 +125,10 @@ struct MANGOS_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
         {
             if (m_uiEncageTimer <= uiDiff)
             {
-                GuidList m_lIncarceratorsGuid;
+                GUIDList m_lIncarceratorsGuid;
                 m_pInstance->GetIncarceratorGUIDList(m_lIncarceratorsGuid);
 
-                for (GuidList::const_iterator itr = m_lIncarceratorsGuid.begin(); itr != m_lIncarceratorsGuid.end(); ++itr)
+                for (GUIDList::const_iterator itr = m_lIncarceratorsGuid.begin(); itr != m_lIncarceratorsGuid.end(); ++itr)
                 {
                     if (Creature* pIncarcerator = m_creature->GetMap()->GetCreature(*itr))
                         pIncarcerator->CastSpell(m_creature, SPELL_ENCAGE_EMBERSEER, false);

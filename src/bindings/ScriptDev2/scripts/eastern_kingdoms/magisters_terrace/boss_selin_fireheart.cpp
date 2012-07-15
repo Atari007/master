@@ -255,7 +255,7 @@ struct MANGOS_DLL_DECL mob_fel_crystalAI : public ScriptedAI
 {
     mob_fel_crystalAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
-    GuidSet m_sWretchedGuids;
+    GUIDSet m_sWretchedGuids;
 
     uint32 m_uiVisualTimer;
 

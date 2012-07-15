@@ -95,7 +95,7 @@ class MANGOS_DLL_DECL instance_mechanar : public ScriptedInstance
         uint32 m_uiBridgeEventTimer;
         uint8 m_uiBridgeEventPhase;
 
-        GuidSet m_sBridgeTrashGuidSet;
+        GUIDSet m_sBridgeTrashGuidSet;
 };
 
 #endif

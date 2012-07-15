@@ -814,7 +814,7 @@ struct MANGOS_DLL_DECL boss_eranikusAI : public ScriptedAI
 
     ObjectGuid m_remulosGuid;
     ObjectGuid m_tyrandeGuid;
-    GuidList m_lPriestessList;
+    GUIDList m_lPriestessList;
 
     void Reset()
     {
@@ -910,7 +910,7 @@ struct MANGOS_DLL_DECL boss_eranikusAI : public ScriptedAI
 
     void DoDespawnSummoned()
     {
-        for(GuidList::const_iterator itr = m_lPriestessList.begin(); itr != m_lPriestessList.end(); ++itr)
+        for(GUIDList::const_iterator itr = m_lPriestessList.begin(); itr != m_lPriestessList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
                 pTemp->ForcedDespawn();

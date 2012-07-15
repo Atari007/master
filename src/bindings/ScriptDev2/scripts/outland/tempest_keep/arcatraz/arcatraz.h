@@ -88,7 +88,7 @@ class MANGOS_DLL_DECL instance_arcatraz : public ScriptedInstance, private Dialo
 
         uint32 m_uiResetDelayTimer;
 
-        GuidList m_lSkyrissEventMobsGuidList;
+        GUIDList m_lSkyrissEventMobsGuidList;
 };
 
 #endif

@@ -141,9 +141,9 @@ class MANGOS_DLL_DECL instance_sunken_temple : public ScriptedInstance
         bool m_bIsFirstHakkarWave;
         bool m_bCanSummonBloodkeeper;
 
-        GuidList m_luiFlameGUIDs;
-        GuidList m_luiBigLightGUIDs;
-        GuidVector m_vuiCircleGUIDs;
+        GUIDList m_luiFlameGUIDs;
+        GUIDList m_luiBigLightGUIDs;
+        GUIDVector m_vuiCircleGUIDs;
 };
 
 #endif

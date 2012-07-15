@@ -103,7 +103,7 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
 
     bool m_bTankPhase;
 
-    GuidList m_lSummonedGUIDs;
+    GUIDList m_lSummonedGUIDs;
 
     void Reset()
     {
@@ -135,7 +135,7 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SUPREMUS, DONE);
 
-        for (GuidList::const_iterator itr = m_lSummonedGUIDs.begin(); itr != m_lSummonedGUIDs.end(); ++itr)
+        for (GUIDList::const_iterator itr = m_lSummonedGUIDs.begin(); itr != m_lSummonedGUIDs.end(); ++itr)
         {
             if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                 pSummoned->ForcedDespawn();

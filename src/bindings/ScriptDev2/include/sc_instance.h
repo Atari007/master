@@ -60,7 +60,6 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 
     protected:
         // Storage for GO-Guids and NPC-Guids
-        typedef std::map<uint32, ObjectGuid> EntryGuidMap;
         EntryGuidMap m_mGoEntryGuidStore;                   ///< Store unique GO-Guids by entry
         EntryGuidMap m_mNpcEntryGuidStore;                  ///< Store unique NPC-Guids by entry
 };

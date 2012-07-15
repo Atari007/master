@@ -597,8 +597,8 @@ struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private Dia
     ObjectGuid m_playerGuid;
     ObjectGuid m_guardsGuid[MAX_ROYAL_GUARDS];
 
-    GuidList m_lRoyalGuardsGuidList;
-    GuidSet m_sGuardsSalutedGuidSet;
+    GUIDList m_lRoyalGuardsGuidList;
+    GUIDSet m_sGuardsSalutedGuidSet;
 
     void Reset()
     {
@@ -835,7 +835,7 @@ struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private Dia
                 }
                 break;
             case SAY_PRESTOR_KEEP_11:
-                for (GuidList::const_iterator itr = m_lRoyalGuardsGuidList.begin(); itr != m_lRoyalGuardsGuidList.end(); ++itr)
+                for (GUIDList::const_iterator itr = m_lRoyalGuardsGuidList.begin(); itr != m_lRoyalGuardsGuidList.end(); ++itr)
                 {
                     if (Creature* pGuard = m_creature->GetMap()->GetCreature(*itr))
                     {
@@ -950,7 +950,7 @@ struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private Dia
             if (m_uiGuardCheckTimer <= uiDiff)
             {
                 uint8 uiDeadGuardsCount = 0;
-                for (GuidList::const_iterator itr = m_lRoyalGuardsGuidList.begin(); itr != m_lRoyalGuardsGuidList.end(); ++itr)
+                for (GUIDList::const_iterator itr = m_lRoyalGuardsGuidList.begin(); itr != m_lRoyalGuardsGuidList.end(); ++itr)
                 {
                     if (Creature* pGuard = m_creature->GetMap()->GetCreature(*itr))
                     {

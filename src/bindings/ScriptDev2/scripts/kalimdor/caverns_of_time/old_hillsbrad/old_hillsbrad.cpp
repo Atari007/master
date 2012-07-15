@@ -56,7 +56,7 @@ enum
     TEXT_ID_DEFAULT                 = 9778,
     TEXT_ID_GOT_ITEM                = 9515,
 
-    GOSSIP_ID_ITEM_START_ESCORT        = -3560007,
+    GOSSIP_ITEM_START_ESCORT        = -3560007,
     ITEM_ENTRY_BOMBS                = 25853,
 };
 
@@ -334,7 +334,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 64:
                 SetRun(false);
                 break;
-            case 69: case 69:
+            case 69:
  	 	
                 m_creature->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
  	 	

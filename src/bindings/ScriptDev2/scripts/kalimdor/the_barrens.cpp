@@ -325,7 +325,7 @@ struct MANGOS_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
     ObjectGuid m_playerGuid;
     ObjectGuid m_bigWillGuid;
-    GuidVector m_vAffrayChallengerGuidsVector;
+    GUIDVector m_vAffrayChallengerGuidsVector;
 
     void Reset()
     {

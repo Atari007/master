@@ -149,7 +149,7 @@ static const NalorakkBearEventInfo aBearEventInfo[MAX_BEAR_WAVES] =
 
 struct NalorakkTrashInfo
 {
-    GuidSet sBearTrashGuidSet;
+    GUIDSet sBearTrashGuidSet;
     uint8 uiTrashKilled;
 };
 
@@ -195,7 +195,7 @@ class MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         uint8 m_uiBearEventPhase;
         bool m_bIsBearPhaseInProgress;
 
-        GuidList m_lEggsGUIDList;
+        GUIDList m_lEggsGUIDList;
         uint32 m_uiEggsRemainingCount_Left;
         uint32 m_uiEggsRemainingCount_Right;
 };

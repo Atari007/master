@@ -117,7 +117,7 @@ class MANGOS_DLL_DECL instance_ruins_of_ahnqiraj : public ScriptedInstance
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
 
-        void GetKaldoreiGuidList(GuidList &lList) { lList = m_lKaldoreiGuidList; }
+        void GetKaldoreiGuidList(GUIDList &lList) { lList = m_lKaldoreiGuidList; }
 
         void Update(uint32 uiDiff);
 
@@ -132,8 +132,8 @@ class MANGOS_DLL_DECL instance_ruins_of_ahnqiraj : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        GuidList m_lKaldoreiGuidList;
-        GuidSet m_sArmyWavesGuids[MAX_ARMY_WAVES];
+        GUIDList m_lKaldoreiGuidList;
+        GUIDSet m_sArmyWavesGuids[MAX_ARMY_WAVES];
 
         uint32 m_uiArmyDelayTimer;
         uint8 m_uiCurrentArmyWave;

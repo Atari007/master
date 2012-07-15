@@ -56,8 +56,8 @@ class MANGOS_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
     private:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        GuidSet m_sChannelerGuid;
-        GuidSet m_sColumnGuid;
+        GUIDSet m_sChannelerGuid;
+        GUIDSet m_sColumnGuid;
 
         uint32 m_uiCageTimer;
         uint32 m_uiRespawnTimer;

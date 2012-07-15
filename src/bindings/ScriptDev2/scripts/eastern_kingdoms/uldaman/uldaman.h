@@ -69,7 +69,7 @@ class MANGOS_DLL_DECL instance_uldaman : public ScriptedInstance
         uint32 m_uiKeeperCooldown;
         uint32 m_uiStoneKeepersFallen;
 
-        GuidList m_lWardens;
+        GUIDList m_lWardens;
         std::map<ObjectGuid, bool> m_mKeeperMap;
 };
 

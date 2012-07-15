@@ -41,7 +41,7 @@ class MANGOS_DLL_DECL instance_ramparts : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         uint32 m_uiSentryCounter;
-        GuidList m_lSentryGUIDs;
+        GUIDList m_lSentryGUIDs;
 };
 
 #endif
