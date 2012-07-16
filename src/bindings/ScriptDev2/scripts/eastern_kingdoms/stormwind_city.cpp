@@ -27,12 +27,42 @@ npc_dashel_stonefist
 npc_lady_katrana_prestor
 npc_squire_rowe
 npc_reginald_windsor
+npc_archmage_malin
 EndContentData */
 
 #include "precompiled.h"
 #include "../world/world_map_scripts.h"
 #include "escort_ai.h"
 
+/*######
+## npc_archmage_malin
+######*/
+
+#define GOSSIP_ITEM_MALIN "Can you send me to Theramore? I have an urgent message for Lady Jaina from Highlord Bolvar."
+
+bool GossipHello_npc_archmage_malin(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
+
+    if (pPlayer->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE && !pPlayer->GetQuestRewardStatus(11223))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MALIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_archmage_malin(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->CastSpell(pPlayer, 42711, true);
+    }
+
+    return true;
+}
 /*######
 ## npc_bartleby
 ######*/
@@ -1028,6 +1058,11 @@ bool GossipSelect_npc_reginald_windsor(Player* pPlayer, Creature* pCreature, uin
 void AddSC_stormwind_city()
 {
     Script* pNewScript;
+	pNewScript = new Script;
+    pNewScript->Name = "npc_archmage_malin";
+    pNewScript->pGossipHello = &GossipHello_npc_archmage_malin;
+    pNewScript->pGossipSelect = &GossipSelect_npc_archmage_malin;
+    pNewScript->RegisterSelf();
 
     pNewScript = new Script;
     pNewScript->Name = "npc_bartleby";
