@@ -1132,6 +1132,37 @@ CreatureAI* GetAI_npc_skywing(Creature* pCreature)
     return new npc_skywingAI(pCreature);
 }
 
+/*######
+## npc_slim
+######*/
+
+enum
+{
+    FACTION_CONSORTIUM  = 933
+};
+
+bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetObjectGuid());
+    }
+    else
+        pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
+
+    return true;
+}
+
+
 void AddSC_terokkar_forest()
 {
     Script* pNewScript;
@@ -1208,5 +1239,11 @@ void AddSC_terokkar_forest()
     pNewScript->Name = "npc_skywing";
     pNewScript->GetAI = &GetAI_npc_skywing;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_skywing;
+    pNewScript->RegisterSelf();
+
+	    pNewScript = new Script;
+    pNewScript->Name = "npc_slim";
+    pNewScript->pGossipHello =  &GossipHello_npc_slim;
+    pNewScript->pGossipSelect = &GossipSelect_npc_slim;
     pNewScript->RegisterSelf();
 }

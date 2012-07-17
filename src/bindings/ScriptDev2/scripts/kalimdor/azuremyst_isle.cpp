@@ -384,6 +384,47 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
     return new npc_magwinAI(pCreature);
 }
 
+/*######
+## npc_susurrus
+######*/
+
+enum
+{
+    ITEM_WHORL_OF_AIR       = 23843,
+    SPELL_BUFFETING_WINDS   = 32474,
+    TAXI_PATH_ID            = 506
+};
+
+#define GOSSIP_ITEM_READY   "I am ready."
+
+bool GossipHello_npc_susurrus(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
+
+    if (pPlayer->HasItemCount(ITEM_WHORL_OF_AIR,1,true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_susurrus(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
+        //spellId is correct, however it gives flight a somewhat funny effect
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer,SPELL_BUFFETING_WINDS,true);
+    }
+    return true;
+}
+
+/*######
+##
+######*/
+
 void AddSC_azuremyst_isle()
 {
     Script* pNewScript;
@@ -409,5 +450,11 @@ void AddSC_azuremyst_isle()
     pNewScript->Name = "npc_magwin";
     pNewScript->GetAI = &GetAI_npc_magwinAI;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_magwin;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_susurrus";
+    pNewScript->pGossipHello =  &GossipHello_npc_susurrus;
+    pNewScript->pGossipSelect = &GossipSelect_npc_susurrus;
     pNewScript->RegisterSelf();
 }

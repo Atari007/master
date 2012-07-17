@@ -72,6 +72,57 @@ CreatureAI* GetAI_mob_webbed_creature(Creature* pCreature)
     return new mob_webbed_creatureAI(pCreature);
 }
 
+/*######
+## npc_captured_sunhawk_agent
+######*/
+
+#define C_SUNHAWK_TRIGGER 17974
+
+bool GossipHello_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->HasAura(31609, EFFECT_INDEX_1) && pPlayer->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(9136, pCreature->GetObjectGuid());
+    }
+    else
+        pPlayer->SEND_GOSSIP_MENU(9134, pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(9137, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->SEND_GOSSIP_MENU(9138, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->SEND_GOSSIP_MENU(9139, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            pPlayer->SEND_GOSSIP_MENU(9140, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            pPlayer->SEND_GOSSIP_MENU(9141, pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+6:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->TalkedToCreature(C_SUNHAWK_TRIGGER, pCreature->GetObjectGuid());
+            break;
+    }
+    return true;
+}
+
 void AddSC_bloodmyst_isle()
 {
     Script* pNewScript;
@@ -79,5 +130,11 @@ void AddSC_bloodmyst_isle()
     pNewScript = new Script;
     pNewScript->Name = "mob_webbed_creature";
     pNewScript->GetAI = &GetAI_mob_webbed_creature;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_captured_sunhawk_agent";
+    pNewScript->pGossipHello =  &GossipHello_npc_captured_sunhawk_agent;
+    pNewScript->pGossipSelect = &GossipSelect_npc_captured_sunhawk_agent;
     pNewScript->RegisterSelf();
 }

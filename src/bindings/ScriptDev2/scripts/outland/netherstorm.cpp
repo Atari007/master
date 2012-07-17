@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -25,6 +25,7 @@ EndScriptData */
 npc_manaforge_control_console
 go_manaforge_control_console
 npc_commander_dawnforge
+npc_protectorate_nether_drake
 npc_bessy
 npc_maxx_a_million
 EndContentData */
@@ -618,6 +619,39 @@ bool AreaTrigger_at_commander_dawnforge(Player* pPlayer, AreaTriggerEntry const*
 }
 
 /*######
+## npc_protectorate_nether_drake
+######*/
+
+enum
+{
+    QUEST_NETHER_WINGS          = 10438,
+    ITEM_PH_DISRUPTOR           = 29778,
+    TAXI_PATH_ID                = 627                       //(possibly 627+628(152->153->154->155))
+};
+
+#define GOSSIP_ITEM_FLY_ULTRIS  "Fly me to Ultris"
+
+bool GossipHello_npc_protectorate_nether_drake(Player* pPlayer, Creature* pCreature)
+{
+    // On Nethery Wings
+    if (pPlayer->GetQuestStatus(QUEST_NETHER_WINGS) == QUEST_STATUS_INCOMPLETE && pPlayer->HasItemCount(ITEM_PH_DISRUPTOR, 1))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FLY_ULTRIS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+    return true;
+}
+
+bool GossipSelect_npc_protectorate_nether_drake(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID);
+    }
+    return true;
+}
+
+/*######
 ## npc_bessy
 ######*/
 
@@ -903,6 +937,13 @@ void AddSC_netherstorm()
     pNewScript->Name = "at_commander_dawnforge";
     pNewScript->pAreaTrigger = &AreaTrigger_at_commander_dawnforge;
     pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_protectorate_nether_drake";
+    pNewScript->pGossipHello = &GossipHello_npc_protectorate_nether_drake;
+    pNewScript->pGossipSelect = &GossipSelect_npc_protectorate_nether_drake;
+    pNewScript->RegisterSelf();
+
 
     pNewScript = new Script;
     pNewScript->Name = "npc_bessy";

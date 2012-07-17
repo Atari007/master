@@ -405,6 +405,30 @@ bool GossipSelect_npc_tirion_fordring(Player* pPlayer, Creature* pCreature, uint
     return true;
 }
 
+
+/*######
+## npc_augustus_the_touched
+######*/
+
+bool GossipHello_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
+
+    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(6164))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+    return true;
+}
+
+bool GossipSelect_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
+    return true;
+}
+
 void AddSC_eastern_plaguelands()
 {
     Script* pNewScript;
@@ -431,4 +455,11 @@ void AddSC_eastern_plaguelands()
     pNewScript->pGossipHello =  &GossipHello_npc_tirion_fordring;
     pNewScript->pGossipSelect = &GossipSelect_npc_tirion_fordring;
     pNewScript->RegisterSelf();
+	
+    pNewScript = new Script;
+    pNewScript->Name = "npc_augustus_the_touched";
+    pNewScript->pGossipHello = &GossipHello_npc_augustus_the_touched;
+    pNewScript->pGossipSelect = &GossipSelect_npc_augustus_the_touched;
+    pNewScript->RegisterSelf();
+
 }

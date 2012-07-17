@@ -446,6 +446,46 @@ bool EffectDummyCreature_npc_dragonmaw_peon(Unit* pCaster, uint32 uiSpellId, Spe
 }
 
 /*######
+## npc_drake_dealer_hurlunk
+######*/
+
+bool GossipHello_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isVendor() && pPlayer->GetReputationRank(1015) == REP_EXALTED)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
+
+    return true;
+}
+
+/*####
+# npc_karynaku
+####*/
+
+enum
+{
+    QUEST_ALLY_OF_NETHER    = 10870,
+    TAXI_PATH_ID            = 649
+};
+
+bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_ALLY_OF_NETHER)
+        pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID);
+
+    return true;
+}
+
+/*######
 # npc_wilda
 ######*/
 
@@ -1653,6 +1693,17 @@ void AddSC_shadowmoon_valley()
     pNewScript->Name = "npc_dragonmaw_peon";
     pNewScript->GetAI = &GetAI_npc_dragonmaw_peon;
     pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_dragonmaw_peon;
+    pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+    pNewScript->Name = "npc_drake_dealer_hurlunk";
+    pNewScript->pGossipHello =  &GossipHello_npc_drake_dealer_hurlunk;
+    pNewScript->pGossipSelect = &GossipSelect_npc_drake_dealer_hurlunk;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_karynaku";
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_karynaku;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

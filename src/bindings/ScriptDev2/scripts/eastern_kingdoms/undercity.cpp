@@ -27,6 +27,7 @@ npc_parqual_fintallas
 EndContentData */
 
 #include "precompiled.h"
+#define HIGHBORNE_LOC_Y_NEW         -55.50f
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -152,6 +153,55 @@ bool QuestRewarded_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCrea
 }
 
 /*######
+## npc_highborne_lamenter
+######*/
+
+
+struct MANGOS_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
+{
+    npc_highborne_lamenterAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 EventMove_Timer;
+    uint32 EventCast_Timer;
+    bool EventMove;
+    bool EventCast;
+
+    void Reset()
+    {
+        EventMove_Timer = 10000;
+        EventCast_Timer = 17500;
+        EventMove = true;
+        EventCast = true;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (EventMove)
+        {
+            if (EventMove_Timer < diff)
+            {
+                m_creature->SetLevitate(true);
+                m_creature->MonsterMoveWithSpeed(m_creature->GetPositionX(),m_creature->GetPositionY(),HIGHBORNE_LOC_Y_NEW,3.f);
+                EventMove = false;
+            }else EventMove_Timer -= diff;
+        }
+        if (EventCast)
+        {
+            if (EventCast_Timer < diff)
+            {
+                DoCastSpellIfCan(m_creature,SPELL_HIGHBORNE_AURA);
+                EventCast = false;
+            }else EventCast_Timer -= diff;
+        }
+    }
+};
+CreatureAI* GetAI_npc_highborne_lamenter(Creature* pCreature)
+{
+    return new npc_highborne_lamenterAI(pCreature);
+}
+
+
+/*######
 ## npc_parqual_fintallas
 ######*/
 
@@ -197,6 +247,11 @@ void AddSC_undercity()
     pNewScript->Name = "npc_lady_sylvanas_windrunner";
     pNewScript->GetAI = &GetAI_npc_lady_sylvanas_windrunner;
     pNewScript->pQuestRewardedNPC = &QuestRewarded_npc_lady_sylvanas_windrunner;
+    pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+    pNewScript->Name = "npc_highborne_lamenter";
+    pNewScript->GetAI = &GetAI_npc_highborne_lamenter;
     pNewScript->RegisterSelf();
 
 	pNewScript = new Script;

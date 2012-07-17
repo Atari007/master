@@ -1095,6 +1095,41 @@ bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiS
     return true;
 }
 
+
+/*######
+## npc_lunaclaw_spirit
+######*/
+
+enum
+{
+    QUEST_BODY_HEART_A      = 6001,
+    QUEST_BODY_HEART_H      = 6002,
+
+    TEXT_ID_DEFAULT         = 4714,
+    TEXT_ID_PROGRESS        = 4715
+};
+
+#define GOSSIP_ITEM_GRANT   "You have thought well, spirit. I ask you to grant me the strength of your body and the strength of your heart."
+
+bool GossipHello_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, pCreature->GetObjectGuid());
+    return true;
+}
+
+bool GossipSelect_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->SEND_GOSSIP_MENU(TEXT_ID_PROGRESS, pCreature->GetObjectGuid());
+        pPlayer->AreaExploredOrEventHappens((pPlayer->GetTeam() == ALLIANCE) ? QUEST_BODY_HEART_A : QUEST_BODY_HEART_H);
+    }
+    return true;
+}
+
 /*######
 ## npc_mount_vendor
 ######*/
@@ -1420,6 +1455,50 @@ bool EffectDummyCreature_npc_redemption_target(Unit* pCaster, uint32 uiSpellId, 
     return false;
 }
 
+/*######
+## npc_rogue_trainer
+######*/
+
+bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
+
+    if (pCreature->isTrainer())
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+    if (pCreature->CanTrainAndResetTalentsOf(pPlayer))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "I wish to unlearn my talents", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
+
+    if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Take the letter>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetObjectGuid());
+    } else
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+
+    return true;
+}
+
+bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer,21100,false);
+            break;
+        case GOSSIP_ACTION_TRAIN:
+            pPlayer->SEND_TRAINERLIST(pCreature->GetObjectGuid());
+            break;
+        case GOSSIP_OPTION_UNLEARNTALENTS:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->SendTalentWipeConfirm(pCreature->GetObjectGuid());
+            break;
+    }
+    return true;
+}
+
 void AddSC_npcs_special()
 {
     Script* pNewScript;
@@ -1474,6 +1553,12 @@ void AddSC_npcs_special()
     pNewScript->pGossipSelect = &GossipSelect_npc_mount_vendor;
     pNewScript->RegisterSelf();
 
+	pNewScript = new Script;
+    pNewScript->Name = "npc_lunaclaw_spirit";
+    pNewScript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
+    pNewScript->pGossipSelect = &GossipSelect_npc_lunaclaw_spirit;
+    pNewScript->RegisterSelf();
+
     pNewScript = new Script;
     pNewScript->Name = "npc_sayge";
     pNewScript->pGossipHello = &GossipHello_npc_sayge;
@@ -1485,4 +1570,11 @@ void AddSC_npcs_special()
     pNewScript->GetAI = &GetAI_npc_redemption_target;
     pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_redemption_target;
     pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_rogue_trainer";
+    pNewScript->pGossipHello =  &GossipHello_npc_rogue_trainer;
+    pNewScript->pGossipSelect = &GossipSelect_npc_rogue_trainer;
+    pNewScript->RegisterSelf();
+
 }
