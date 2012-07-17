@@ -8,6 +8,7 @@
 extern void AddSC_battleground();
 
 // custom
+extern void AddSC_go_custom();
 
 // examples
 extern void AddSC_example_creature();
@@ -222,6 +223,10 @@ extern void AddSC_instance_dark_portal();
 extern void AddSC_hyjal();                                  // COT, hyjal
 extern void AddSC_boss_archimonde();
 extern void AddSC_instance_mount_hyjal();
+extern void AddSC_boss_azgalor();
+extern void AddSC_boss_anetheron();
+extern void AddSC_boss_kazrogal();
+extern void AddSC_boss_rage_winterchill();
 extern void AddSC_boss_captain_skarloc();                   // COT, old_hillsbrad
 extern void AddSC_boss_epoch_hunter();
 extern void AddSC_boss_lieutenant_drake();
@@ -379,6 +384,7 @@ void AddScripts()
     AddSC_battleground();
 
     // custom
+	AddSC_go_custom();
 
     // examples
     AddSC_example_creature();
@@ -593,6 +599,10 @@ void AddScripts()
     AddSC_hyjal();                                          // CoT, hyjal
     AddSC_boss_archimonde();
     AddSC_instance_mount_hyjal();
+	AddSC_boss_azgalor();
+	AddSC_boss_anetheron();
+	AddSC_boss_kazrogal();
+	AddSC_boss_rage_winterchill();
     AddSC_boss_captain_skarloc();                           // CoT, old_hillsbrand
     AddSC_boss_epoch_hunter();
     AddSC_boss_lieutenant_drake();
