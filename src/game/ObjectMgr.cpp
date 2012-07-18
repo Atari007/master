@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -6344,7 +6344,7 @@ struct SQLSpellLoader : public SQLStorageLoaderBase<SQLSpellLoader>
     template<class S, class D>
     void default_fill(uint32 field_pos, S src, D &dst)
     {
-        if (field_pos == LOADED_SPELLDBC_FIELD_POS_EQUIPPED_ITEM_CLASS)                                // EquippedItemClass
+        if (field_pos == LOADED_SPELLDBC_FIELD_POS_EQUIPPED_ITEM_CLASS)
             dst = D(-1);
         else
             dst = D(src);
@@ -6352,7 +6352,7 @@ struct SQLSpellLoader : public SQLStorageLoaderBase<SQLSpellLoader>
 
     void default_fill_to_str(uint32 field_pos, char const* /*src*/, char * & dst)
     {
-        if (field_pos == LOADED_SPELLDBC_FIELD_POS_SPELLNAME_0)                               // SpellName[0]
+        if (field_pos == LOADED_SPELLDBC_FIELD_POS_SPELLNAME_0)
         {
             dst = SERVER_SIDE_SPELL;
         }
@@ -7754,7 +7754,6 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
     wstrToLower(tele.wnameLow);
 
     m_GameTeleMap[new_id] = tele;
-
     std::string safeName(tele.name);
     WorldDatabase.escape_string(safeName);
 
@@ -7793,8 +7792,8 @@ void ObjectMgr::LoadMailLevelRewards()
     m_mailLevelRewardMap.clear();                           // for reload case
 
     uint32 count = 0;
-    QueryResult *result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry, item, subject, text FROM mail_level_reward");
- 
+    QueryResult *result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
+
     if (!result)
     {
         BarGoLink bar(1);
@@ -7818,9 +7817,6 @@ void ObjectMgr::LoadMailLevelRewards()
         uint32 raceMask       = fields[1].GetUInt32();
         uint32 mailTemplateId = fields[2].GetUInt32();
         uint32 senderEntry    = fields[3].GetUInt32();
-		uint32 item           = fields[4].GetUInt32();
-        std::string subject   = fields[5].GetCppString();
-        std::string text      = fields[6].GetCppString();
 
         if(level > MAX_LEVEL)
         {
@@ -7836,19 +7832,8 @@ void ObjectMgr::LoadMailLevelRewards()
 
         if(!sMailTemplateStore.LookupEntry(mailTemplateId))
         {
-            if (mailTemplateId == 0) // item must have valid id
-            {
-                if (!sItemStorage.LookupEntry<ItemPrototype >(item))
-                {
-                    sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) and item (%u) for level %u that invalid not include any player races, ignoring.",mailTemplateId,item,level);
-                    continue;
-                }
-            }
-            else
-            {
-                sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.",mailTemplateId,level);
-                continue;
-            }
+            sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.",mailTemplateId,level);
+            continue;
         }
 
         if(!GetCreatureTemplate(senderEntry))
@@ -7857,8 +7842,8 @@ void ObjectMgr::LoadMailLevelRewards()
             continue;
         }
 
-        m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask,mailTemplateId,senderEntry,item,subject,text));
- 
+        m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask,mailTemplateId,senderEntry));
+
         ++count;
     }
     while (result->NextRow());
