@@ -79,7 +79,8 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
+     //   DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
+	// Adds do not correctly despawn on wipe/death. So need better implementation
     }
 
     void KilledUnit(Unit* pVictim)
