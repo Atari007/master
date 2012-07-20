@@ -694,7 +694,7 @@ void Group::StartLootRoll(WorldObject* lootTarget, LootMethod method, Loot* loot
 
         if ((method != NEED_BEFORE_GREED || playerToRoll->CanUseItem(item)==EQUIP_ERR_OK) && lootItem.AllowedForPlayer(playerToRoll) )
         {
-            if (playerToRoll->IsWithinDistInMap(lootTarget, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
+            if (playerToRoll->IsWithinDist(lootTarget, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             {
                 r->playerVote[playerToRoll->GetObjectGuid()] = ROLL_NOT_EMITED_YET;
                 ++r->totalPlayersRolling;
