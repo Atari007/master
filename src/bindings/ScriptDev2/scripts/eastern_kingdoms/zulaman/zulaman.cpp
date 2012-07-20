@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL npc_harrison_jones_zaAI : public npc_escortAI
             case 1:
                 DoScriptText(SAY_AT_GONG, m_creature);
 
-                m_pInstance->DoToggleGameObjectFlags(GO_STRANGE_GONG, GO_FLAG_NO_INTERACT, false);
+				m_pInstance->DoToggleGameObjectFlags(GO_STRANGE_GONG, GO_FLAG_NO_INTERACT, false);
 
                 //Start bang gong for 2min
                 m_creature->CastSpell(m_creature, SPELL_BANGING_THE_GONG, false);
@@ -491,6 +491,8 @@ bool GOUse_go_strange_gong(Player* pPlayer, GameObject* pGo)
     if (!pInstance)
         return false;
 
+	pInstance->SetData(TYPE_EVENT_RUN, SPECIAL);
+
     if (pInstance->GetData(TYPE_EVENT_RUN) == SPECIAL)
     {
         if (Creature* pCreature = pInstance->GetSingleCreatureFromStorage(NPC_HARRISON))
@@ -502,10 +504,8 @@ bool GOUse_go_strange_gong(Player* pPlayer, GameObject* pGo)
             error_log("SD2: Instance Zulaman: go_strange_gong failed");
 
         pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-        return false;
     }
 
-    pInstance->SetData(TYPE_EVENT_RUN, SPECIAL);
     return false;
 }
 
@@ -525,7 +525,7 @@ void AddSC_zulaman()
     pNewScript->pGossipSelect = &GossipSelect_npc_harrison_jones_za;
     pNewScript->RegisterSelf();
 
-		pNewScript = new Script;
+	pNewScript = new Script;
     pNewScript->Name = "npc_tanzar_za";
     pNewScript->GetAI = &GetAI_npc_tanzar_za;
     pNewScript->RegisterSelf();
