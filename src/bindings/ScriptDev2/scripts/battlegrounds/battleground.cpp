@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -57,7 +57,10 @@ struct MANGOS_DLL_DECL npc_spirit_guideAI : public ScriptedAI
     {
         // auto cast the whole time this spell
         if (!m_creature->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+		{
+			m_creature->CastSpell(m_creature, SPELL_SPIRIT_HEAL, true);
             m_creature->CastSpell(m_creature, SPELL_SPIRIT_HEAL_CHANNEL, false);
+		}
     }
 
     void CorpseRemoved(uint32 &)
