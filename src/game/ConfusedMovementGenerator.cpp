@@ -73,17 +73,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
             // start moving
             unit.addUnitState(UNIT_STAT_CONFUSED_MOVE);
 			 WorldLocation destLoc;
-            destLoc.coord_x = i_x + 10.0f*(rand_norm_f() - 0.5f);
-            destLoc.coord_y = i_y + 10.0f*(rand_norm_f() - 0.5f);
-            destLoc.coord_z = i_z;
-
-         unit.MovePositionToFirstCollision(destLoc, unit.GetObjectScale(), unit.GetOrientation());
-         if (fabs(unit.GetMap()->GetTerrain()->GetHeight(destLoc.coord_x,destLoc.coord_y,destLoc.coord_z,true) - unit.GetPositionZ()) > 2.0f)
-            {
-                destLoc.coord_x = i_x;
-                destLoc.coord_y = i_y;
-                destLoc.coord_z = i_z;
-            } 
+			unit.GetFirstCollisionPosition(destLoc, 10.0f*(rand_norm_f() - 0.5f), unit.GetOrientation());
             PathFinder path(&unit);
             path.setPathLengthLimit(30.0f);
 			path.calculate(destLoc.coord_x, destLoc.coord_y, (destLoc.coord_z + unit.GetObjectScale()));
