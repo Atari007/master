@@ -1059,7 +1059,7 @@ bool Group::_addMember(ObjectGuid guid, const char* name, bool isAssistant, uint
     if (!guid)
         return false;
 
-    Player* player = sObjectMgr.GetPlayer(guid);
+    Player* player = sObjectMgr.GetPlayer(guid, false);
 
     MemberSlot member;
     member.guid      = guid;
