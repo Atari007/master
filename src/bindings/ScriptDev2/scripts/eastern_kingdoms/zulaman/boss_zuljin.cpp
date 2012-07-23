@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -82,7 +82,7 @@ enum
 
     SPELL_BERSERK                   = 45078,                // Berserk timer or existance is unk
 
-    MAX_VORTEXES                    = 4,
+    MAX_VORTEXES                    = 3,
     POINT_ID_CENTER                 = 0,
 
     PHASE_BEAR                      = 0,
@@ -184,7 +184,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
         DoDespawnVortexes();
 
         // Reset all spirits
-        for (uint8 i = 0; i < MAX_VORTEXES; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (Creature* pSpirit = m_pInstance->GetSingleCreatureFromStorage(aZuljinPhases[i].uiSpiritId))
             {
@@ -266,7 +266,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
     {
         if (pSpell->Id == SPELL_SPIRIT_DRAIN)
         {
-            DoCastSpellIfCan(m_creature, aZuljinPhases[m_uiPhase].uiSpiritSpellId);
+            DoCastSpellIfCan(m_creature, aZuljinPhases[m_uiPhase].uiSpiritSpellId,CAST_TRIGGERED);
             DoScriptText(aZuljinPhases[m_uiPhase].iYellId, m_creature);
             DoScriptText(aZuljinPhases[m_uiPhase].iEmoteId, m_creature);
 
@@ -307,7 +307,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
             SetCombatMovement(false);
             m_creature->GetMotionMaster()->MovePoint(POINT_ID_CENTER, fZuljinMoveLoc[0], fZuljinMoveLoc[1], fZuljinMoveLoc[2]);
 
-            // Despawn vortexes and remvoe the energy storm after eagle phase is complete
+            // Despawn vortexes and remove the energy storm after eagle phase is complete
             if (m_uiPhase == PHASE_EAGLE)
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
@@ -327,7 +327,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
                 if (Creature* pSpirit = m_pInstance->GetSingleCreatureFromStorage(aZuljinPhases[m_uiPhase].uiSpiritId))
                 {
                     pSpirit->InterruptNonMeleeSpells(false);
-                    pSpirit->CastSpell(m_creature, SPELL_SPIRIT_DRAINED, false);
+                    pSpirit->CastSpell(m_creature, SPELL_SPIRIT_DRAINED, true);
                     pSpirit->SetStandState(UNIT_STAND_STATE_DEAD);
                 }
             }

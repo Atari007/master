@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -205,7 +205,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
+		for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
         {
             if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
                 pBomb->ForcedDespawn();
@@ -253,9 +253,6 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                     //store bombs in list to be used in BlowUpBombs()
                     m_lBombsGUIDList.push_back(pSummoned->GetObjectGuid());
 
-                    if (pSummoned->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                        pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
                     //visual spell, spell hit pSummoned after a short time
                     m_creature->CastSpell(pSummoned,SPELL_FIRE_BOMB_THROW,true);
                 }
@@ -299,7 +296,13 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void Throw5Bombs()
     {
-        for(uint8 i = 0; i < countof(m_auiSpellFireBombSummon); ++i)
+        //all available spells (each spell has different radius for summon location)
+        uint8 uiMaxBombs = sizeof(m_auiSpellFireBombSummon)/sizeof(uint32);
+
+        //float fX, fY, fZ;
+        //float fRadius = 5.0f;
+
+        for(uint8 i = 0; i < uiMaxBombs; ++i)
         {
             m_creature->CastSpell(m_creature, m_auiSpellFireBombSummon[i], true);
 
@@ -314,9 +317,9 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
     //Teleport every player into the middle if more than 20 yards away (possibly what spell 43096 should do)
     void TeleportPlayersOutOfRange()
     {
-        GUIDVector vGuids;
+        std::vector<ObjectGuid> vGuids;
         m_creature->FillGuidsListFromThreatList(vGuids);
-        for (GUIDVector::const_iterator i = vGuids.begin(); i != vGuids.end(); ++i)
+        for (std::vector<ObjectGuid>::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
         {
             Unit* pTemp = m_creature->GetMap()->GetUnit(*i);
 
@@ -334,6 +337,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                 //do damage and then remove aura (making them "disappear")
                 pBomb->CastSpell(pBomb, SPELL_FIRE_BOMB_DAMAGE, false, NULL, NULL, m_creature->GetObjectGuid());
                 pBomb->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_DUMMY);
+				pBomb->ForcedDespawn(10000);
             }
         }
 
@@ -482,7 +486,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                         break;
                     case 2:
                         m_bCanBlowUpBombs = true;
-                        m_uiBombSequenzeTimer = 2000;
+                        m_uiBombSequenzeTimer = 5000;
                         m_creature->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_CHANNEL);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                         m_bIsBombing = false;
@@ -561,7 +565,10 @@ CreatureAI* GetAI_boss_janalaiAI(Creature* pCreature)
 
 struct MANGOS_DLL_DECL npc_janalai_firebombAI : public ScriptedAI
 {
-    npc_janalai_firebombAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    npc_janalai_firebombAI(Creature* pCreature) : ScriptedAI(pCreature) 
+	{
+		Reset();
+	}
 
     void Reset() {}
 
@@ -623,9 +630,10 @@ struct MANGOS_DLL_DECL npc_amanishi_hatcherAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE || m_bWaypointEnd)
             return;
 
-        uint32 uiCount = m_creature->GetEntry() == NPC_AMANI_HATCHER_1 ? countof(m_aHatcherRight) : countof(m_aHatcherLeft);
+        uint32 uiCount = (m_creature->GetEntry() == NPC_AMANI_HATCHER_1) ?
+            (sizeof(m_aHatcherRight)/sizeof(WaypointDef)) : (sizeof(m_aHatcherLeft)/sizeof(WaypointDef));
 
-        m_uiWaypoint = uiPointId + 1;
+        m_uiWaypoint = uiPointId+1;
 
         if (uiCount == m_uiWaypoint)
             m_bWaypointEnd = true;
@@ -725,9 +733,9 @@ struct MANGOS_DLL_DECL npc_hatchlingAI : public ScriptedAI
         if (!m_bIsStarted)
         {
             if (m_creature->GetPositionY() > 1150)
-                m_creature->GetMotionMaster()->MovePoint(0, hatcherway_l[3][0] + rand()%4-2, hatcherway_l[3][1] + rand()%4-2, hatcherway_l[3][2]);
+                m_creature->GetMotionMaster()->MovePoint(0, hatcherway_l[3][0]+rand()%4-2,hatcherway_l[3][1]+rand()%4-2,hatcherway_l[3][2]);
             else
-                m_creature->GetMotionMaster()->MovePoint(0, hatcherway_r[3][0] + rand()%4-2, hatcherway_r[3][1] + rand()%4-2, hatcherway_r[3][2]);
+                m_creature->GetMotionMaster()->MovePoint(0,hatcherway_r[3][0]+rand()%4-2,hatcherway_r[3][1]+rand()%4-2,hatcherway_r[3][2]);
             m_bIsStarted = true;
         }
 
@@ -742,8 +750,8 @@ struct MANGOS_DLL_DECL npc_hatchlingAI : public ScriptedAI
 
         if (m_uiBufferTimer < uiDiff)
         {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                DoCastSpellIfCan(target, SPELL_FLAMEBUFFED);
+            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(target,SPELL_FLAMEBUFFED);
 
             m_uiBufferTimer = 7000;
         }
