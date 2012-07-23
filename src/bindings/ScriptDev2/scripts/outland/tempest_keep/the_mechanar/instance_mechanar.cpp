@@ -45,8 +45,6 @@ void instance_mechanar::OnPlayerEnter(Player* pPlayer)
     // Check if already summoned
     if (GetSingleCreatureFromStorage(NPC_PATHALEON, true))
         return;
-
-    pPlayer->SummonCreature(NPC_PATHALEON, aBridgeLocs[6].m_fX, aBridgeLocs[6].m_fY, aBridgeLocs[6].m_fZ, aBridgeLocs[6].m_fO, TEMPSUMMON_DEAD_DESPAWN, 0);
 }
 
 void instance_mechanar::OnCreatureCreate(Creature* pCreature)

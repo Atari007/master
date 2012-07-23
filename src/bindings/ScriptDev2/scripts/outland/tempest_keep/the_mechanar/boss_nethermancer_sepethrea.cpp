@@ -79,8 +79,8 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
-		//despawn is done in creature_linking_template table
+       // DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
+		//despawn is done in creature_linking_template table, but flames shouldnt move like this. Disable again
     }
 
     void KilledUnit(Unit* pVictim)
