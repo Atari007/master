@@ -66,7 +66,6 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     uint32 m_uiDragonsBreathTimer;
     uint32 m_uiKnockbackTimer;
     uint32 m_uiSolarburnTimer;
-	std::list<Creature*> m_lFlamesGUIDList;
 
     void Reset()
     {
@@ -77,30 +76,11 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         m_uiSolarburnTimer      = 30000;
     }
 
-    void JustReachedHome()
-    {
-        GetCreatureListWithEntryInGrid(m_lFlamesGUIDList, m_creature, NPC_RAGING_FLAMES, 100.0f);
-
-        if (!m_lFlamesGUIDList.empty())
-        {
-            for(std::list<Creature*>::iterator itr = m_lFlamesGUIDList.begin(); itr != m_lFlamesGUIDList.end(); ++itr)
-            {
-                if ((*itr)->isAlive())
-                    (*itr)->ForcedDespawn();
-            }
-        }
-
-        m_lFlamesGUIDList.clear();
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_SEPETHREA, FAIL);
-    }
-
-
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
+		//despawn is done in creature_linking_template table
     }
 
     void KilledUnit(Unit* pVictim)
@@ -111,21 +91,8 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-		
-		GetCreatureListWithEntryInGrid(m_lFlamesGUIDList, m_creature, NPC_RAGING_FLAMES, 100.0f);
 
-        if (!m_lFlamesGUIDList.empty())
-        {
-            for(std::list<Creature*>::iterator itr = m_lFlamesGUIDList.begin(); itr != m_lFlamesGUIDList.end(); ++itr)
-            {
-                if ((*itr)->isAlive())
-                    (*itr)->ForcedDespawn();
-            }
-        }
-
-        m_lFlamesGUIDList.clear();
-
-		if (m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_SEPETHREA, DONE);
     }
 
