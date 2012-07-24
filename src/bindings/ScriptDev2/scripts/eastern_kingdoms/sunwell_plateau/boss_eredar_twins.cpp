@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,9 +16,10 @@
 
 /* ScriptData
 SDName: boss_eredar_twins
-SD%Complete: 75
-SDComment: A few spells are not working proper yet; Shadow image script needs improvement
+SD%Complete: 
+SDComment: 
 SDCategory: Sunwell Plateau
+SDAuthor: Dexter, <http://excalibur-wow.com>
 EndScriptData */
 
 #include "precompiled.h"
@@ -26,28 +27,22 @@ EndScriptData */
 
 enum
 {
-    SAY_INTRO_1                             = -1580044,
-    SAY_INTRO_2                             = -1580045,
-    SAY_INTRO_3                             = -1580046,
-    SAY_INTRO_4                             = -1580047,
-    SAY_INTRO_5                             = -1580048,
-    SAY_INTRO_6                             = -1580049,
-    SAY_INTRO_7                             = -1580050,
-    SAY_INTRO_8                             = -1580051,
+	// Lady Sacrolash
+    SAY_INTRO                               = -1580044,
+    SAY_SACROLASH_SHADOW_NOVA               = -1580045, //only if Alythess is not dead
+    SAY_SACROLASH_SISTER_DEAD				= -1580046,
+    SAY_SACROLASH_KILL_1					= -1580047,
+    SAY_SACROLASH_KILL_2					= -1580048,
+    SAY_SACROLASH_DEAD                      = -1580049,
+    SAY_SACROLASH_ENRAGE                    = -1580055,
 
-    SAY_SACROLASH_SHADOW_NOVA               = -1580052,
-    SAY_SACROLASH_EMPOWER                   = -1580053,
-    SAY_SACROLASH_KILL_1                    = -1580054,
-    SAY_SACROLASH_KILL_2                    = -1580055,
-    SAY_SACROLASH_DEAD                      = -1580056,
-    SAY_SACROLASH_BERSERK                   = -1580057,
-
-    SAY_ALYTHESS_CANFLAGRATION              = -1580058,
-    SAY_ALYTHESS_EMPOWER                    = -1580059,
-    SAY_ALYTHESS_KILL_1                     = -1580060,
-    SAY_ALYTHESS_KILL_2                     = -1580061,
-    SAY_ALYTHESS_DEAD                       = -1580062,
-    SAY_ALYTHESS_BERSERK                    = -1580063,
+    //Grand Warlock Alythess
+    SAY_ALYTHESS_CANFLAGRATION              = -1580050, //only if Sacrolash is not dead
+    SAY_ALYTHESS_SISTER_DEAD				= -1580051,
+    SAY_ALYTHESS_KILL_1						= -1580052,
+    SAY_ALYTHESS_KILL_2						= -1580053,
+    SAY_ALYTHESS_DEAD						= -1580054,
+    SAY_ALYTHESS_BERSERK                    = -1580055,
 
     // Shared spells
     SPELL_TWINS_ENRAGE                      = 46587,
@@ -76,31 +71,15 @@ enum
     SPELL_CONFLAGRATION_UNK                 = 45333,        // Unknown
 };
 
-static const DialogueEntry aIntroDialogue[] =
-{
-    {SAY_INTRO_1, NPC_SACROLASH, 1000},
-    {SAY_INTRO_2, NPC_ALYTHESS,  1500},
-    {SAY_INTRO_3, NPC_SACROLASH, 1500},
-    {SAY_INTRO_4, NPC_ALYTHESS,  1500},
-    {SAY_INTRO_5, NPC_SACROLASH, 1500},
-    {SAY_INTRO_6, NPC_ALYTHESS,  1500},
-    {SAY_INTRO_7, NPC_SACROLASH, 2500},
-    {SAY_INTRO_8, NPC_ALYTHESS,  0},
-    {0, 0, 0},
-};
-
 struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 {
-    boss_alythessAI(Creature* pCreature) : ScriptedAI(pCreature),
-        m_introDialogue(aIntroDialogue)
+    boss_alythessAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = ((instance_sunwell_plateau*)pCreature->GetInstanceData());
-        m_introDialogue.InitializeDialogueHelper(m_pInstance);
         Reset();
     }
 
     ScriptedInstance* m_pInstance;
-    DialogueHelper m_introDialogue;
 
     uint32 m_uiEnrageTimer;
     uint32 m_uiPyrogenicsTimer;
@@ -144,6 +123,7 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
             if (m_pInstance->GetData(TYPE_EREDAR_TWINS) != IN_PROGRESS)
                 m_pInstance->SetData(TYPE_EREDAR_TWINS, IN_PROGRESS);
         }
+		DoScriptText(SAY_INTRO, m_creature);
     }
 
     void AttackStart(Unit* pWho)
@@ -159,8 +139,27 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
         }
     }
 
+	void DamageDeal(Unit* pDoneTo, uint32 &uiDamage) 
+    {
+		// Prevent abusing by pulling just one twin
+		if (Creature* pSister = m_pInstance->GetSingleCreatureFromStorage(NPC_SACROLASH))
+        {
+			if (pSister->isAlive() && !pSister->isInCombat())
+				pSister->SetInCombatWith(pDoneTo);
+		}
+
+        if (pDoneTo->HasAura(SPELL_DARK_TOUCHED,EFFECT_INDEX_0))
+		{
+            pDoneTo->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED,0);
+			pDoneTo->CastSpell(pDoneTo, SPELL_DARK_FLAME, false);
+		}
+    }
+
     void KilledUnit(Unit* pVictim)
     {
+		if (pVictim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
         DoScriptText(urand(0, 1) ? SAY_ALYTHESS_KILL_1 : SAY_ALYTHESS_KILL_2, m_creature);
     }
 
@@ -179,7 +178,6 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
                 {
                     // Remove loot flag and cast empower
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    DoScriptText(SAY_SACROLASH_EMPOWER, pSacrolash);
                     pSacrolash->InterruptNonMeleeSpells(true);
                     pSacrolash->CastSpell(pSacrolash, SPELL_EMPOWER, false);
                 }
@@ -189,16 +187,6 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_pInstance && m_pInstance->GetData(TYPE_EREDAR_TWINS) == SPECIAL)
-        {
-            if (!m_bDidIntro)
-            {
-                m_introDialogue.StartNextDialogueText(SAY_INTRO_1);
-                m_bDidIntro = true;
-            }
-            m_introDialogue.DialogueUpdate(uiDiff);
-        }
-
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -221,15 +209,15 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
         else
             m_uiPyrogenicsTimer -= uiDiff;
 
-        /* // Spell needs research of fix; it shoudn't be cast on self
+        
         if (m_uiFlameTouchedTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_FLAME_TOUCHED) == CAST_OK)
-                m_uiFlameTouchedTimer = urand(10000, 13000);
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+				pTarget->CastSpell(pTarget, SPELL_FLAME_TOUCHED, false);
+			m_uiFlameTouchedTimer = urand(10000, 13000);
         }
         else
             m_uiFlameTouchedTimer -= uiDiff;
-        */
 
         if (m_uiConflagrationTimer < uiDiff)
         {
@@ -320,6 +308,22 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
         }
     }
 
+	void DamageDeal(Unit* pDoneTo, uint32 &uiDamage) 
+    {
+		// Prevent abusing by pulling just one twin
+		if (Creature* pSister = m_pInstance->GetSingleCreatureFromStorage(NPC_ALYTHESS))
+        {
+			if (pSister->isAlive() && !pSister->isInCombat())
+				pSister->SetInCombatWith(pDoneTo);
+		}
+
+        if (pDoneTo->HasAura(SPELL_FLAME_TOUCHED,EFFECT_INDEX_0))
+		{
+            pDoneTo->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED,0);
+			pDoneTo->CastSpell(pDoneTo, SPELL_DARK_FLAME, false);
+		}
+    }
+
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(urand(0, 1) ? SAY_SACROLASH_KILL_1 : SAY_SACROLASH_KILL_2, m_creature);
@@ -340,7 +344,6 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 {
                     // Remove loot flag and cast empower
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    DoScriptText(SAY_ALYTHESS_EMPOWER, pAlythess);
                     pAlythess->InterruptNonMeleeSpells(true);
                     pAlythess->CastSpell(pAlythess, SPELL_EMPOWER, false);
                 }
@@ -389,22 +392,21 @@ struct MANGOS_DLL_DECL boss_sacrolashAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature, SPELL_TWINS_ENRAGE) == CAST_OK)
             {
-                DoScriptText(SAY_SACROLASH_BERSERK, m_creature);
+                DoScriptText(SAY_SACROLASH_ENRAGE, m_creature);
                 m_uiEnrageTimer = 6*MINUTE*IN_MILLISECONDS;
             }
         }
         else
             m_uiEnrageTimer -= uiDiff;
 
-        /* // Spell needs research of fix; it shoudn't be cast on self
         if (m_uiDarkTouchedTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_DARK_TOUCHED) == CAST_OK)
-                m_uiDarkTouchedTimer = urand(10000, 13000);
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+				pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, false);
+            m_uiDarkTouchedTimer = urand(10000,13000);
         }
         else
             m_uiDarkTouchedTimer -= uiDiff;
-        */
 
         if (m_uiShadowBladesTimer < uiDiff)
         {

@@ -161,7 +161,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 		m_bIsBreath				= false;
 		m_uiVaporTargetGUID.Clear();
 
-        m_uiEncounterCheckTimer = 10000;
+        m_uiEncounterCheckTimer = 30000;
     }
 
 	void JustReachedHome()
@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 			if(m_uiFogOfCorruptionTimer < uiDiff)
 			{
 				++m_uiBreathCount;
-				if(m_uiBreathCount == 4)
+				if(m_uiBreathCount == 3)
 				{
 					SetCombatMovement(true);
 					m_creature->GetMotionMaster()->Clear();
@@ -381,7 +381,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 			if(m_uiFogSummonTimer < uiDiff && m_bIsBreath)
 			{
 				m_creature->SummonCreature(NPC_DEATH_CLOUD, m_creature->GetPositionX(), m_creature->GetPositionY(), 25.5f, 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
-				m_uiFogSummonTimer = 3000;
+				m_uiFogSummonTimer = 2000;
 			}
 			else m_uiFogSummonTimer -= uiDiff;
 
@@ -390,7 +390,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 				if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
 				{
 					m_uiVaporTargetGUID = pTarget->GetObjectGuid();
-					m_creature->SummonCreature(NPC_VAPOR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+					m_creature->SummonCreature(NPC_VAPOR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
 				}
 				m_uiVaporSummonTimer = 2000;
 				m_uiDemonicVaporTimer = 7000;
@@ -401,7 +401,7 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
 			if(m_uiVaporSummonTimer < uiDiff && m_uiVaporCount < 1)
 			{
 				if(Unit* pTarget = m_creature->GetMap()->GetUnit(m_uiVaporTargetGUID))
-					m_creature->SummonCreature(NPC_VAPOR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+					m_creature->SummonCreature(NPC_VAPOR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
 				m_uiVaporSummonTimer = 2000;
 			}
 			else m_uiVaporSummonTimer -= uiDiff;
