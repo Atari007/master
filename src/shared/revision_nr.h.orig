@@ -1,8 +1,0 @@
-#ifndef __REVISION_NR_H__
-#define __REVISION_NR_H__
-<<<<<<< HEAD
- #define REVISION_NR "1596"
-=======
- #define REVISION_NR "1603"
->>>>>>> f6a6235... [s1603] Implement spells 33923 and 38796
-#endif // __REVISION_NR_H__
