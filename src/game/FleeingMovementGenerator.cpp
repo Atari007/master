@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
     path.calculate(x, y, z);
     if(path.getPathType() & PATHFIND_NOPATH)
     {
-        i_nextCheckTime.Reset(urand(1000, 1000));
+        i_nextCheckTime.Reset(urand(1000, 1500));
         return;
     }
 
@@ -57,7 +57,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
     init.MovebyPath(path.getPath());
     init.SetWalk(false);
     int32 traveltime = init.Launch();
-    i_nextCheckTime.Reset(traveltime + urand(800, 1000));
+    i_nextCheckTime.Reset(traveltime + urand(800, 1500));
 }
 
 template<class T>
@@ -98,26 +98,12 @@ bool FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float 
         angle = frand(0, 2*M_PI_F);
     }
 
-    float curr_x, curr_y, curr_z;
-    owner.GetPosition(curr_x, curr_y, curr_z);
- 
-	WorldLocation destLoc;
-    destLoc.coord_x = curr_x + dist*cos(angle);
-    destLoc.coord_y = curr_y + dist*sin(angle);
-    destLoc.coord_z = curr_z;
-    owner.MovePositionToFirstCollision(destLoc, owner.GetObjectScale(), owner.GetOrientation());
-    if (fabs(owner.GetMap()->GetTerrain()->GetHeight(destLoc.coord_x,destLoc.coord_y,destLoc.coord_z,true) - owner.GetPositionZ()) > 2.0f)
-    {
-        x = curr_x;
-        y = curr_y;
-        z = curr_z;
-    }
-    else
-    {
-        x = destLoc.coord_x;
-        y = destLoc.coord_y;
-        z = destLoc.coord_z + owner.GetObjectScale();
-    }
+    WorldLocation destLoc;
+    owner.GetFirstCollisionPosition(destLoc, dist/2, angle);
+
+    x = destLoc.coord_x;
+    y = destLoc.coord_y;
+    z = destLoc.coord_z + owner.GetObjectScale();
 
     return true;
 }
