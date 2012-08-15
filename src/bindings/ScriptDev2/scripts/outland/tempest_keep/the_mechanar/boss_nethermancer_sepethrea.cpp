@@ -34,7 +34,7 @@ enum
     SAY_SLAY2                       = -1554018,
     SAY_DEATH                       = -1554019,
 
-    SPELL_SUMMON_RAGIN_FLAMES       = 35275,
+    SPELL_SUMMON_RAGING_FLAMES      = 35275,
     SPELL_FROST_ATTACK              = 35263,
     SPELL_ARCANE_BLAST              = 35314,
     SPELL_DRAGONS_BREATH            = 35250,
@@ -79,8 +79,7 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-       // DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGIN_FLAMES);
-		//despawn is done in creature_linking_template table, but flames shouldnt move like this. Disable again
+        DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGING_FLAMES);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -138,6 +137,8 @@ struct MANGOS_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature, SPELL_DRAGONS_BREATH) == CAST_OK)
             {
+                m_creature->getThreatManager().addThreat(m_creature->getVictim(),-4000.0f);
+
                 if (urand(0, 1))
                     DoScriptText(urand(0, 1) ? SAY_DRAGONS_BREATH_1 : SAY_DRAGONS_BREATH_2, m_creature);
 

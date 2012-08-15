@@ -431,7 +431,8 @@ bool GOUse_go_avruus_orb(Player* pPlayer, GameObject* pGo)
 {
 	if (pPlayer->GetQuestStatus(QUEST_AVRUUS_ORB) == QUEST_STATUS_COMPLETE)
 	{
-		pGo->SummonCreature(NPC_AERANAS, -1327.594360f, 4042.807861f, 116.617172f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+		if (Creature* pAeranas = pGo->SummonCreature(NPC_AERANAS, -1327.594360f, 4042.807861f, 116.617172f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+			pAeranas->AI()->AttackStart(pPlayer);
 	}
 
 	return true;

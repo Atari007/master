@@ -43,17 +43,19 @@ enum
     SPELL_FRENZY                    = 36992,
     SPELL_DISGRUNTLED_ANGER         = 35289,        // research where to use this - possible to be used by Nether Wraits when boss is at 20% HP
 
-    SPELL_SUMMON_NETHER_WRAITH_1    = 35285,
-    SPELL_SUMMON_NETHER_WRAITH_2    = 35286,
-    SPELL_SUMMON_NETHER_WRAITH_3    = 35287,
-    SPELL_SUMMON_NETHER_WRAITH_4    = 35288,
+    //SPELL_SUMMON_NETHER_WRAITH_1    = 35285,
+    //SPELL_SUMMON_NETHER_WRAITH_2    = 35286,
+    //SPELL_SUMMON_NETHER_WRAITH_3    = 35287,
+    //SPELL_SUMMON_NETHER_WRAITH_4    = 35288,
 
     // Add Spells
     SPELL_DETONATION                = 35058,
     SPELL_ARCANE_BOLT               = 20720,
+
+    NPC_NETHER_WRAITH               = 21062
 };
 
-static const uint32 aWraithSummonSpells[4] = {SPELL_SUMMON_NETHER_WRAITH_1, SPELL_SUMMON_NETHER_WRAITH_2, SPELL_SUMMON_NETHER_WRAITH_3, SPELL_SUMMON_NETHER_WRAITH_4};
+//static const uint32 aWraithSummonSpells[4] = {SPELL_SUMMON_NETHER_WRAITH_1, SPELL_SUMMON_NETHER_WRAITH_2, SPELL_SUMMON_NETHER_WRAITH_3, SPELL_SUMMON_NETHER_WRAITH_4};
 
 struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 {
@@ -72,7 +74,10 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
     uint32 m_uiArcaneTorrentTimer;
     uint32 m_uiDominationTimer;
     uint32 m_uiArcaneExplosionTimer;
+
     bool m_bIsEnraged;
+
+    GUIDList m_lNWraithGUIDList;
 
     void Reset()
     {
@@ -104,6 +109,7 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
+        m_lNWraithGUIDList.push_back(pSummoned->GetObjectGuid());
         if (m_creature->getVictim())
             pSummoned->AI()->AttackStart(m_creature->getVictim());
     }
@@ -114,11 +120,11 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiSummonTimer < uiDiff)
+        if (m_uiSummonTimer < uiDiff && m_creature->GetHealthPercent() > 21.0f)
         {
             uint8 uiMaxWraith = urand(3, 4);
             for (uint8 i = 0; i < uiMaxWraith; ++i)
-                DoCastSpellIfCan(m_creature, aWraithSummonSpells[i], CAST_TRIGGERED);
+                m_creature->SummonCreature(NPC_NETHER_WRAITH, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
             DoScriptText(SAY_SUMMON, m_creature);
             m_uiSummonTimer = urand(30000, 45000);
@@ -175,7 +181,16 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
             {
-                // ToDo: despawn nether wraiths here
+		        for (GUIDList::const_iterator itr = m_lNWraithGUIDList.begin(); itr != m_lNWraithGUIDList.end(); ++itr)
+                {
+                    if (Creature* pCreature = m_creature->GetMap()->GetCreature(*itr))
+                    {
+                        if (pCreature->isAlive())
+                        pCreature->ForcedDespawn();
+                    }
+                }
+                m_lNWraithGUIDList.clear();
+
                 DoScriptText(SAY_ENRAGE, m_creature);
                 m_bIsEnraged = true;
             }

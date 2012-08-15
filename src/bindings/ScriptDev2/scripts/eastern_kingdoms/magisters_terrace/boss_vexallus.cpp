@@ -209,7 +209,9 @@ struct MANGOS_DLL_DECL mob_pure_energyAI : public ScriptedAI
                     return;
 
                 if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    pPlayer->CastSpell(pPlayer, SPELL_ENERGY_FEEDBACK, true, NULL, NULL, pVex->GetObjectGuid());
+                    pPlayer->CastSpell(pKiller, SPELL_ENERGY_FEEDBACK, true, NULL, NULL, pVex->GetObjectGuid());
+
+                pTemporary->ForcedDespawn();
             }
         }
     }

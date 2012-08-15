@@ -55,26 +55,17 @@ struct MANGOS_DLL_DECL npc_aeranasAI : public ScriptedAI
 
     void Reset()
     {
-        Faction_Timer = 8000;
         EnvelopingWinds_Timer = 9000;
         Shock_Timer = 5000;
 
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        m_creature->setFaction(FACTION_FRIENDLY);
+        m_creature->setFaction(FACTION_HOSTILE);
 
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (Faction_Timer)
-        {
-            if (Faction_Timer <= diff)
-            {
-                m_creature->setFaction(FACTION_HOSTILE);
-                Faction_Timer = 0;
-            }else Faction_Timer -= diff;
-        }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
