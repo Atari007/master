@@ -34,12 +34,6 @@ void ScriptedPetAI::MoveInLineOfSight(Unit* pWho)
     {
         if (!m_creature->CanFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
             return;
-
-        if (m_creature->IsWithinDistInMap(pWho, m_creature->GetAttackDistance(pWho)) && m_creature->IsWithinLOSInMap(pWho))
-        {
-            pWho->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-            AttackStart(pWho);
-        }
     }
 }
 
