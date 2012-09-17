@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,31 +16,29 @@
 
 /* ScriptData
 SDName: Boss_Void_Reaver
-SD%Complete: 95
-SDComment: Small adjustments may be required
+SD%Complete: 90
+SDComment: Should reset if raid are out of room.
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "precompiled.h"
 #include "the_eye.h"
 
-enum
-{
-    SAY_AGGRO                   = -1550000,
-    SAY_SLAY1                   = -1550001,
-    SAY_SLAY2                   = -1550002,
-    SAY_SLAY3                   = -1550003,
-    SAY_DEATH                   = -1550004,
-    SAY_POUNDING1               = -1550005,
-    SAY_POUNDING2               = -1550006,
+#define SAY_AGGRO                   -1550000
+#define SAY_SLAY1                   -1550001
+#define SAY_SLAY2                   -1550002
+#define SAY_SLAY3                   -1550003
+#define SAY_DEATH                   -1550004
+#define SAY_POUNDING1               -1550005
+#define SAY_POUNDING2               -1550006
 
-    SPELL_POUNDING              = 34162,
-    SPELL_ARCANE_ORB_MISSILE    = 34172,
-    SPELL_KNOCK_AWAY            = 25778,
-    SPELL_BERSERK               = 26662,
+#define SPELL_POUNDING              34162
+#define SPELL_ARCANE_ORB_MISSILE    34172
+#define SPELL_KNOCK_AWAY            25778
+#define SPELL_BERSERK               26662
 
-    NPC_ARCANE_ORB_TARGET       = 19577,
-};
+//Unknown function. If target not found, this will be created and used as dummy target instead?
+//#define CREATURE_ORB_TARGET         19577
 
 struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
 {
@@ -52,24 +50,24 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
 
-    uint32 m_uiPoundingTimer;
-    uint32 m_uiArcaneOrbTimer;
-    uint32 m_uiKnockAwayTimer;
-    uint32 m_uiBerserkTimer;
+    uint32 Pounding_Timer;
+    uint32 ArcaneOrb_Timer;
+    uint32 KnockAway_Timer;
+    uint32 Berserk_Timer;
 
     void Reset()
     {
-        m_uiPoundingTimer   = 13000;
-        m_uiArcaneOrbTimer  = 3000;
-        m_uiKnockAwayTimer  = 30000;
-        m_uiBerserkTimer    = 10*MINUTE*IN_MILLISECONDS;
+        Pounding_Timer = 15000;
+        ArcaneOrb_Timer = 3000;
+        KnockAway_Timer = 30000;
+        Berserk_Timer = 600000;
+
+        if (m_pInstance && m_creature->isAlive())
+            m_pInstance->SetData(TYPE_VOIDREAVER, NOT_STARTED);
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit *victim)
     {
-        if (pVictim->GetTypeId() != TYPEID_PLAYER)
-            return;
-
         switch(urand(0, 2))
         {
             case 0: DoScriptText(SAY_SLAY1, m_creature); break;
@@ -78,7 +76,7 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -94,91 +92,74 @@ struct MANGOS_DLL_DECL boss_void_reaverAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VOIDREAVER, IN_PROGRESS);
     }
 
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_VOIDREAVER, NOT_STARTED);
-    }
-
-    void JustSummoned(Creature* pSummoned)
-    {
-        // Cast the Arcane Orb missile on the npc, not on player
-        DoCastSpellIfCan(pSummoned, SPELL_ARCANE_ORB_MISSILE, CAST_TRIGGERED);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 diff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // Pounding
-        if (m_uiPoundingTimer < uiDiff)
+        if (Pounding_Timer < diff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_POUNDING) == CAST_OK)
-            {
-                DoScriptText(urand(0, 1) ? SAY_POUNDING1 : SAY_POUNDING2, m_creature);
-                m_uiPoundingTimer = 14000;
-            }
-        }
-        else
-            m_uiPoundingTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_POUNDING);
+            DoScriptText(urand(0, 1) ? SAY_POUNDING1 : SAY_POUNDING2, m_creature);
+
+            Pounding_Timer = 15000;                         //cast time(3000) + cooldown time(12000)
+        }else Pounding_Timer -= diff;
 
         // Arcane Orb
-        if (m_uiArcaneOrbTimer < uiDiff)
+        if (ArcaneOrb_Timer < diff)
         {
-            // Search only for players which are not within 18 yards of the boss
-            std::vector<Unit*> suitableTargets;
-            ThreatList const& threatList = m_creature->getThreatManager().getThreatList();
-            ThreatList::const_iterator itr = threatList.begin();
+            Unit *target = NULL;
+            std::vector<Unit *> target_list;
 
-            for (itr; itr != threatList.end(); ++itr)
+            ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+            for (ThreatList::const_iterator itr = tList.begin();itr != tList.end(); ++itr)
             {
-                if (Unit* pTarget = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
-                {
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER && !pTarget->IsWithinDist(m_creature, 18.0f))
-                        suitableTargets.push_back(pTarget);
-                }
+                target = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
+
+                // exclude pets & totems
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+
+                //18 yard radius minimum
+                if (target->IsWithinDist(m_creature, 18.0f, false))
+                    continue;
+
+                target_list.push_back(target);
             }
 
-            if (suitableTargets.empty())
-                m_uiArcaneOrbTimer = 3000;
+            if (target_list.size())
+                target = *(target_list.begin()+rand()%target_list.size());
             else
-            {
-                Unit* pTarget = suitableTargets[urand(0, suitableTargets.size() - 1)];
+                target = m_creature->getVictim();
 
-                if (pTarget)
-                    m_creature->SummonCreature(NPC_ARCANE_ORB_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            if (target)
+                DoCastSpellIfCan(target, SPELL_ARCANE_ORB_MISSILE);
 
-                m_uiArcaneOrbTimer = 3000;
-            }
-        }
-        else
-            m_uiArcaneOrbTimer -= uiDiff;
+            ArcaneOrb_Timer = 3000;
+        }else ArcaneOrb_Timer -= diff;
 
         // Single Target knock back, reduces aggro
-        if (m_uiKnockAwayTimer < uiDiff)
+        if (KnockAway_Timer < diff)
         {
-            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCK_AWAY) == CAST_OK)
-                m_uiKnockAwayTimer = 30000;
-        }
-        else
-            m_uiKnockAwayTimer -= uiDiff;
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_KNOCK_AWAY);
 
-        // Berserk
-        if (m_uiBerserkTimer)
+            KnockAway_Timer = 30000;
+        }else KnockAway_Timer -= diff;
+
+        //Berserk
+        if (Berserk_Timer < diff)
         {
-            if (m_uiBerserkTimer <= uiDiff)
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
-                    m_uiBerserkTimer = 0;
-            }
-            else
-                m_uiBerserkTimer -= uiDiff;
-        }
+            if (m_creature->IsNonMeleeSpellCasted(false))
+                m_creature->InterruptNonMeleeSpells(false);
+
+            DoCastSpellIfCan(m_creature,SPELL_BERSERK);
+            Berserk_Timer = 600000;
+        }else Berserk_Timer -= diff;
 
         DoMeleeAttackIfReady();
 
-        EnterEvadeIfOutOfCombatArea(uiDiff);
+        EnterEvadeIfOutOfCombatArea(diff);
     }
 };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -30,7 +30,7 @@ enum
     // phase 1
     SPELL_FLAME_BUFFET      = 34121,        // if nobody is in range
     SPELL_FLAME_QUILLS      = 34229,
-    SPELL_EMBER_BLAST       = 34341,        // usee when the boss dies first time
+    SPELL_EMBER_BLAST       = 34341,        // use when the boss dies first time
     SPELL_REBIRTH           = 34342,
 
     // phase 2
