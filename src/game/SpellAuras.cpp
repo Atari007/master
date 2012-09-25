@@ -2715,6 +2715,9 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         case FORM_FLIGHT:
         case FORM_MOONKIN:
         {
+            // druids should not be able to shapeshift out of cripple
+            if(target->HasAura(31477)) break;
+            
             // remove movement affects
             target->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT, GetHolder());
             Unit::AuraList const& slowingAuras = target->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
@@ -6140,6 +6143,10 @@ void Aura::PeriodicTick()
         }
         case SPELL_AURA_PERIODIC_MANA_LEECH:
         {
+            // stop Mark of Kaz'rogal from blowing up NPCs
+            if (GetId() == 31447 && target->GetTypeId() != TYPEID_PLAYER)
+                return;
+
             // don't damage target if not alive, possible death persistent effects
             if (!target->isAlive())
                 return;

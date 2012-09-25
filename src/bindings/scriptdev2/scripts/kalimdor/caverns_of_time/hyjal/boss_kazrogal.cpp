@@ -127,10 +127,13 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
 
 		if(m_uiCrippleTimer < uiDiff)
 		{
-			if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-					m_creature->CastSpell(pTarget, SPELL_CRIPPLE, false);
-			m_uiCrippleTimer = urand(6000,8000);
-		}
+            if(!m_creature->IsWithinDistInMap(m_creature->getVictim(), 15.0f))
+               m_creature->CastSpell(m_creature->getVictim(), SPELL_CRIPPLE, false);
+            else
+                if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+		            m_creature->CastSpell(pTarget, SPELL_CRIPPLE, false);
+   	            m_uiCrippleTimer = urand(6000,8000);
+        }
 		else m_uiCrippleTimer -= uiDiff;
 
 		if(m_uiMarkOfKazrogalTimer < uiDiff)
