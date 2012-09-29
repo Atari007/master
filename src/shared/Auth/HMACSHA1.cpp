@@ -44,6 +44,11 @@ void HMACSHA1::UpdateData(const uint8 *data, int length)
     HMAC_Update(&m_ctx, data, length);
 }
 
+void HMACSHA1::UpdateData(const std::string &str)
+{
+    UpdateData((uint8 const*)str.c_str(), str.length());
+}
+
 void HMACSHA1::Initialize()
 {
     HMAC_Init_ex(&m_ctx, &m_key, SEED_KEY_SIZE, EVP_sha1(), NULL);

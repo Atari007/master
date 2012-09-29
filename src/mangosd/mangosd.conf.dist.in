@@ -197,6 +197,11 @@ BindIP = "0.0.0.0"
 #        Default: 1 (Enable)
 #                 0 (Disabled)
 #
+#    Warden.Kick
+#        Kick player on failed check
+#        Default: 0 (Disabled)
+#                 1 (Enabled)
+#
 ###################################################################################################################
 
 UseProcessors = 0
@@ -224,6 +229,7 @@ UpdateUptimeInterval = 10
 MaxCoreStuckTime = 0
 AddonChannel = 1
 CleanCharacterDB = 1
+Warden.Kick = 0
 
 ###################################################################################################################
 # SERVER LOGGING
@@ -338,6 +344,11 @@ CleanCharacterDB = 1
 #        Default: "Ra.log"
 #                 "" - Empty name for disable
 #
+#    WardenLogFile
+#        Log file of Warden
+#        Default: "Warden.log"
+#                 "" - Empty name for disable
+#
 #    LogColors
 #        Color for messages (format "normal_color details_color debug_color error_color")
 #        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
@@ -379,6 +390,7 @@ GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = ""
+WardenLogFile = "warden.log"
 
 ###################################################################################################################
 # SERVER SETTINGS

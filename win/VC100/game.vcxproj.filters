@@ -31,6 +31,9 @@
     <Filter Include="Movement">
       <UniqueIdentifier>{0ac140f9-89c1-4830-b673-514c5e8b4d37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Warden">
+      <UniqueIdentifier>{d88fe105-61c5-46b8-b008-c467a7b1b202}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\game\AccountMgr.cpp">
@@ -487,6 +490,18 @@
     <ClCompile Include="..\..\src\game\CreatureLinkingMgr.cpp">
       <Filter>World/Handlers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\Warden\WardenBase.cpp">
+      <Filter>Warden</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Warden\WardenDataStorage.cpp">
+      <Filter>Warden</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Warden\WardenMac.cpp">
+      <Filter>Warden</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Warden\WardenWin.cpp">
+      <Filter>Warden</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -924,6 +939,24 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\CreatureLinkingMgr.h">
       <Filter>World/Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenBase.h">
+      <Filter>Warden</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenDataStorage.h">
+      <Filter>Warden</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenMac.h">
+      <Filter>Warden</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenModuleMac.h">
+      <Filter>Warden</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenModuleWin.h">
+      <Filter>Warden</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Warden\WardenWin.h">
+      <Filter>Warden</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

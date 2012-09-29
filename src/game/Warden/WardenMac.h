@@ -16,32 +16,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AUTH_HMACSHA1_H
-#define _AUTH_HMACSHA1_H
+#ifndef _WARDEN_MAC_H
+#define _WARDEN_MAC_H
 
-#include "Common.h"
-#include <openssl/hmac.h>
-#include <openssl/sha.h>
+#include "Auth/SARC4.h"
+#include <map>
+#include "Auth/BigNumber.h"
+#include "ByteBuffer.h"
 
-class BigNumber;
+class WorldSession;
+class WardenBase;
 
-#define SEED_KEY_SIZE 16
-
-class HMACSHA1
+class WardenMac : WardenBase
 {
     public:
-        HMACSHA1(uint32 len, uint8 *seed);
-        ~HMACSHA1();
-        void UpdateBigNumber(BigNumber *bn);
-        void UpdateData(const uint8 *data, int length);
-        void UpdateData(const std::string &str);
-        void Initialize();
-        void Finalize();
-        uint8 *GetDigest() { return m_digest; };
-        int GetLength() { return SHA_DIGEST_LENGTH; };
-    private:
-        HMAC_CTX m_ctx;
-        uint8 m_key[SEED_KEY_SIZE];
-        uint8 m_digest[SHA_DIGEST_LENGTH];
+        WardenMac();
+        ~WardenMac();
+
+        void Init(WorldSession *pClient, BigNumber *K);
+        ClientWardenModule *GetModuleForClient(WorldSession *session);
+        void InitializeModule();
+        void RequestHash();
+        void HandleHashResult(ByteBuffer &buff);
+        void RequestData();
+        void HandleData(ByteBuffer &buff);
 };
+
 #endif
