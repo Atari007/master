@@ -736,6 +736,7 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT,      "PetUnsummonAtMount", true);
 
+    setConfig(CONFIG_BOOL_WARDEN_ENABLED,             "Warden.Enabled", false);
     setConfig(CONFIG_BOOL_WARDEN_KICK,                "Warden.Kick", false);
 
     m_relocation_ai_notify_delay = sConfig.GetIntDefault("Visibility.AIRelocationNotifyDelay", 1000u);

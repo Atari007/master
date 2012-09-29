@@ -223,24 +223,6 @@ void WardenWin::RequestData()
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    for (int i = 0; i < 5; ++i)                             // for now include 5 random checks
-    {
-        id = irand(1, maxid - 1);
-        wd = WardenDataStorage.GetWardenDataById(id);
-        SendDataId.push_back(id);
-        switch (wd->Type)
-        {
-            case MPQ_CHECK:
-            case LUA_STR_CHECK:
-            case DRIVER_CHECK:
-                buff << uint8(wd->str.size());
-                buff.append(wd->str.c_str(), wd->str.size());
-                break;
-            default:
-                break;
-        }
-    }
-
     uint8 xorByte = InputKey[0];
 
     buff << uint8(0x00);
