@@ -209,18 +209,18 @@ void WardenMac::HandleData(ByteBuffer &buff)
     m_WardenDataSent = false;
     m_WardenKickTimer = 0;
 
-    //uint16 Length;
-    //buff >> Length;
-    //uint32 Checksum;
-    //buff >> Checksum;
+    /*uint16 Length;
+    buff >> Length;
+    uint32 Checksum;
+    buff >> Checksum;
 
-    //if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
-    //{
-    //    buff.rpos(buff.wpos());
-    //    if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
-    //        Client->KickPlayer();
-    //    return;
-    //}
+    if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
+    {
+        buff.rpos(buff.wpos());
+        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+            Client->KickPlayer();
+        return;
+    }*/
 
     bool found = false;
 
