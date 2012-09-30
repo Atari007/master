@@ -1603,9 +1603,9 @@ CharDelete.KeepDays = 30
 #                 1 (Enabled)
 #
 #    Warden.Kick
-#        Kick player on failed check
-#        Default: 0 (Disabled)
-#                 1 (Enabled)
+#        Kick player or ban on failed check
+#        Default: 0 (Ban)
+#                 1 (Kick)
 #
 #    Warden.NumChecks
 #        Number of Warden checks that are sent to the client each cycle.
@@ -1623,6 +1623,11 @@ CharDelete.KeepDays = 30
 #        Default:     15 - (15 Seconds)
 #                     0  - (Send check as soon as possible)
 #
+#    Warden.BanLength
+#        Player ban length (in milliseconds)
+#        Default: 900000 - (15 min)
+#                 0      - Infinite ban
+#
 ###################################################################################################################
 
 Warden.Enabled              = 0
@@ -1630,3 +1635,4 @@ Warden.Kick                 = 0
 Warden.NumChecks            = 3
 Warden.ClientResponseDelay  = 90
 Warden.ClientCheckHoldOff   = 15
+Warden.BanLength            = 900000

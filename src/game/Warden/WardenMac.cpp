@@ -155,6 +155,8 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
         sLog.outWarden("Request hash reply: failed");
         if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
             Client->KickPlayer();
+        else
+            sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
         return;
     }
 
@@ -256,6 +258,9 @@ void WardenMac::HandleData(ByteBuffer &buff)
         found = true;
     }
 
-    if (found && sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
-        Client->KickPlayer();
+    if (found)
+        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+            Client->KickPlayer();
+        else
+            sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
 }
