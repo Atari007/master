@@ -362,8 +362,11 @@ bool AuthSocket::_HandleLogonChallenge()
 
     _os = (const char*)ch->os;
 
-    if(_os.size() > 4)
+    if (_os.size() > 4)
         return false;
+
+    // Restore string order as its byte order is reversed
+    std::reverse(_os.begin(), _os.end());
 
     ///- Normalize account name
     //utf8ToUpperOnlyLatin(_login); -- client already send account in expected form
@@ -783,12 +786,16 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     EndianConvert(ch->build);
     _build = ch->build;
+
+    QueryResult* result = LoginDatabase.PQuery("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str());
+
     _os = (const char*)ch->os;
 
     if(_os.size() > 4)
         return false;
 
-    QueryResult *result = LoginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+    // Restore string order as its byte order is reversed
+    std::reverse(_os.begin(), _os.end());
 
     // Stop if the account is not found
     if (!result)

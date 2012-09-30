@@ -50,7 +50,7 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
     Hash: <?> (0x04 packet)
     Module MD5: 0DBBF209A27B1E279A9FEC5C168A15F7
     New Client Key: <?>
-    New Cerver Key: <?>
+    New Server Key: <?>
     */
     uint8 mod_seed[16] = { 0x4D, 0x80, 0x8D, 0x2C, 0x77, 0xD9, 0x05, 0xC4, 0x1A, 0x63, 0x80, 0xEC, 0x08, 0x58, 0x6A, 0xFE };
 
@@ -58,16 +58,16 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
 
     iCrypto.Init(InputKey);
     oCrypto.Init(OutputKey);
-    sLog.outWarden("Server side warden for client %u initializing...", pClient->GetAccountId());
-    PrintHexArray("  C->S Key: ", InputKey, 16, true);
-    PrintHexArray("  S->C Key: ", OutputKey, 16, true);
-    PrintHexArray("  Seed: ", Seed, 16, true);
-    sLog.outWarden("Loading Module...");
+    sLog.outDebug("Server side warden for client %u initializing...", pClient->GetAccountId());
+    sLog.outDebug("  C->S Key: %s", ByteArrayToHexStr(InputKey, 16).c_str());
+    sLog.outDebug("  S->C Key: %s", ByteArrayToHexStr(OutputKey, 16).c_str());
+    sLog.outDebug("  Seed: %s", ByteArrayToHexStr(Seed, 16).c_str());
+    sLog.outDebug("Loading Module...");
 
     Module = GetModuleForClient(Client);
 
-    PrintHexArray("  Module Key: ", Module->Key, 16, true);
-    PrintHexArray("  Module ID: ", Module->ID, 16, true);
+    sLog.outDebug("  Module Key: %s", ByteArrayToHexStr(Module->Key, 16).c_str());
+    sLog.outDebug("  Module ID: %s", ByteArrayToHexStr(Module->ID, 16).c_str());
     RequestModule();
 }
 
@@ -82,7 +82,7 @@ ClientWardenModule *WardenMac::GetModuleForClient(WorldSession *session)
     mod->CompressedData = new uint8[len];
     memcpy(mod->CompressedData, Module_0DBBF209A27B1E279A9FEC5C168A15F7_Data, len);
     memcpy(mod->Key, Module_0DBBF209A27B1E279A9FEC5C168A15F7_Key, 16);
-        
+
     // md5 hash
     MD5_CTX ctx;
     MD5_Init(&ctx);
@@ -94,12 +94,12 @@ ClientWardenModule *WardenMac::GetModuleForClient(WorldSession *session)
 
 void WardenMac::InitializeModule()
 {
-    sLog.outWarden("Initialize module");
+    sLog.outDebug("Initialize module");
 }
 
 void WardenMac::RequestHash()
 {
-    sLog.outWarden("Request hash");
+    sLog.outDebug("Request hash");
 
     // Create packet structure
     WardenHashRequest Request;
@@ -158,7 +158,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
         return;
     }
 
-    sLog.outWarden("Request hash reply: succeed");
+    sLog.outDebug("Request hash reply: succeed");
 
     // client 7F96EEFDA5B63D20A4DF8E00CBF48304
     //const uint8 client_key[16] = { 0x7F, 0x96, 0xEE, 0xFD, 0xA5, 0xB6, 0x3D, 0x20, 0xA4, 0xDF, 0x8E, 0x00, 0xCB, 0xF4, 0x83, 0x04 };
@@ -180,7 +180,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
 
 void WardenMac::RequestData()
 {
-    sLog.outWarden("Request data");
+    sLog.outDebug("Request data");
 
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
@@ -204,7 +204,7 @@ void WardenMac::RequestData()
 
 void WardenMac::HandleData(ByteBuffer &buff)
 {
-    sLog.outWarden("Handle data");
+    sLog.outDebug("Handle data");
 
     m_WardenDataSent = false;
     m_WardenKickTimer = 0;

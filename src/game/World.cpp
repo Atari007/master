@@ -736,9 +736,6 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT,      "PetUnsummonAtMount", true);
 
-    setConfig(CONFIG_BOOL_WARDEN_ENABLED,             "Warden.Enabled", false);
-    setConfig(CONFIG_BOOL_WARDEN_KICK,                "Warden.Kick", false);
-
     m_relocation_ai_notify_delay = sConfig.GetIntDefault("Visibility.AIRelocationNotifyDelay", 1000u);
     m_relocation_lower_limit_sq  = pow(sConfig.GetFloatDefault("Visibility.RelocationLowerLimit",10), 2);
 
@@ -851,6 +848,13 @@ void World::LoadConfigSettings(bool reload)
     std::string ignoreMapIds = sConfig.GetStringDefault("mmap.ignoreMapIds", "");
     MMAP::MMapFactory::preventPathfindingOnMaps(ignoreMapIds.c_str());
     sLog.outString("WORLD: mmap pathfinding %sabled", getConfig(CONFIG_BOOL_MMAP_ENABLED) ? "en" : "dis");
+
+    // Warden
+    setConfig(CONFIG_BOOL_WARDEN_ENABLED, "Warden.Enabled", false);
+    setConfig(CONFIG_BOOL_WARDEN_KICK, "Warden.Kick", false);
+    setConfig(CONFIG_UINT32_WARDEN_NUM_CHECKS, "Warden.NumChecks", 3);
+    setConfig(CONFIG_UINT32_WARDEN_CLIENT_CHECK_HOLDOFF, "Warden.ClientCheckHoldOff", 30);
+    setConfig(CONFIG_UINT32_WARDEN_CLIENT_RESPONSE_DELAY, "Warden.ClientResponseDelay", 15);
 }
 
 /// Initialize the World
@@ -1295,6 +1299,10 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Starting Map System" );
     sMapMgr.Initialize();
 
+    ///- Load Warden Data
+    sLog.outString("Loading Warden Data...");
+    WardenDataStorage.Init();
+
     ///- Initialize Battlegrounds
     sLog.outString( "Starting BattleGround System" );
     sBattleGroundMgr.CreateInitialBattleGrounds();
@@ -1313,9 +1321,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Starting Game Event system..." );
     uint32 nextGameEvent = sGameEventMgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
-
-    sLog.outString("Loading Warden Data...");
-    WardenDataStorage.Init();
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();

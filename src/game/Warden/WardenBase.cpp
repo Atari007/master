@@ -80,7 +80,7 @@ void WardenBase::HandleData(ByteBuffer &buff)
 
 void WardenBase::SendModuleToClient()
 {
-    sLog.outWarden("Send module to client");
+    sLog.outDebug("Send module to client");
 
     // Create packet structure
     WardenModuleTransfer pkt;
@@ -106,7 +106,7 @@ void WardenBase::SendModuleToClient()
 
 void WardenBase::RequestModule()
 {
-    sLog.outWarden("Request module");
+    sLog.outDebug("Request module");
 
     // Create packet structure
     WardenModuleUse Request;
@@ -135,8 +135,9 @@ void WardenBase::Update()
         if (m_WardenDataSent)
         {
             // 1.5 minutes after send packet
-            if ((m_WardenKickTimer > 90 * IN_MILLISECONDS) && sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
-                    Client->KickPlayer();
+            uint32 maxClientResponseDelay = sWorld.getConfig(CONFIG_UINT32_WARDEN_CLIENT_RESPONSE_DELAY);
+            if ((m_WardenKickTimer > maxClientResponseDelay * IN_MILLISECONDS) && sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+                Client->KickPlayer();
             else
                 m_WardenKickTimer += diff;
         }
@@ -145,8 +146,7 @@ void WardenBase::Update()
             if (diff >= m_WardenCheckTimer)
             {
                 RequestData();
-                // 25-35 second
-                m_WardenCheckTimer = irand(25, 35) * IN_MILLISECONDS;
+                m_WardenCheckTimer = sWorld.getConfig(CONFIG_UINT32_WARDEN_CLIENT_CHECK_HOLDOFF) * IN_MILLISECONDS;
             }
             else
                 m_WardenCheckTimer -= diff;
@@ -164,15 +164,6 @@ void WardenBase::EncryptData(uint8 *Buffer, uint32 Len)
     oCrypto.UpdateData(Len, Buffer);
 }
 
-void WardenBase::PrintHexArray(const char *Before, const uint8 *Buffer, uint32 Len, bool BreakWithNewline)
-{
-    printf(Before);
-    for (uint32 i = 0; i < Len; ++i)
-        printf("%02X ", Buffer[i]);
-    if (BreakWithNewline)
-        printf("\n");
-}
-
 bool WardenBase::IsValidCheckSum(uint32 checksum, const uint8 *Data, const uint16 Length)
 {
     uint32 newchecksum = BuildChecksum(Data, Length);
@@ -184,7 +175,7 @@ bool WardenBase::IsValidCheckSum(uint32 checksum, const uint8 *Data, const uint1
     }
     else
     {
-        sLog.outWarden("CHECKSUM IS VALID");
+        sLog.outDebug("CHECKSUM IS VALID");
         return true;
     }
 }
@@ -204,7 +195,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
     m_Warden->DecryptData(const_cast<uint8*>(recv_data.contents()), recv_data.size());
     uint8 Opcode;
     recv_data >> Opcode;
-    sLog.outWarden("Got packet, opcode %02X, size %u", Opcode, recv_data.size());
+    sLog.outDebug("Got packet, opcode %02X, size %u", Opcode, recv_data.size());
     recv_data.hexlike();
 
     switch(Opcode)
@@ -219,17 +210,17 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
             m_Warden->HandleData(recv_data);
             break;
         case WARDEN_CMSG_MEM_CHECKS_RESULT:
-            sLog.outWarden("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+            sLog.outDebug("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
             break;
         case WARDEN_CMSG_HASH_RESULT:
             m_Warden->HandleHashResult(recv_data);
             m_Warden->InitializeModule();
             break;
         case WARDEN_CMSG_MODULE_FAILED:
-            sLog.outWarden("NYI WARDEN_CMSG_MODULE_FAILED received!");
+            sLog.outDebug("NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            sLog.outWarden("Got unknown warden opcode %02X of size %u.", Opcode, recv_data.size() - 1);
+            sLog.outError("Got unknown warden opcode %02X of size %u.", Opcode, recv_data.size() - 1);
             break;
     }
 }

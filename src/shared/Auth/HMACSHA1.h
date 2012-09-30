@@ -34,7 +34,6 @@ class HMACSHA1
         ~HMACSHA1();
         void UpdateBigNumber(BigNumber *bn);
         void UpdateData(const uint8 *data, int length);
-        void UpdateData(const std::string &str);
         void Initialize();
         void Finalize();
         uint8 *GetDigest() { return m_digest; };

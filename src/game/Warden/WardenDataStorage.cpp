@@ -42,14 +42,21 @@ CWardenDataStorage::~CWardenDataStorage()
         delete itr2->second;
 }
 
-void CWardenDataStorage::Init()
+void CWardenDataStorage::Init(bool reload)
 {
-    LoadWardenDataResult();
+    LoadWardenDataResult(reload);
 }
 
-void CWardenDataStorage::LoadWardenDataResult()
+void CWardenDataStorage::LoadWardenDataResult(bool reload)
 {
-    QueryResult *result = WorldDatabase.Query("SELECT `check`, `data`, `result`, `address`, `length`, `str` FROM warden_data_result");
+    if(reload)
+    {
+        _data_map.clear();
+        _result_map.clear();
+        InternalDataID = 1;
+    }
+
+    QueryResult *result = WorldDatabase.Query("SELECT `check`, `data`, `result`, `address`, `length`, `str`, `id` FROM warden_data_result");
 
     uint32 count = 0;
 
@@ -77,6 +84,7 @@ void CWardenDataStorage::LoadWardenDataResult()
         uint32 id = GenerateInternalDataID();
         WardenData *wd = new WardenData();
         wd->Type = type;
+        wd->id = fields[6].GetUInt16();
 
         if (type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == DRIVER_CHECK)
         {
@@ -126,8 +134,6 @@ void CWardenDataStorage::LoadWardenDataResult()
             _result_map[id] = wr;
         }
     } while (result->NextRow());
-
-    delete result;
 
     sLog.outString();
     sLog.outString(">> Loaded %u warden data and results", count);

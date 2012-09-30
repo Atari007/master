@@ -263,7 +263,7 @@ void Log::Initialize()
     dberLogfile = openLogFile("DBErrorLogFile",NULL,"a");
     raLogfile = openLogFile("RaLogFile",NULL,"a");
     worldLogfile = openLogFile("WorldLogFile","WorldLogTimestamp","a");
-    wardenLogFile = openLogFile("WardenLogFile",NULL, "a");
+    wardenLogFile = openLogFile("WardenLogFile", NULL, "a");
 
     // Main log file settings
     m_includeTime  = sConfig.GetBoolDefault("LogTime", false);
@@ -765,35 +765,6 @@ void Log::outRALog(    const char * str, ... )
     fflush(stdout);
 }
 
-void Log::outWarden(const char * str, ...)
-{
-    if(!str)
-        return;
-
-    if(m_includeTime)
-        outTime();
-
-    va_list ap;
-
-    va_start(ap, str);
-    vutf8printf(stdout, str, &ap);
-    va_end(ap);
-    printf( "\n" );
-    if (wardenLogFile)
-    {
-        outTimestamp(wardenLogFile);
-        fprintf(wardenLogFile, "WARDEN: ");
-        
-        va_start(ap, str);
-        vfprintf(wardenLogFile, str, ap);
-        fprintf(wardenLogFile, "\n");
-        va_end(ap);
-
-        fflush(wardenLogFile);
-    }
-    fflush(stdout);
-}
-
 void Log::WaitBeforeContinueIfNeed()
 {
     int mode = sConfig.GetIntDefault("WaitAtStartupError",0);
@@ -885,4 +856,38 @@ void error_db_log(const char * str, ...)
     va_end(ap);
 
     sLog.outErrorDb("%s", buf);
+}
+
+void Log::outWarden(const char * str, ...)
+{
+    if (!str)
+        return;
+
+    if (m_colored)
+        SetColor(true, m_colors[LogError]);
+
+    if (m_includeTime)
+        outTime();
+
+    va_list ap;
+    va_start(ap, str);
+    vutf8printf(stdout, str, &ap);
+    va_end(ap);
+
+    printf("\n");
+
+    if (wardenLogFile)
+    {
+        outTimestamp(wardenLogFile);
+        fprintf(wardenLogFile, "WARDEN: ");
+
+        va_list ap;
+        va_start(ap, str);
+        vfprintf(wardenLogFile, str, ap);
+        fprintf(wardenLogFile, "\n");
+        va_end(ap);
+
+        fflush(wardenLogFile);
+    }
+    fflush(stdout);
 }

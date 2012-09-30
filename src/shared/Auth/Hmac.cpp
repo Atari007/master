@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Auth/HMACSHA1.h"
+#include "Auth/Hmac.h"
 #include "BigNumber.h"
 
-HMACSHA1::HMACSHA1(uint32 len, uint8 *seed)
+HmacHash::HmacHash()
+{
+    uint8 temp[SEED_KEY_SIZE] = { 0x38, 0xA7, 0x83, 0x15, 0xF8, 0x92, 0x25, 0x30, 0x71, 0x98, 0x67, 0xB1, 0x8C, 0x4, 0xE2, 0xAA };
+    memcpy(&m_key, &temp, SEED_KEY_SIZE);
+    HMAC_CTX_init(&m_ctx);
+    HMAC_Init_ex(&m_ctx, &m_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
+}
+
+HmacHash::HmacHash(uint32 len, uint8 *seed)
 {
     MANGOS_ASSERT(len == SEED_KEY_SIZE);
 
@@ -28,28 +36,33 @@ HMACSHA1::HMACSHA1(uint32 len, uint8 *seed)
     HMAC_Init_ex(&m_ctx, &m_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
 }
 
-HMACSHA1::~HMACSHA1()
+HmacHash::~HmacHash()
 {
     memset(&m_key, 0x00, SEED_KEY_SIZE);
     HMAC_CTX_cleanup(&m_ctx);
 }
 
-void HMACSHA1::UpdateBigNumber(BigNumber *bn)
+void HmacHash::UpdateBigNumber(BigNumber *bn)
 {
     UpdateData(bn->AsByteArray(), bn->GetNumBytes());
 }
 
-void HMACSHA1::UpdateData(const uint8 *data, int length)
+void HmacHash::UpdateData(const uint8 *data, int length)
 {
     HMAC_Update(&m_ctx, data, length);
 }
 
-void HMACSHA1::Initialize()
+void HmacHash::UpdateData(const std::string &str)
+{
+    UpdateData((uint8 const*)str.c_str(), str.length());
+}
+
+void HmacHash::Initialize()
 {
     HMAC_Init_ex(&m_ctx, &m_key, SEED_KEY_SIZE, EVP_sha1(), NULL);
 }
 
-void HMACSHA1::Finalize()
+void HmacHash::Finalize()
 {
     uint32 length = 0;
     HMAC_Final(&m_ctx, m_digest, &length);

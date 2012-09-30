@@ -110,7 +110,10 @@ WorldSession::~WorldSession()
     }
 
     if (m_Warden)
+    {
         delete m_Warden;
+        m_Warden = NULL;
+    }
 
     ///- empty incoming packet queue
     WorldPacket* packet;
@@ -302,15 +305,15 @@ bool WorldSession::Update(PacketFilter& updater)
         delete packet;
     }
 
-    if (m_Socket && !m_Socket->IsClosed() && m_Warden)
-        m_Warden->Update();
-
     ///- Cleanup socket pointer if need
     if (m_Socket && m_Socket->IsClosed ())
     {
         m_Socket->RemoveReference ();
         m_Socket = NULL;
     }
+
+    if (m_Socket && !m_Socket->IsClosed() && m_Warden)
+        m_Warden->Update();
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
@@ -691,6 +694,16 @@ void WorldSession::SaveTutorialsData()
     m_tutorialState = TUTORIALDATA_UNCHANGED;
 }
 
+void WorldSession::InitWarden(BigNumber *K, std::string os)
+{
+    if (os == "Win")                                        // Windows
+        m_Warden = (WardenBase*)new WardenWin();
+    else                                                    // MacOS
+        m_Warden = (WardenBase*)new WardenMac();
+
+    m_Warden->Init(this, K);
+}
+
 void WorldSession::ExecuteOpcode( OpcodeHandler const& opHandle, WorldPacket* packet )
 {
     // need prevent do internal far teleports in handlers because some handlers do lot steps
@@ -713,14 +726,4 @@ void WorldSession::ExecuteOpcode( OpcodeHandler const& opHandle, WorldPacket* pa
 
     if (packet->rpos() < packet->wpos() && sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))
         LogUnprocessedTail(packet);
-}
-
-void WorldSession::InitWarden(BigNumber *K, std::string os)
-{
-    if (os == "niW")                                        // Windows
-        m_Warden = (WardenBase*)new WardenWin();
-    else                                                    // MacOS
-        m_Warden = (WardenBase*)new WardenMac();
-
-    m_Warden->Init(this, K);
 }

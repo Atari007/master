@@ -24,6 +24,7 @@
 
 struct WardenData
 {
+    uint16 id;
     uint8 Type;
     BigNumber i;
     uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
@@ -52,10 +53,10 @@ class CWardenDataStorage
         inline uint32 GenerateInternalDataID() { return InternalDataID++; }
         WardenData *GetWardenDataById(uint32 Id);
         WardenDataResult *GetWardenResultById(uint32 Id);
-        void Init();
+        void Init(bool reload = false);
 
     protected:
-        void LoadWardenDataResult();
+        void LoadWardenDataResult(bool reload = false);
 };
 
 extern CWardenDataStorage WardenDataStorage;
