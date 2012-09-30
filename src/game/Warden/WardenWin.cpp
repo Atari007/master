@@ -225,24 +225,24 @@ void WardenWin::RequestData()
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    // This doesn't apply for 2.4.3
-    //for (int i = 0; i < 5; ++i)                             // for now include 5 random checks
-    //{
-    //    id = irand(1, maxid - 1);
-    //    wd = WardenDataStorage.GetWardenDataById(id);
-    //    SendDataId.push_back(id);
-    //    switch (wd->Type)
-    //    {
-    //        case MPQ_CHECK:
-    //        case LUA_STR_CHECK:
-    //        case DRIVER_CHECK:
-    //            buff << uint8(wd->str.size());
-    //            buff.append(wd->str.c_str(), wd->str.size());
-    //            break;
-    //        default:
-    //            break;
-    //    }
-    //}
+    /* This doesn't apply for 2.4.3
+    for (int i = 0; i < 5; ++i)                             // for now include 5 random checks
+    {
+        id = irand(1, maxid - 1);
+        wd = WardenDataStorage.GetWardenDataById(id);
+        SendDataId.push_back(id);
+        switch (wd->Type)
+        {
+            case MPQ_CHECK:
+            case LUA_STR_CHECK:
+            case DRIVER_CHECK:
+                buff << uint8(wd->str.size());
+                buff.append(wd->str.c_str(), wd->str.size());
+                break;
+            default:
+                break;
+        }
+    }*/
 
     uint8 xorByte = InputKey[0];
 
@@ -343,6 +343,8 @@ void WardenWin::HandleData(ByteBuffer &buff)
     if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
     {
         buff.rpos(buff.wpos());
+        sLog.outWarden("Invalid CheckSum for account Id %u", Client->GetAccountId());
+
         if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
             Client->KickPlayer();
         else

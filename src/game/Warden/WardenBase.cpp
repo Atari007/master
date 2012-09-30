@@ -137,10 +137,10 @@ void WardenBase::Update()
             // 1.5 minutes after send packet
             uint32 maxClientResponseDelay = sWorld.getConfig(CONFIG_UINT32_WARDEN_CLIENT_RESPONSE_DELAY);
             if (m_WardenKickTimer > maxClientResponseDelay * IN_MILLISECONDS)
-                if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
-                    Client->KickPlayer();
-                else
-                    sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
+            {
+                sLog.outWarden("Not Response account Id %u", Client->GetAccountId());
+                Client->KickPlayer();
+            }
             else
                 m_WardenKickTimer += diff;
         }

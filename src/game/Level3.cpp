@@ -56,6 +56,7 @@
 #include "DBCStores.h"
 #include "CreatureEventAIMgr.h"
 #include "AuctionHouseBot/AuctionHouseBot.h"
+#include "Warden/WardenDataStorage.h"
 
 static uint32 ahbotQualityIds[MAX_AUCTION_QUALITY] =
 {
@@ -1031,6 +1032,14 @@ bool ChatHandler::HandleReloadMailLevelRewardCommand(char* /*args*/)
     sLog.outString( "Re-Loading Player level dependent mail rewards..." );
     sObjectMgr.LoadMailLevelRewards();
     SendGlobalSysMessage("DB table `mail_level_reward` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadWardenDataResultCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading Warden Data Result...");
+    WardenDataStorage.Init(true);
+    SendGlobalSysMessage("DB table `warden_data_result` reloaded.");
     return true;
 }
 
