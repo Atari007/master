@@ -1604,9 +1604,9 @@ CharDelete.KeepDays = 30
 #
 #    Warden.Kick
 #        Kick player or ban on failed check
-#        Default: 0 (Ban)
+#        Default: 0 (Only log)
 #                 1 (Kick)
-#
+#                 2 (Ban)
 #    Warden.NumChecks
 #        Number of Warden checks that are sent to the client each cycle.
 #        Default:     3 - (Enabled)
