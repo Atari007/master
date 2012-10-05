@@ -169,10 +169,15 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     if (memcmp(buff.contents() + 1, validHash, sizeof(validHash)) != 0)
     {
         sLog.outWarden("Request hash reply: failed");
-        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 1)
+        {
             Client->KickPlayer();
-        else
+        }
+
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 2)
+        {
             sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
+        }
         return;
     }
 
@@ -345,10 +350,15 @@ void WardenWin::HandleData(ByteBuffer &buff)
         buff.rpos(buff.wpos());
         sLog.outWarden("Invalid CheckSum for account Id %u", Client->GetAccountId());
 
-        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 1)
+        {
             Client->KickPlayer();
-        else
+        }
+
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 2)
+        {
             sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
+        }
         return;
     }
 
@@ -498,8 +508,15 @@ void WardenWin::HandleData(ByteBuffer &buff)
     }
 
     if (found)
-        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
+    {
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 1)
+        {
             Client->KickPlayer();
-        else
+        }
+
+        if (sWorld.getConfig(CONFIG_FLOAT_WARDEN_KICK_BAN) == 2)
+        {
             sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
+        }
+    }
 }

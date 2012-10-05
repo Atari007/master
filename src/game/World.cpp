@@ -851,7 +851,7 @@ void World::LoadConfigSettings(bool reload)
 
     // Warden
     setConfig(CONFIG_BOOL_WARDEN_ENABLED, "Warden.Enabled", false);
-    setConfig(CONFIG_BOOL_WARDEN_KICK, "Warden.Kick", false);
+    setConfig(CONFIG_FLOAT_WARDEN_KICK_BAN, "Warden.Kick.Ban", 0);
     setConfig(CONFIG_UINT32_WARDEN_NUM_CHECKS, "Warden.NumChecks", 3);
     setConfig(CONFIG_UINT32_WARDEN_CLIENT_CHECK_HOLDOFF, "Warden.ClientCheckHoldOff", 30);
     setConfig(CONFIG_UINT32_WARDEN_CLIENT_RESPONSE_DELAY, "Warden.ClientResponseDelay", 15);
