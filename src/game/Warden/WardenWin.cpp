@@ -169,9 +169,9 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
     if (memcmp(buff.contents() + 1, validHash, sizeof(validHash)) != 0)
     {
         sLog.outWarden("Request hash reply: failed");
-		if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK)==1)
+        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
             Client->KickPlayer();
-        if(sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK)==2)
+        else
             sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
         return;
     }
@@ -343,7 +343,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
     {
         buff.rpos(buff.wpos());
-		sLog.outWarden("Invalid CheckSum for account Id %u, on character %s (%u)", Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+        sLog.outWarden("Invalid CheckSum for account Id %u", Client->GetAccountId());
 
         if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
             Client->KickPlayer();
@@ -396,21 +396,21 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 if (Mem_Result != 0)
                 {
-                    sLog.outWarden("RESULT MEM_CHECK not 0x00, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outWarden("RESULT MEM_CHECK not 0x00, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     found = true;
                     continue;
                 }
 
                 if (memcmp(buff.contents() + buff.rpos(), rs->res.AsByteArray(0, false), rd->Length) != 0)
                 {
-                    sLog.outWarden("RESULT MEM_CHECK fail CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outWarden("RESULT MEM_CHECK fail CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     found = true;
                     buff.rpos(buff.rpos() + rd->Length);
                     continue;
                 }
 
                 buff.rpos(buff.rpos() + rd->Length);
-				sLog.outDebug("RESULT MEM_CHECK passed CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                sLog.outDebug("RESULT MEM_CHECK passed CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 break;
             }
             case PAGE_CHECK_A:
@@ -422,11 +422,11 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 if (memcmp(buff.contents() + buff.rpos(), &byte, sizeof(uint8)) != 0)
                 {
                     if (type == PAGE_CHECK_A || type == PAGE_CHECK_B)
-						sLog.outWarden("RESULT PAGE_CHECK fail, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                        sLog.outWarden("RESULT PAGE_CHECK fail, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     if (type == MODULE_CHECK)
-                        sLog.outWarden("RESULT MODULE_CHECK fail, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                        sLog.outWarden("RESULT MODULE_CHECK fail, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     if (type == DRIVER_CHECK)
-                        sLog.outWarden("RESULT DRIVER_CHECK fail, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                        sLog.outWarden("RESULT DRIVER_CHECK fail, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     found = true;
                     buff.rpos(buff.rpos() + 1);
                     continue;
@@ -434,11 +434,11 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 buff.rpos(buff.rpos() + 1);
                 if (type == PAGE_CHECK_A || type == PAGE_CHECK_B)
-                    sLog.outDebug("RESULT PAGE_CHECK passed CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outDebug("RESULT PAGE_CHECK passed CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 else if (type == MODULE_CHECK)
-                    sLog.outDebug("RESULT MODULE_CHECK passed CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outDebug("RESULT MODULE_CHECK passed CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 else if (type == DRIVER_CHECK)
-                    sLog.outDebug("RESULT DRIVER_CHECK passed CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outDebug("RESULT DRIVER_CHECK passed CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 break;
             }
             case LUA_STR_CHECK:
@@ -448,7 +448,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 if (Lua_Result != 0)
                 {
-                    sLog.outWarden("RESULT LUA_STR_CHECK fail, CheckId %u account Id %u, character %s (%u)", rd->id,Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outWarden("RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     found = true;
                     continue;
                 }
@@ -465,7 +465,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     delete[] str;
                 }
                 buff.rpos(buff.rpos() + luaStrLen);         // skip string
-                sLog.outDebug("RESULT LUA_STR_CHECK passed, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                sLog.outDebug("RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 break;
             }
             case MPQ_CHECK:
@@ -475,21 +475,21 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 if (Mpq_Result != 0)
                 {
-                    sLog.outWarden("RESULT MPQ_CHECK not 0x00 account id %u, character %s (%u)",Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outWarden("RESULT MPQ_CHECK not 0x00 account id %u", Client->GetAccountId());
                     found = true;
                     continue;
                 }
 
                 if (memcmp(buff.contents() + buff.rpos(), rs->res.AsByteArray(0), 20) != 0) // SHA1
                 {
-                    sLog.outWarden("RESULT MPQ_CHECK fail, CheckId %u account Id %u, character %s (%u)", rd->id,Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                    sLog.outWarden("RESULT MPQ_CHECK fail, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                     found = true;
                     buff.rpos(buff.rpos() + 20);            // 20 bytes SHA1
                     continue;
                 }
 
                 buff.rpos(buff.rpos() + 20);                // 20 bytes SHA1
-                sLog.outDebug("RESULT MPQ_CHECK passed, CheckId %u account Id %u, character %s (%u)", rd->id, Client->GetAccountId(),Client->GetPlayer()->GetName(),Client->GetPlayer()->GetGUIDLow());
+                sLog.outDebug("RESULT MPQ_CHECK passed, CheckId %u account Id %u", rd->id, Client->GetAccountId());
                 break;
             }
             default:                                        // should never happens
@@ -498,8 +498,8 @@ void WardenWin::HandleData(ByteBuffer &buff)
     }
 
     if (found)
-        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK)==1)
+        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK))
             Client->KickPlayer();
-        if (sWorld.getConfig(CONFIG_BOOL_WARDEN_KICK)==2)
+        else
             sWorld.BanAccount(BAN_CHARACTER, Client->GetPlayerName(), sWorld.getConfig(CONFIG_UINT32_WARDEN_BAN_TIME) * 900000 * IN_MILLISECONDS, "Cheating software usage", "Warden System");
 }
