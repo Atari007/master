@@ -476,9 +476,9 @@ struct MANGOS_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void KillAllElites()
     {
-        GUIDVector vGuids;
+        GuidVector vGuids;
         m_creature->FillGuidsListFromThreatList(vGuids);
-        for (GUIDVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
+        for (GuidVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
         {
             Unit* pUnit = m_creature->GetMap()->GetUnit(*itr);
 

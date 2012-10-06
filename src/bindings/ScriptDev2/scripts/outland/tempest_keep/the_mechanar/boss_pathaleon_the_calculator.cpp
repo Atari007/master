@@ -77,7 +77,7 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
     bool m_bIsEnraged;
 
-    GUIDList m_lNWraithGUIDList;
+    GuidList m_lNWraithGUIDList;
 
     void Reset()
     {
@@ -181,7 +181,7 @@ struct MANGOS_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
             if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
             {
-		        for (GUIDList::const_iterator itr = m_lNWraithGUIDList.begin(); itr != m_lNWraithGUIDList.end(); ++itr)
+		        for (GuidList::const_iterator itr = m_lNWraithGUIDList.begin(); itr != m_lNWraithGUIDList.end(); ++itr)
                 {
                     if (Creature* pCreature = m_creature->GetMap()->GetCreature(*itr))
                     {

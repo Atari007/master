@@ -452,7 +452,7 @@ void hyjalAI::UpdateAI(const uint32 uiDiff)
 
             if (!lWaveMobGUIDList.empty())
             {
-                for(GUIDList::const_iterator itr = lWaveMobGUIDList.begin(); itr != lWaveMobGUIDList.end(); ++itr)
+                for(GuidList::const_iterator itr = lWaveMobGUIDList.begin(); itr != lWaveMobGUIDList.end(); ++itr)
                 {
                     if (Creature* pTemp = m_pInstance->instance->GetCreature(*itr))
                     {

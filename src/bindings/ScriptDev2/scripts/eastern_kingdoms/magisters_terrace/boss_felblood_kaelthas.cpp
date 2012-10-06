@@ -275,10 +275,10 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI, private Dia
     // Wrapper to remove Gravity Lapse - this should be removed on aura 44251 expires
     void RemoveGravityLapse()
     {
-        GUIDVector vGuids;
+        GuidVector vGuids;
         m_creature->FillGuidsListFromThreatList(vGuids);
 
-        for (GUIDVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
+        for (GuidVector::const_iterator itr = vGuids.begin(); itr != vGuids.end(); ++itr)
         {
             Unit* pUnit = m_creature->GetMap()->GetUnit(*itr);
 

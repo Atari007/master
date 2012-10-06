@@ -68,7 +68,7 @@ class MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
 
         uint32 m_uiDelrissaDeathCount;
 
-        GUIDList m_lFelCrystalGuid;
+        GuidList m_lFelCrystalGuid;
 };
 
 #endif

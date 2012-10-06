@@ -191,10 +191,10 @@ struct MANGOS_DLL_DECL npc_general_andorovAI : public ScriptedAI, private Dialog
         if (!m_pInstance)
             return;
 
-        GUIDList m_lKaldoreiGuids;
+        GuidList m_lKaldoreiGuids;
         m_pInstance->GetKaldoreiGuidList(m_lKaldoreiGuids);
 
-        for (GUIDList::const_iterator itr = m_lKaldoreiGuids.begin(); itr != m_lKaldoreiGuids.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lKaldoreiGuids.begin(); itr != m_lKaldoreiGuids.end(); ++itr)
         {
             if (Creature* pKaldorei = m_creature->GetMap()->GetCreature(*itr))
                 pKaldorei->GetMotionMaster()->MoveFollow(m_creature, pKaldorei->GetDistance(m_creature), pKaldorei->GetAngle(m_creature));

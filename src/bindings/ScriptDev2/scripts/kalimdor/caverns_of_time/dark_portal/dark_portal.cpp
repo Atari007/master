@@ -40,7 +40,7 @@ enum
     SPELL_CORRUPT           = 31326,
 };
 
-GUIDList m_lCreatureGUIDList;
+GuidList m_lCreatureGUIDList;
 
 struct MANGOS_DLL_DECL npc_medivh_black_morassAI : public ScriptedAI
 {
@@ -84,7 +84,7 @@ struct MANGOS_DLL_DECL npc_medivh_black_morassAI : public ScriptedAI
             m_pInstance->SetData(TYPE_MEDIVH, FAIL);
 
         DoScriptText(SAY_DEATH, m_creature);
-		for (GUIDList::const_iterator itr = m_lCreatureGUIDList.begin(); itr != m_lCreatureGUIDList.end(); ++itr)
+		for (GuidList::const_iterator itr = m_lCreatureGUIDList.begin(); itr != m_lCreatureGUIDList.end(); ++itr)
         {
             if (Creature* pCreature = m_creature->GetMap()->GetCreature(*itr))
             {
