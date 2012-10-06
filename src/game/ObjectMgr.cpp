@@ -7869,8 +7869,8 @@ void ObjectMgr::LoadMailLevelRewards()
     m_mailLevelRewardMap.clear();                           // for reload case
 
     uint32 count = 0;
-    QueryResult* result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
-
+    QueryResult *result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry, item, subject, text FROM mail_level_reward");
+ 
     if (!result)
     {
         BarGoLink bar(1);
@@ -7888,47 +7888,62 @@ void ObjectMgr::LoadMailLevelRewards()
     {
         bar.step();
 
-        Field* fields = result->Fetch();
+        Field *fields = result->Fetch();
 
         uint8 level           = fields[0].GetUInt8();
         uint32 raceMask       = fields[1].GetUInt32();
         uint32 mailTemplateId = fields[2].GetUInt32();
         uint32 senderEntry    = fields[3].GetUInt32();
+		uint32 item           = fields[4].GetUInt32();
+        std::string subject   = fields[5].GetCppString();
+        std::string text      = fields[6].GetCppString();
 
-        if (level > MAX_LEVEL)
+        if(level > MAX_LEVEL)
         {
-            sLog.outErrorDb("Table `mail_level_reward` have data for level %u that more supported by client (%u), ignoring.", level, MAX_LEVEL);
+            sLog.outErrorDb("Table `mail_level_reward` have data for level %u that more supported by client (%u), ignoring.",level,MAX_LEVEL);
             continue;
         }
 
-        if (!(raceMask & RACEMASK_ALL_PLAYABLE))
+        if(!(raceMask & RACEMASK_ALL_PLAYABLE))
         {
-            sLog.outErrorDb("Table `mail_level_reward` have raceMask (%u) for level %u that not include any player races, ignoring.", raceMask, level);
+            sLog.outErrorDb("Table `mail_level_reward` have raceMask (%u) for level %u that not include any player races, ignoring.",raceMask,level);
             continue;
         }
 
-        if (!sMailTemplateStore.LookupEntry(mailTemplateId))
+        if(!sMailTemplateStore.LookupEntry(mailTemplateId))
         {
-            sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.", mailTemplateId, level);
+            if (mailTemplateId == 0) // item must have valid id
+            {
+                if (!sItemStorage.LookupEntry<ItemPrototype >(item))
+                {
+                    sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) and item (%u) for level %u that invalid not include any player races, ignoring.",mailTemplateId,item,level);
+                    continue;
+                }
+            }
+            else
+            {
+                sLog.outErrorDb("Table `mail_level_reward` have invalid mailTemplateId (%u) for level %u that invalid not include any player races, ignoring.",mailTemplateId,level);
+                continue;
+            }
+        }
+
+        if(!GetCreatureTemplate(senderEntry))
+        {
+            sLog.outErrorDb("Table `mail_level_reward` have nonexistent sender creature entry (%u) for level %u that invalid not include any player races, ignoring.",senderEntry,level);
             continue;
         }
 
-        if (!GetCreatureTemplate(senderEntry))
-        {
-            sLog.outErrorDb("Table `mail_level_reward` have nonexistent sender creature entry (%u) for level %u that invalid not include any player races, ignoring.", senderEntry, level);
-            continue;
-        }
-
-        m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask, mailTemplateId, senderEntry));
-
+        m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask,mailTemplateId,senderEntry,item,subject,text));
+ 
         ++count;
     }
     while (result->NextRow());
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u level dependent mail rewards,", count);
+    sLog.outString( ">> Loaded %u level dependent mail rewards,", count );
 }
+
 
 void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
 {
