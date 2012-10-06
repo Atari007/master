@@ -464,6 +464,12 @@ public:
     bool IsPositionValid() const;
     void UpdateGroundPositionZ(float x, float y, float& z) const;
     void UpdateAllowedPositionZ(float x, float y, float& z) const;
+    void MovePositionToFirstCollision(WorldLocation &pos, float dist, float angle);
+    void GetFirstCollisionPosition(WorldLocation &pos, float dist, float angle)
+        {
+            GetPosition(pos);
+            MovePositionToFirstCollision(pos, dist, angle);
+        }
 
     void GetRandomPoint(float x, float y, float z, float distance, float& rand_x, float& rand_y, float& rand_z) const;
 

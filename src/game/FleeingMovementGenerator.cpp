@@ -98,14 +98,12 @@ bool FleeingMovementGenerator<T>::_getPoint(T& owner, float& x, float& y, float&
         angle = frand(0, 2 * M_PI_F);
     }
 
-    float curr_x, curr_y, curr_z;
-    owner.GetPosition(curr_x, curr_y, curr_z);
+     WorldLocation destLoc;
+     owner.GetFirstCollisionPosition(destLoc, dist, angle);
 
-    x = curr_x + dist * cos(angle);
-    y = curr_y + dist * sin(angle);
-    z = curr_z;
-
-    owner.UpdateAllowedPositionZ(x, y, z);
+    x = destLoc.coord_x;
+    y = destLoc.coord_y;
+    z = destLoc.coord_z + owner.GetObjectScale();
 
     return true;
 }
