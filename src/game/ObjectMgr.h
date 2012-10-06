@@ -176,15 +176,12 @@ struct PetLevelInfo
 
 struct MailLevelReward
 {
-    MailLevelReward() : raceMask(0), mailTemplateId(0), senderEntry(0), item(0), subject(NULL), text(NULL) {}
-    MailLevelReward(uint32 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry, uint32 _item, std::string _subject, std::string _text) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry), item(_item), subject(_subject), text(_text){}
- 
+    MailLevelReward() : raceMask(0), mailTemplateId(0), senderEntry(0) {}
+    MailLevelReward(uint32 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) {}
+
     uint32 raceMask;
     uint32 mailTemplateId;
     uint32 senderEntry;
-	uint32 item;
-    std::string subject;
-    std::string text;
 };
 
 typedef std::list<MailLevelReward> MailLevelRewardList;
