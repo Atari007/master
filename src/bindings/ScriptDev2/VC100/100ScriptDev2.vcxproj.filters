@@ -873,15 +873,6 @@
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\instance_hyjal.cpp">
       <Filter>scripts\kalimdor\caverns_of_time\hyjal</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_captain_skarloc.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\old_hillsbrad</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_epoch_hunter.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\old_hillsbrad</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_leutenant_drake.cpp">
-      <Filter>scripts\kalimdor\caverns_of_time\old_hillsbrad</Filter>
-    </ClCompile>
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\instance_old_hillsbrad.cpp">
       <Filter>scripts\kalimdor\caverns_of_time\old_hillsbrad</Filter>
     </ClCompile>

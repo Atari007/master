@@ -227,9 +227,6 @@ extern void AddSC_boss_azgalor();
 extern void AddSC_boss_anetheron();
 extern void AddSC_boss_kazrogal();
 extern void AddSC_boss_rage_winterchill();
-extern void AddSC_boss_captain_skarloc();                   // COT, old_hillsbrad
-extern void AddSC_boss_epoch_hunter();
-extern void AddSC_boss_lieutenant_drake();
 extern void AddSC_instance_old_hillsbrad();
 extern void AddSC_old_hillsbrad();
 extern void AddSC_dire_maul();                              // dire_maul
@@ -603,9 +600,6 @@ void AddScripts()
 	AddSC_boss_anetheron();
 	AddSC_boss_kazrogal();
 	AddSC_boss_rage_winterchill();
-    AddSC_boss_captain_skarloc();                           // CoT, old_hillsbrand
-    AddSC_boss_epoch_hunter();
-    AddSC_boss_lieutenant_drake();
     AddSC_instance_old_hillsbrad();
     AddSC_old_hillsbrad();
     AddSC_dire_maul();                                      // dire_maul

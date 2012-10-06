@@ -438,9 +438,6 @@
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\hyjal.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\hyjalAI.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\instance_hyjal.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_captain_skarloc.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_epoch_hunter.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\boss_leutenant_drake.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\instance_old_hillsbrad.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\old_hillsbrad.cpp" />
     <ClCompile Include="..\scripts\kalimdor\dire_maul\dire_maul.cpp" />
